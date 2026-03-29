@@ -32,7 +32,15 @@
         .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; color: #000000; }
     </style>
 </head>
-<body>
+<div id="profileModal" class="container hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:100; background:white;">
+    <h3>UPDATE PROFILE</h3>
+    <input type="text" id="updName" placeholder="NEW USERNAME">
+    <input type="password" id="updPass" placeholder="NEW PASSWORD">
+    <button class="main-btn" onclick="updateCloudProfile()">UPDATE NOW</button>
+    <button onclick="navTo('dashboardPage')">CLOSE</button>
+</div>
+    <body>
+
 
     <div id="loginPage" class="container">
         <h1>HRM CLOUD LOGIN</h1>
@@ -63,7 +71,7 @@
         </div>
         <button class="main-btn" style="margin-top: 20px; background: #666;" onclick="logout()">LOGOUT</button>
     </div>
-
+<div style="text-align:right; cursor:pointer;" onclick="openProfile()">👤 SETTINGS</div>
     <div id="adminPage" class="container hidden">
         <h2>ADMIN - USER MANAGEMENT</h2>
         <div style="border: 1px solid #000; padding: 15px; margin-bottom: 20px;">
@@ -106,7 +114,13 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
+<div id="profileModal" class="container hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:100; background:white;">
+    <h3>UPDATE PROFILE</h3>
+    <input type="text" id="updName" placeholder="NEW USERNAME">
+    <input type="password" id="updPass" placeholder="NEW PASSWORD">
+    <button class="main-btn" onclick="updateCloudProfile()">UPDATE NOW</button>
+    <button onclick="navTo('dashboardPage')">CLOSE</button>
+</div>
     <script>
         // FIREBASE CONFIG
         const firebaseConfig = {
