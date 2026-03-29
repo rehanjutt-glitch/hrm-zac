@@ -89,20 +89,54 @@ async function fetchEmployees() {
             <td>${e.id}</td><td>${e.name.toUpperCase()} (${e.status})</td>
             <td>${e.des}</td><td>${e.pho}</td>
             // بٹن کا نام سٹیٹس کے حساب سے طے کریں
-const btnText = e.status === 'Active' ? 'DEACTIVATE' : 'ACTIVATE';
-const btnStyle = e.status === 'Active' ? 'background: #000; color: #fff;' : 'background: #555; color: #fff;';
+async function fetchEmployees() {
+    const body = document.getElementById("empListBody");
+    if (!body) return; // اگر پیج لوڈ نہیں ہوا تو رک جاؤ
+    
+    body.innerHTML = "Syncing with Cloud...";
+    
+    let query = db.collection("employees");
+    if(currentFilter !== "All") {
+        query = query.where("status", "==", currentFilter);
+    }
+    
+    try {
+        const snap = await query.get();
+        body.innerHTML = ""; // پرانا ڈیٹا صاف کریں
+        
+        snap.forEach(doc => {
+            const e = doc.data();
+            const docId = doc.id;
+            const currentStatus = e.status || "Active"; // اگر سٹیٹس نہ ہو تو ایکٹو مکھیں
 
-body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
-    <td>${e.id}</td>
-    <td>${e.name.toUpperCase()} <br><small>(${e.status})</small></td>
-    <td>${e.des}</td>
-    <td>${e.pho}</td>
-    <td>
-        <button class="action-btn" style="${btnStyle}" onclick="toggleStatus('${doc.id}','${e.status}')">
-            ${btnText}
-        </button>
-    </td>
-        </tr>`;
+            // بٹن کا نام اور ڈیزائن طے کریں
+            const btnText = currentStatus === 'Active' ? 'DEACTIVATE' : 'ACTIVATE';
+            const btnClass = currentStatus === 'Active' ? 'action-btn' : 'action-btn logout-btn';
+
+            body.innerHTML += `
+                <tr class="${currentStatus === 'Active' ? 'active-row' : 'inactive-row'}">
+                    <td>${e.id}</td>
+                    <td>${e.name.toUpperCase()} <br><small>(${currentStatus})</small></td>
+                    <td>${e.des}</td>
+                    <td>${e.pho}</td>
+                    <td>
+                        <button class="${btnClass}" onclick="toggleStatus('${docId}','${currentStatus}')">
+                            ${btnText}
+                        </button>
+                            async function toggleStatus(id, s) {
+    const newStatus = s === 'Active' ? 'Inactive' : 'Active';
+    await db.collection("employees").doc(id).update({status: newStatus});
+    fetchEmployees(); // لسٹ اپڈیٹ کریں
+    updateCounts();   // ڈیش بورڈ کے نمبر بدلیں
+}
+                    </td>
+                </tr>`;
+        });
+    } catch (error) {
+        console.error("Error fetching employees: ", error);
+        body.innerHTML = "Error loading data.";
+    }
+}
     });
 }
 
