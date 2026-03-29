@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRM System - Admin Restricted</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* بلیک اینڈ وائٹ تھیم */
+        body { background-color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; color: #000000; }
+        .container { width: 90%; max-width: 800px; margin: 50px auto; padding: 30px; border: 2px solid #000000; text-align: center; }
+        .hidden { display: none !important; }
+        
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #000000; box-sizing: border-box; font-size: 16px; text-align: center; }
+        .main-btn { width: 100%; padding: 15px; background: #000000; color: #ffffff; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+        .main-btn:hover { background: #333333; }
+        
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .menu-btn { padding: 30px; background: #000000; color: #ffffff; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000000; padding: 12px; text-align: center; }
+        th { background: #000000; color: #ffffff; }
+
+        .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; color: #000000; }
+    </style>
+</head>
+<body>
+
+    <div id="loginPage" class="container">
+        <h1>HRM LOGIN</h1>
+        <input type="text" id="username" placeholder="USERNAME">
+        <div style="position: relative;">
+            <input type="password" id="password" placeholder="PASSWORD">
+            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
+        </div>
+        <button class="main-btn" onclick="handleLogin()">LOGIN</button>
+    </div>
+
+    <div id="dashboardPage" class="container hidden">
+        <h2 id="welcomeText">WELCOME</h2>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="navTo('listPage')">EMPLOYEE LIST</button>
+            <button id="btnAdd" class="menu-btn" onclick="navTo('addPage')">ADD EMPLOYEE</button>
+            <button id="btnAdmin" class="menu-btn hidden" onclick="navTo('adminPage')">ADMIN PANEL</button>
+            <button class="menu-btn" onclick="logout()">LOGOUT</button>
+        </div>
+    </div>
+
+    <div id="adminPage" class="container hidden">
+        <h2>ADMIN PANEL - USER ACCESS</h2>
+        <div style="border: 1px solid #000; padding: 15px; margin-bottom: 20px;">
+            <h4>CREATE NEW USER</h4>
+            <input type="text" id="newU" placeholder="NEW USERNAME">
+            <input type="text" id="newP" placeholder="NEW PASSWORD">
+            <div style="text-align: left; padding: 10px;">
+                <label><input type="checkbox" id="pAdd"> CAN ADD DATA</label><br>
+                <label><input type="checkbox" id="pDel"> CAN DELETE DATA</label>
+            </div>
+            <button class="main-btn" onclick="createNewUser()">SAVE USER</button>
+        </div>
+        <h4>USER LIST</h4>
+        <table>
+            <thead><tr><th>NAME</th><th>ACTION</th></tr></thead>
+            <tbody id="userListBody"></tbody>
+        </table>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="listPage" class="container hidden">
+        <h2>EMPLOYEE LIST</h2>
+        <input type="text" onkeyup="searchEmp(this.value)" placeholder="SEARCH NAME OR ID...">
+        <table>
+            <thead><tr><th>ID</th><th>NAME</th><th>DESIG</th><th>PHONE</th><th>ACTION</th></tr></thead>
+            <tbody id="empListBody"></tbody>
+        </table>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="addPage" class="container hidden">
+        <h2>ADD EMPLOYEE</h2>
+        <input type="text" id="eId" placeholder="ID">
+        <input type="text" id="eName" placeholder="NAME">
+        <input type="text" id="eDes" placeholder="DESIGNATION">
+        <input type="text" id="ePho" placeholder="PHONE">
+        <button class="main-btn" onclick="saveEmployee()">SAVE</button>
+        <button class="main-btn" style="background:#444" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <script>
+        const MASTER_ADMIN = "Meskay";
+        const MASTER_PASS = "Pakistan786";
+
+        // نیویگیشن اور بیک بٹن
+        function navTo(pageId) {
+            window.location.hash = pageId;
+            renderPage(pageId);
+        }
+
+        window.onhashchange = function() {
+            const page = window.location.hash.replace('#', '') || 'loginPage';
+            renderPage(page);
+        };
+
+        function renderPage(pageId) {
+            const loggedIn = localStorage.getItem("isLoggedIn");
+            if (!loggedIn && pageId !== 'loginPage') pageId = 'loginPage';
+            
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            const target = document.getElementById(pageId);
+            if(target) target.classList.remove('hidden');
+            
+            if(pageId === 'adminPage') renderUserTable();
+            if(pageId === 'listPage') renderEmpTable();
+            setupPermissions();
+        }
+
+        // لاگ ان
+        function handleLogin() {
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
+            const users = JSON.parse(localStorage.getItem("hrm_users")) || [];
+            
+            let userObj = null;
+            if(u === MASTER_ADMIN && p === MASTER_PASS) {
+                userObj = {name: u, role: 'admin', pAdd: true, pDel: true};
+            } else {
+                userObj = users.find(user => user.name === u && user.pass === p);
+            }
+
+            if(userObj) {
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("currentUser", JSON.stringify(userObj));
+                navTo('dashboardPage');
+            } else { alert("LOGIN FAILED!"); }
+        }
+
+        // پرمیشن کنٹرول (اہم تبدیلی یہاں ہے)
+        function setupPermissions() {
+            const user = JSON.parse(localStorage.getItem("currentUser"));
+            if(!user) return;
+            document.getElementById("welcomeText").innerText = "USER: " + user.name.toUpperCase();
+            
+            // ایڈمن پینل بٹن صرف Meskay کو نظر آئے گا
+            const adminBtn = document.getElementById("btnAdmin");
+            if(user.name === MASTER_ADMIN) {
+                adminBtn.classList.remove("hidden");
+            } else {
+                adminBtn.classList.add("hidden");
+            }
+
+            // ایڈ بٹن کی پرمیشن
+            const addBtn = document.getElementById("btnAdd");
+            if(addBtn) addBtn.style.display = (user.pAdd || user.name === MASTER_ADMIN) ? "block" : "none";
+        }
+
+        // یوزر مینجمنٹ
+        function createNewUser() {
+            const n = document.getElementById("newU").value;
+            const p = document.getElementById("newP").value;
+            if(!n || !p) return alert("EMPTY FIELDS!");
+            const users = JSON.parse(localStorage.getItem("hrm_users")) || [];
+            users.push({name: n, pass: p, role: 'user', pAdd: document.getElementById("pAdd").checked, pDel: document.getElementById("pDel").checked});
+            localStorage.setItem("hrm_users", JSON.stringify(users));
+            alert("USER CREATED!");
+            renderUserTable();
+        }
+
+        function renderUserTable() {
+            const body = document.getElementById("userListBody");
+            body.innerHTML = "";
+            const users = JSON.parse(localStorage.getItem("hrm_users")) || [];
+            users.forEach((u, i) => {
+                body.innerHTML += `<tr><td>${u.name}</td><td><button onclick="deleteUser(${i})">REMOVE</button></td></tr>`;
+            });
+        }
+
+        function deleteUser(i) {
+            const users = JSON.parse(localStorage.getItem("hrm_users")) || [];
+            users.splice(i, 1);
+            localStorage.setItem("hrm_users", JSON.stringify(users));
+            renderUserTable();
+        }
+
+        // ایمپلائی ڈیٹا
+        function saveEmployee() {
+            const emp = { id: document.getElementById("eId").value, name: document.getElementById("eName").value, des: document.getElementById("eDes").value, pho: document.getElementById("ePho").value };
+            const data = JSON.parse(localStorage.getItem("hrm_data")) || [];
+            data.push(emp);
+            localStorage.setItem("hrm_data", JSON.stringify(data));
+            alert("SAVED!");
+            navTo('listPage');
+        }
+
+        function renderEmpTable() {
+            const body = document.getElementById("empListBody");
+            body.innerHTML = "";
+            const data = JSON.parse(localStorage.getItem("hrm_data")) || [];
+            const user = JSON.parse(localStorage.getItem("currentUser"));
+            data.forEach((e, i) => {
+                const delBtn = (user.name === MASTER_ADMIN || user.pDel) ? `<button onclick="deleteEmp(${i})">DEL</button>` : "-";
+                body.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.des}</td><td>${e.pho}</td><td>${delBtn}</td></tr>`;
+            });
+        }
+
+        function deleteEmp(i) {
+            const data = JSON.parse(localStorage.getItem("hrm_data")) || [];
+            data.splice(i, 1);
+            localStorage.setItem("hrm_data", JSON.stringify(data));
+            renderEmpTable();
+        }
+
+        function searchEmp(val) {
+            const filter = val.toUpperCase();
+            const tr = document.getElementById("empListBody").getElementsByTagName("tr");
+            for (let i = 0; i < tr.length; i++) {
+                tr[i].style.display = tr[i].innerText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        }
+
+        function togglePass() {
+            const p = document.getElementById("password");
+            p.type = p.type === "password" ? "text" : "password";
+        }
+
+        function logout() {
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("currentUser");
+            navTo('loginPage');
+        }
+
+        window.onload = function() {
+            const hash = window.location.hash.replace('#', '');
+            renderPage(hash || 'loginPage');
+        }
+    </script>
+</body>
+</html>
