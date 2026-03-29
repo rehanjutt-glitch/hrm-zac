@@ -32,15 +32,7 @@
         .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; color: #000000; }
     </style>
 </head>
-<div id="profileModal" class="container hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:100; background:white;">
-    <h3>UPDATE PROFILE</h3>
-    <input type="text" id="updName" placeholder="NEW USERNAME">
-    <input type="password" id="updPass" placeholder="NEW PASSWORD">
-    <button class="main-btn" onclick="updateCloudProfile()">UPDATE NOW</button>
-    <button onclick="navTo('dashboardPage')">CLOSE</button>
-</div>
-    <body>
-
+<body>
 
     <div id="loginPage" class="container">
         <h1>HRM CLOUD LOGIN</h1>
@@ -71,7 +63,7 @@
         </div>
         <button class="main-btn" style="margin-top: 20px; background: #666;" onclick="logout()">LOGOUT</button>
     </div>
-<div style="text-align:right; cursor:pointer;" onclick="openProfile()">👤 SETTINGS</div>
+
     <div id="adminPage" class="container hidden">
         <h2>ADMIN - USER MANAGEMENT</h2>
         <div style="border: 1px solid #000; padding: 15px; margin-bottom: 20px;">
@@ -114,13 +106,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-<div id="profileModal" class="container hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:100; background:white;">
-    <h3>UPDATE PROFILE</h3>
-    <input type="text" id="updName" placeholder="NEW USERNAME">
-    <input type="password" id="updPass" placeholder="NEW PASSWORD">
-    <button class="main-btn" onclick="updateCloudProfile()">UPDATE NOW</button>
-    <button onclick="navTo('dashboardPage')">CLOSE</button>
-</div>
+
     <script>
         // FIREBASE CONFIG
         const firebaseConfig = {
@@ -310,6 +296,69 @@
         window.onload = function() {
             const hash = window.location.hash.replace('#', '');
             renderPage(hash || 'loginPage');
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile Settings Module</title>
+    <style>
+        /* CSS: ڈیزائن کا حصہ */
+        .profile-corner { position: absolute; top: 10px; right: 10px; cursor: pointer; border: 1px solid #000; padding: 5px 10px; font-weight: bold; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; padding: 20px; border: 2px solid #000; background: #fff; z-index: 100; box-shadow: 10px 10px 0px #000; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 50; }
+        input { width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #000; box-sizing: border-box; }
+        .save-btn { width: 100%; padding: 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="profile-corner" onclick="openProfile()">👤 PROFILE</div>
+
+    <div class="overlay" id="overlay" onclick="closeProfile()"></div>
+
+    <div class="modal" id="profileModal">
+        <h3>EDIT PROFILE</h3>
+        <label>New Username:</label>
+        <input type="text" id="updName" placeholder="Enter new username">
+        
+        <label>New Password:</label>
+        <input type="password" id="updPass" placeholder="Enter new password">
+        
+        <button class="save-btn" onclick="updateProfile()">UPDATE NOW</button>
+        <button onclick="closeProfile()" style="background: none; border: none; cursor: pointer; margin-top: 10px; text-decoration: underline;">Close</button>
+    </div>
+
+    <script>
+        // 1. پروفائل باکس کھولنے کا فنکشن
+        function openProfile() {
+            document.getElementById('profileModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        // 2. پروفائل باکس بند کرنے کا فنکشن
+        function closeProfile() {
+            document.getElementById('profileModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // 3. ڈیٹا اپڈیٹ کرنے کا لاجک (یہاں آپ سمجھیں کہ کمانڈ کیسے دی جاتی ہے)
+        function updateProfile() {
+            const newName = document.getElementById('updName').value;
+            const newPass = document.getElementById('updPass').value;
+
+            if(newName === "" || newPass === "") {
+                alert("براہ کرم دونوں خانے پُر کریں!");
+                return;
+            }
+
+            // یہاں ہم کمپیوٹر کو بتا رہے ہیں کہ کیا کرنا ہے
+            console.log("Saving to Database: ", newName, newPass);
+            alert("کامیابی! یوزر نیم اور پاسورڈ تبدیل ہو گیا ہے۔");
+            
+            closeProfile();
         }
     </script>
 </body>
