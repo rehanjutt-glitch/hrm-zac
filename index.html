@@ -18,7 +18,29 @@
         </div>
         <button class="main-btn" onclick="handleLogin()">LOGIN</button>
     </div>
+<div class="profile-dropdown">
+    <button class="profile-trigger" onclick="toggleMenu()">👤 PROFILE</button>
+    <div id="profileMenu" class="dropdown-content hidden">
+        <div class="profile-pic-section">
+            <img id="userImg" src="https://via.placeholder.com/60" style="border-radius:50%; width:60px;">
+            <input type="file" id="uploadPic" onchange="uploadPhoto()" style="font-size:10px;">
+        </div>
+        <button onclick="navTo('adminPage')">📂 ADMIN PANEL</button>
+        <button onclick="openPassModal()">🔐 CHANGE PASSWORD</button>
+        <button class="logout-btn" onclick="logout()">🚪 LOGOUT</button>
+    </div>
+</div>
 
+<div id="passModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>VERIFY & CHANGE</h3>
+        <input type="text" id="vUser" placeholder="CONFIRM USERNAME">
+        <input type="password" id="vOldPass" placeholder="OLD PASSWORD">
+        <input type="password" id="vNewPass" placeholder="NEW PASSWORD">
+        <button class="main-btn" onclick="verifyAndUpdatePass()">UPDATE CLOUD</button>
+        <button onclick="closePassModal()">CANCEL</button>
+    </div>
+</div>
     <div id="dashboardPage" class="container hidden">
         <div class="admin-profile-wrapper">
             <div class="profile-trigger">👤 ACCOUNT</div>
