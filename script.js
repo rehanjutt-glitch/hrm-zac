@@ -108,36 +108,3 @@ function logout() { sessionStorage.clear(); navTo('loginPage'); }
 function togglePass() { const p = document.getElementById("password"); p.type = p.type === "password"?"text":"password"; }
 
 window.onload = () => renderPage(window.location.hash.replace('#', '') || 'loginPage');
-// مینو اور ماڈل کنٹرول
-function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
-function openPassModal() { document.getElementById("passModal").classList.remove("hidden"); toggleMenu(); }
-function closePassModal() { document.getElementById("passModal").classList.add("hidden"); }
-
-// پاسورڈ بدلنے کا اصلی لاجک (Old Password Verification)
-async function verifyAndUpdatePass() {
-    const u = document.getElementById("vUser").value;
-    const oldP = document.getElementById("vOldPass").value;
-    const newP = document.getElementById("vNewPass").value;
-
-    if(!u || !oldP || !newP) return alert("Fill all fields!");
-
-    // کلاؤڈ میں سرچ کریں کہ کیا یوزر اور پرانا پاسورڈ میچ کرتے ہیں؟
-    const snap = await db.collection("users").where("name", "==", u).where("pass", "==", oldP).get();
-
-    if(!snap.empty) {
-        await db.collection("users").doc(snap.docs[0].id).update({ pass: newP });
-        alert("SUCCESS! PASSWORD CHANGED.");
-        closePassModal();
-        logout(); // سیکیورٹی کے لیے دوبارہ لاگ ان
-    } else {
-        alert("ERROR: WRONG USERNAME OR OLD PASSWORD!");
-    }
-}
-
-// عارضی تصویر دکھانے کے لیے
-function uploadPhoto() {
-    const file = document.getElementById("uploadPic").files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => document.getElementById("userImg").src = e.target.result;
-    if(file) reader.readAsDataURL(file);
-}
