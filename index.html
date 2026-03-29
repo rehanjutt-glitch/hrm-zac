@@ -3,79 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM Cloud - Status & Analytics</title>
+    <title>HRM Cloud System</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* ایڈمن پینل کے اندر پروفائل کی پوزیشن */
-.admin-profile-wrapper { 
-    position: relative; 
-    float: right; 
-    margin-bottom: 20px;
-    z-index: 100;
-}
-
-.profile-trigger { 
-    background: #000; 
-    color: #fff; 
-    padding: 5px 15px; 
-    font-size: 12px;
-    font-weight: bold; 
-    cursor: pointer; 
-}
-
-.profile-menu { 
-    display: none; 
-    position: absolute; 
-    right: 0; 
-    top: 100%; 
-    width: 180px; 
-    background: #fff; 
-    border: 2px solid #000; 
-    padding: 10px;
-    box-shadow: 5px 5px 0px #000;
-}
-
-.admin-profile-wrapper:hover .profile-menu { 
-    display: block; 
-}
-
-.action-btn { 
-    width: 100%; 
-    padding: 8px; 
-    background: #000; 
-    color: #fff; 
-    border: none; 
-    cursor: pointer; 
-    font-size: 11px;
-    margin-top: 5px;
-}
-
-.logout-btn { background: #444; }
-        /* بلیک اینڈ وائٹ پروفیشنل تھیم */
-        body { background-color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; color: #000000; }
-        .container { width: 95%; max-width: 900px; margin: 30px auto; padding: 25px; border: 2px solid #000000; text-align: center; }
-        .hidden { display: none !important; }
-        
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #000000; box-sizing: border-box; font-size: 16px; text-align: center; }
-        .main-btn { width: 100%; padding: 15px; background: #000000; color: #ffffff; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
-        .main-btn:hover { background: #333333; }
-        
-        /* ڈیش بورڈ بٹنز جن پر نمبر نظر آئیں گے */
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .menu-btn { padding: 20px; background: #000000; color: #ffffff; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 13px; line-height: 1.6; }
-        .count-num { font-size: 24px; display: block; margin-top: 5px; border-top: 1px solid #fff; padding-top: 5px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th, td { border: 1px solid #000000; padding: 10px; text-align: center; }
-        th { background: #000000; color: #ffffff; }
-
-        .status-tag { font-size: 11px; font-weight: bold; padding: 2px 5px; border: 1px solid #000; }
-        .active-row { background: #ffffff; }
-        .inactive-row { background: #f2f2f2; color: #777; }
-        
-        .action-btn { background: #000; color: #fff; border: none; padding: 5px 10px; cursor: pointer; font-size: 11px; margin: 2px; }
-        .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; color: #000000; }
-    </style>
 </head>
 <body>
 
@@ -90,36 +20,35 @@
     </div>
 
     <div id="dashboardPage" class="container hidden">
+        <div class="admin-profile-wrapper">
+            <div class="profile-trigger">👤 ACCOUNT</div>
+            <div class="profile-menu">
+                <h4 style="margin:0; border-bottom:1px solid #000;">SETTINGS</h4>
+                <label>NEW NAME:</label>
+                <input type="text" id="updName" placeholder="New Name">
+                <label>NEW PASS:</label>
+                <input type="password" id="updPass" placeholder="New Pass">
+                <button class="action-btn" onclick="updateAdminProfile()">UPDATE</button>
+                <button class="action-btn logout-btn" onclick="logout()">LOGOUT</button>
+            </div>
+        </div>
         <h2 id="welcomeText">WELCOME</h2>
         <div class="menu-grid">
-            <button class="menu-btn" onclick="navTo('listPage')">
-                ALL EMPLOYEES <span class="count-num" id="countAll">0</span>
-            </button>
-            <button class="menu-btn" onclick="showFiltered('Active')">
-                ACTIVE <span class="count-num" id="countActive">0</span>
-            </button>
-            <button class="menu-btn" onclick="showFiltered('Inactive')">
-                INACTIVE <span class="count-num" id="countInactive">0</span>
-            </button>
-            <button id="btnAdd" class="menu-btn" onclick="navTo('addPage')">
-                ADD NEW <span class="count-num">+</span>
-            </button>
+            <button class="menu-btn" onclick="navTo('listPage')">ALL EMPLOYEES <span class="count-num" id="countAll">0</span></button>
+            <button class="menu-btn" onclick="showFiltered('Active')">ACTIVE <span class="count-num" id="countActive">0</span></button>
+            <button class="menu-btn" onclick="showFiltered('Inactive')">INACTIVE <span class="count-num" id="countInactive">0</span></button>
+            <button id="btnAdd" class="menu-btn" onclick="navTo('addPage')">ADD NEW <span class="count-num">+</span></button>
             <button id="btnAdmin" class="menu-btn hidden" onclick="navTo('adminPage')" style="grid-column: span 2;">ADMIN PANEL</button>
         </div>
-        <button class="main-btn" style="margin-top: 20px; background: #666;" onclick="logout()">LOGOUT</button>
     </div>
 
     <div id="adminPage" class="container hidden">
         <h2>ADMIN - USER MANAGEMENT</h2>
-        <div style="border: 1px solid #000; padding: 15px; margin-bottom: 20px;">
-            <input type="text" id="newU" placeholder="NEW USERNAME">
-            <input type="text" id="newP" placeholder="NEW PASSWORD">
-            <div style="text-align: left; padding: 10px;">
-                <label><input type="checkbox" id="pAdd"> CAN ADD DATA</label><br>
-                <label><input type="checkbox" id="pDel"> CAN DELETE DATA</label>
-            </div>
-            <button class="main-btn" onclick="createNewUser()">SAVE USER</button>
-        </div>
+        <input type="text" id="newU" placeholder="NEW USERNAME">
+        <input type="text" id="newP" placeholder="NEW PASSWORD">
+        <label><input type="checkbox" id="pAdd"> CAN ADD</label>
+        <label><input type="checkbox" id="pDel"> CAN DELETE</label>
+        <button class="main-btn" onclick="createNewUser()">SAVE USER</button>
         <table id="userTable">
             <thead><tr><th>NAME</th><th>ACTION</th></tr></thead>
             <tbody id="userListBody"></tbody>
@@ -129,374 +58,26 @@
 
     <div id="listPage" class="container hidden">
         <h2 id="listTitle">EMPLOYEE DATABASE</h2>
-        <input type="text" onkeyup="searchEmp(this.value)" placeholder="SEARCH NAME, ID OR PHONE...">
-        <div style="overflow-x:auto;">
-            <table>
-                <thead><tr><th>ID</th><th>NAME/STATUS</th><th>DESIG</th><th>PHONE</th><th>ACTION</th></tr></thead>
-                <tbody id="empListBody"></tbody>
-            </table>
-        </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK TO DASHBOARD</button>
+        <input type="text" onkeyup="searchEmp(this.value)" placeholder="SEARCH...">
+        <table>
+            <thead><tr><th>ID</th><th>NAME/STATUS</th><th>DESIG</th><th>PHONE</th><th>ACTION</th></tr></thead>
+            <tbody id="empListBody"></tbody>
+        </table>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="addPage" class="container hidden">
         <h2>ADD NEW RECORD</h2>
-        <input type="text" id="eId" placeholder="EMPLOYEE ID">
-        <input type="text" id="eName" placeholder="FULL NAME">
+        <input type="text" id="eId" placeholder="ID">
+        <input type="text" id="eName" placeholder="NAME">
         <input type="text" id="eDes" placeholder="DESIGNATION">
-        <input type="text" id="ePho" placeholder="PHONE NUMBER">
+        <input type="text" id="ePho" placeholder="PHONE">
         <button class="main-btn" onclick="saveEmployee()">SAVE TO CLOUD</button>
-        <button class="main-btn" style="background:#444" onclick="navTo('dashboardPage')">CANCEL</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">CANCEL</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
-    <script>
-        // FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyDrzmh9TbcyuLAG6LkoKERcBuHvQ-sf0oU",
-            authDomain: "my-hrm-project-d1aef.firebaseapp.com",
-            projectId: "my-hrm-project-d1aef",
-            storageBucket: "my-hrm-project-d1aef.firebasestorage.app",
-            messagingSenderId: "165053525844",
-            appId: "1:165053525844:web:6abc82aca238d9e84862c1"
-        };
-async function updateAdminProfile() {
-    const nName = document.getElementById("updName").value.trim();
-    const nPass = document.getElementById("updPass").value.trim();
-
-    if(!nName || !nPass) return alert("Please fill both fields!");
-
-    try {
-        // ہم فرض کر رہے ہیں کہ آپ 'Meskay' کو اپڈیٹ کرنا چاہتے ہیں
-        // اگر آپ نے 'users' کلیکشن میں ماسٹر ایڈمن رکھا ہے تو یہ کام کرے گا
-        const snapshot = await db.collection("users").where("role", "==", "admin").get();
-        
-        if(!snapshot.empty) {
-            const adminId = snapshot.docs[0].id;
-            await db.collection("users").doc(adminId).update({
-                name: nName,
-                pass: nPass
-            });
-            alert("ADMIN PROFILE UPDATED IN CLOUD!");
-            logout(); // تبدیلی کے بعد دوبارہ لاگ ان ضروری ہے
-        } else {
-            alert("Admin record not found in Cloud Users!");
-        }
-    } catch (error) {
-        console.error("Error updating profile:", error);
-        alert("Update failed!");
-    }
-}
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        const MASTER_ADMIN = "Zulfiqar";
-        const MASTER_PASS = "Pakistan786";
-        let currentFilter = "All";
-
-        // NAVIGATION
-        function navTo(pageId) {
-            window.location.hash = pageId;
-            renderPage(pageId);
-        }
-
-        window.onhashchange = function() {
-            const page = window.location.hash.replace('#', '') || 'loginPage';
-            renderPage(page);
-        };
-
-        function renderPage(pageId) {
-            const loggedIn = sessionStorage.getItem("isLoggedIn");
-            if (!loggedIn && pageId !== 'loginPage') pageId = 'loginPage';
-            
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById(pageId)?.classList.remove('hidden');
-            
-            if(pageId === 'adminPage') fetchUsers();
-            if(pageId === 'listPage') fetchEmployees();
-            if(pageId === 'dashboardPage') updateCounts();
-            setupPermissions();
-        }
-
-        // LOGIN
-        async function handleLogin() {
-            const u = document.getElementById("username").value.trim();
-            const p = document.getElementById("password").value.trim();
-            
-            if(u === MASTER_ADMIN && p === MASTER_PASS) {
-                loginAs({name: u, role: 'admin', pAdd: true, pDel: true});
-                return;
-            }
-
-            const snapshot = await db.collection("users").where("name", "==", u).where("pass", "==", p).get();
-            if(!snapshot.empty) {
-                loginAs(snapshot.docs[0].data());
-            } else { alert("LOGIN FAILED!"); }
-        }
-
-        function loginAs(user) {
-            sessionStorage.setItem("isLoggedIn", "true");
-            sessionStorage.setItem("currentUser", JSON.stringify(user));
-            navTo('dashboardPage');
-        }
-
-        function setupPermissions() {
-            const user = JSON.parse(sessionStorage.getItem("currentUser"));
-            if(!user) return;
-            document.getElementById("welcomeText").innerText = "USER: " + user.name.toUpperCase();
-            document.getElementById("btnAdmin").classList.toggle("hidden", user.name !== MASTER_ADMIN);
-            const addBtn = document.getElementById("btnAdd");
-            if(addBtn) addBtn.style.display = (user.pAdd || user.name === MASTER_ADMIN) ? "block" : "none";
-        }
-
-        // COUNTS UPDATE (LIVE)
-        async function updateCounts() {
-            const snapshot = await db.collection("employees").get();
-            let all = 0, active = 0, inactive = 0;
-            snapshot.forEach(doc => {
-                all++;
-                if(doc.data().status === "Active") active++;
-                else inactive++;
-            });
-            document.getElementById("countAll").innerText = all;
-            document.getElementById("countActive").innerText = active;
-            document.getElementById("countInactive").innerText = inactive;
-        }
-
-        // EMPLOYEES LOGIC
-        async function saveEmployee() {
-            const emp = { 
-                id: document.getElementById("eId").value, 
-                name: document.getElementById("eName").value, 
-                des: document.getElementById("eDes").value, 
-                pho: document.getElementById("ePho").value,
-                status: "Active" 
-            };
-            if(!emp.id || !emp.name) return alert("ID and Name Required!");
-            await db.collection("employees").add(emp);
-            alert("SAVED TO CLOUD!");
-            navTo('dashboardPage');
-        }
-
-        function showFiltered(status) {
-            currentFilter = status;
-            navTo('listPage');
-        }
-
-        async function fetchEmployees() {
-            const body = document.getElementById("empListBody");
-            body.innerHTML = "Syncing...";
-            document.getElementById("listTitle").innerText = currentFilter + " EMPLOYEES";
-            
-            const user = JSON.parse(sessionStorage.getItem("currentUser"));
-            let query = db.collection("employees");
-            if(currentFilter !== "All") query = query.where("status", "==", currentFilter);
-            
-            const snapshot = await query.get();
-            body.innerHTML = "";
-            snapshot.forEach(doc => {
-                const e = doc.data();
-                const rowClass = e.status === 'Active' ? 'active-row' : 'inactive-row';
-                const delBtn = (user.name === MASTER_ADMIN || user.pDel) ? `<button class="action-btn" onclick="deleteDoc('employees','${doc.id}', fetchEmployees)">DEL</button>` : "";
-                const statusBtn = `<button class="action-btn" onclick="toggleStatus('${doc.id}', '${e.status}')">${e.status === 'Active' ? 'DEACTIVATE' : 'ACTIVATE'}</button>`;
-                
-                body.innerHTML += `<tr class="${rowClass}">
-                    <td>${e.id}</td>
-                    <td>${e.name.toUpperCase()}<br><span class="status-tag">${e.status}</span></td>
-                    <td>${e.des}</td>
-                    <td>${e.pho}</td>
-                    <td>${statusBtn} ${delBtn}</td>
-                </tr>`;
-            });
-            updateCounts();
-        }
-
-        async function toggleStatus(docId, currentStatus) {
-            const newStatus = (currentStatus === "Active") ? "Inactive" : "Active";
-            await db.collection("employees").doc(docId).update({ status: newStatus });
-            fetchEmployees();
-        }
-
-        // ADMIN LOGIC
-        async function createNewUser() {
-            const n = document.getElementById("newU").value;
-            const p = document.getElementById("newP").value;
-            if(!n || !p) return alert("EMPTY!");
-            await db.collection("users").add({
-                name: n, pass: p, role: 'user', 
-                pAdd: document.getElementById("pAdd").checked, 
-                pDel: document.getElementById("pDel").checked
-            });
-            alert("USER CREATED!");
-            fetchUsers();
-        }
-
-        async function fetchUsers() {
-            const body = document.getElementById("userListBody");
-            body.innerHTML = "";
-            const snapshot = await db.collection("users").get();
-            snapshot.forEach(doc => {
-                body.innerHTML += `<tr><td>${doc.data().name}</td><td><button onclick="deleteDoc('users','${doc.id}', fetchUsers)">REMOVE</button></td></tr>`;
-            });
-        }
-
-        async function deleteDoc(coll, id, callback) {
-            if(confirm("DELETE PERMANENTLY?")) {
-                await db.collection(coll).doc(id).delete();
-                callback();
-            }
-        }
-
-        function searchEmp(val) {
-            const filter = val.toUpperCase();
-            const tr = document.getElementById("empListBody").getElementsByTagName("tr");
-            for (let i = 0; i < tr.length; i++) {
-                tr[i].style.display = tr[i].innerText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
-            }
-        }
-
-        function togglePass() {
-            const p = document.getElementById("password");
-            p.type = p.type === "password" ? "text" : "password";
-        }
-
-        function logout() { sessionStorage.clear(); navTo('loginPage'); }
-
-        window.onload = function() {
-            const hash = window.location.hash.replace('#', '');
-            renderPage(hash || 'loginPage');
-        }
-    </script>
-</body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Profile Settings & Logout</title>
-    <style>
-        /* کنٹینر جو کونے میں رہے گا */
-        .profile-wrapper { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            z-index: 1000;
-        }
-
-        /* پروفائل کا مین بٹن */
-        .profile-trigger { 
-            background: #000; 
-            color: #fff; 
-            padding: 8px 15px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            border: 1px solid #000;
-        }
-
-        /* ڈراپ ڈاؤن مینو جو پہلے چھپا ہوگا */
-        .profile-menu { 
-            display: none; /* پہلے چھپا ہوا */
-            position: absolute; 
-            right: 0; 
-            top: 100%; 
-            width: 200px; 
-            background: #fff; 
-            border: 2px solid #000; 
-            box-shadow: 5px 5px 0px #000;
-            padding: 10px;
-        }
-
-        /* جب ماؤس اوپر جائے (Hover) تو مینو دکھاؤ */
-        .profile-wrapper:hover .profile-menu { 
-            display: block; 
-        }
-
-        input { width: 100%; padding: 8px; margin: 5px 0 10px 0; border: 1px solid #000; box-sizing: border-box; }
-        
-        .action-btn { 
-            width: 100%; 
-            padding: 10px; 
-            background: #000; 
-            color: #fff; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold; 
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .logout-btn { 
-            background: #fff; 
-            color: #000; 
-            border: 1px solid #000;
-        }
-        
-        .logout-btn:hover {
-            background: #000;
-            color: #fff;
-        }
-
-        label { font-size: 12px; font-weight: bold; display: block; text-align: left; }
-    </style>
-</head>
-<body>
-
-    <div class="profile-wrapper">
-        <div class="profile-trigger">👤 ACCOUNT</div>
-        
-        <div class="profile-menu">
-            <h4 style="margin: 0 0 10px 0; border-bottom: 1px solid #000;">SETTINGS</h4>
-            
-            <label>NEW USERNAME:</label>
-            <input type="text" id="updName" placeholder="Username">
-            
-            <label>NEW PASSWORD:</label>
-            <input type="password" id="updPass" placeholder="Password">
-            
-            <button class="action-btn" onclick="updateProfile()">UPDATE</button>
-            
-            <button class="action-btn logout-btn" onclick="handleLogout()">LOGOUT</button>
-        </div>
-    </div>
-
-    <script>
-        // پروفائل اپڈیٹ کرنے کا فنکشن
-        function updateProfile() {
-            const newName = document.getElementById('updName').value;
-            const newPass = document.getElementById('updPass').value;
-
-            if(newName === "" || newPass === "") {
-                alert("Please enter both fields!");
-                return;
-            }
-            alert("Success! Profile updated to: " + newName);
-        }
-
-        // لاگ آؤٹ کرنے کا فنکشن
-        function handleLogout() {
-            if(confirm("Are you sure you want to logout?")) {
-                alert("Logging out...");
-                // یہاں آپ کا لاگ آؤٹ کا لاجک آئے گا (مثلاً sessionStorage.clear() )
-                window.location.reload(); 
-            }
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
-<div class="admin-profile-wrapper">
-    <div class="profile-trigger">👤 MY SETTINGS</div>
-    
-    <div class="profile-menu">
-        <h4 style="margin: 0 0 10px 0; border-bottom: 1px solid #000; font-size: 12px;">EDIT ADMIN</h4>
-        
-        <label>NEW USERNAME:</label>
-        <input type="text" id="updName" placeholder="New Name">
-        
-        <label>NEW PASSWORD:</label>
-        <input type="password" id="updPass" placeholder="New Password">
-        
-        <button class="action-btn" onclick="updateAdminProfile()">UPDATE CLOUD</button>
-        <button class="action-btn logout-btn" onclick="logout()">LOGOUT</button>
-    </div>
-</div>
