@@ -88,7 +88,21 @@ async function fetchEmployees() {
         body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
             <td>${e.id}</td><td>${e.name.toUpperCase()} (${e.status})</td>
             <td>${e.des}</td><td>${e.pho}</td>
-            <td><button onclick="toggleStatus('${doc.id}','${e.status}')">TOGGLE</button></td>
+            // بٹن کا نام سٹیٹس کے حساب سے طے کریں
+const btnText = e.status === 'Active' ? 'DEACTIVATE' : 'ACTIVATE';
+const btnStyle = e.status === 'Active' ? 'background: #000; color: #fff;' : 'background: #555; color: #fff;';
+
+body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
+    <td>${e.id}</td>
+    <td>${e.name.toUpperCase()} <br><small>(${e.status})</small></td>
+    <td>${e.des}</td>
+    <td>${e.pho}</td>
+    <td>
+        <button class="action-btn" style="${btnStyle}" onclick="toggleStatus('${doc.id}','${e.status}')">
+            ${btnText}
+        </button>
+    </td>
+</tr>`;
         </tr>`;
     });
 }
