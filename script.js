@@ -102,7 +102,6 @@ body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}
             ${btnText}
         </button>
     </td>
-</tr>`;
         </tr>`;
     });
 }
