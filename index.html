@@ -6,6 +6,51 @@
     <title>HRM Cloud - Status & Analytics</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ایڈمن پینل کے اندر پروفائل کی پوزیشن */
+.admin-profile-wrapper { 
+    position: relative; 
+    float: right; 
+    margin-bottom: 20px;
+    z-index: 100;
+}
+
+.profile-trigger { 
+    background: #000; 
+    color: #fff; 
+    padding: 5px 15px; 
+    font-size: 12px;
+    font-weight: bold; 
+    cursor: pointer; 
+}
+
+.profile-menu { 
+    display: none; 
+    position: absolute; 
+    right: 0; 
+    top: 100%; 
+    width: 180px; 
+    background: #fff; 
+    border: 2px solid #000; 
+    padding: 10px;
+    box-shadow: 5px 5px 0px #000;
+}
+
+.admin-profile-wrapper:hover .profile-menu { 
+    display: block; 
+}
+
+.action-btn { 
+    width: 100%; 
+    padding: 8px; 
+    background: #000; 
+    color: #fff; 
+    border: none; 
+    cursor: pointer; 
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.logout-btn { background: #444; }
         /* بلیک اینڈ وائٹ پروفیشنل تھیم */
         body { background-color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; color: #000000; }
         .container { width: 95%; max-width: 900px; margin: 30px auto; padding: 25px; border: 2px solid #000000; text-align: center; }
@@ -117,7 +162,33 @@
             messagingSenderId: "165053525844",
             appId: "1:165053525844:web:6abc82aca238d9e84862c1"
         };
+async function updateAdminProfile() {
+    const nName = document.getElementById("updName").value.trim();
+    const nPass = document.getElementById("updPass").value.trim();
 
+    if(!nName || !nPass) return alert("Please fill both fields!");
+
+    try {
+        // ہم فرض کر رہے ہیں کہ آپ 'Meskay' کو اپڈیٹ کرنا چاہتے ہیں
+        // اگر آپ نے 'users' کلیکشن میں ماسٹر ایڈمن رکھا ہے تو یہ کام کرے گا
+        const snapshot = await db.collection("users").where("role", "==", "admin").get();
+        
+        if(!snapshot.empty) {
+            const adminId = snapshot.docs[0].id;
+            await db.collection("users").doc(adminId).update({
+                name: nName,
+                pass: nPass
+            });
+            alert("ADMIN PROFILE UPDATED IN CLOUD!");
+            logout(); // تبدیلی کے بعد دوبارہ لاگ ان ضروری ہے
+        } else {
+            alert("Admin record not found in Cloud Users!");
+        }
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Update failed!");
+    }
+}
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -299,67 +370,133 @@
         }
     </script>
 </body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Profile Settings Module</title>
+    <title>Profile Settings & Logout</title>
     <style>
-        /* CSS: ڈیزائن کا حصہ */
-        .profile-corner { position: absolute; top: 10px; right: 10px; cursor: pointer; border: 1px solid #000; padding: 5px 10px; font-weight: bold; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; padding: 20px; border: 2px solid #000; background: #fff; z-index: 100; box-shadow: 10px 10px 0px #000; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 50; }
-        input { width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #000; box-sizing: border-box; }
-        .save-btn { width: 100%; padding: 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+        /* کنٹینر جو کونے میں رہے گا */
+        .profile-wrapper { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            z-index: 1000;
+        }
+
+        /* پروفائل کا مین بٹن */
+        .profile-trigger { 
+            background: #000; 
+            color: #fff; 
+            padding: 8px 15px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border: 1px solid #000;
+        }
+
+        /* ڈراپ ڈاؤن مینو جو پہلے چھپا ہوگا */
+        .profile-menu { 
+            display: none; /* پہلے چھپا ہوا */
+            position: absolute; 
+            right: 0; 
+            top: 100%; 
+            width: 200px; 
+            background: #fff; 
+            border: 2px solid #000; 
+            box-shadow: 5px 5px 0px #000;
+            padding: 10px;
+        }
+
+        /* جب ماؤس اوپر جائے (Hover) تو مینو دکھاؤ */
+        .profile-wrapper:hover .profile-menu { 
+            display: block; 
+        }
+
+        input { width: 100%; padding: 8px; margin: 5px 0 10px 0; border: 1px solid #000; box-sizing: border-box; }
+        
+        .action-btn { 
+            width: 100%; 
+            padding: 10px; 
+            background: #000; 
+            color: #fff; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .logout-btn { 
+            background: #fff; 
+            color: #000; 
+            border: 1px solid #000;
+        }
+        
+        .logout-btn:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        label { font-size: 12px; font-weight: bold; display: block; text-align: left; }
     </style>
 </head>
 <body>
 
-    <div class="profile-corner" onclick="openProfile()">👤 PROFILE</div>
-
-    <div class="overlay" id="overlay" onclick="closeProfile()"></div>
-
-    <div class="modal" id="profileModal">
-        <h3>EDIT PROFILE</h3>
-        <label>New Username:</label>
-        <input type="text" id="updName" placeholder="Enter new username">
+    <div class="profile-wrapper">
+        <div class="profile-trigger">👤 ACCOUNT</div>
         
-        <label>New Password:</label>
-        <input type="password" id="updPass" placeholder="Enter new password">
-        
-        <button class="save-btn" onclick="updateProfile()">UPDATE NOW</button>
-        <button onclick="closeProfile()" style="background: none; border: none; cursor: pointer; margin-top: 10px; text-decoration: underline;">Close</button>
+        <div class="profile-menu">
+            <h4 style="margin: 0 0 10px 0; border-bottom: 1px solid #000;">SETTINGS</h4>
+            
+            <label>NEW USERNAME:</label>
+            <input type="text" id="updName" placeholder="Username">
+            
+            <label>NEW PASSWORD:</label>
+            <input type="password" id="updPass" placeholder="Password">
+            
+            <button class="action-btn" onclick="updateProfile()">UPDATE</button>
+            
+            <button class="action-btn logout-btn" onclick="handleLogout()">LOGOUT</button>
+        </div>
     </div>
 
     <script>
-        // 1. پروفائل باکس کھولنے کا فنکشن
-        function openProfile() {
-            document.getElementById('profileModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        // 2. پروفائل باکس بند کرنے کا فنکشن
-        function closeProfile() {
-            document.getElementById('profileModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-
-        // 3. ڈیٹا اپڈیٹ کرنے کا لاجک (یہاں آپ سمجھیں کہ کمانڈ کیسے دی جاتی ہے)
+        // پروفائل اپڈیٹ کرنے کا فنکشن
         function updateProfile() {
             const newName = document.getElementById('updName').value;
             const newPass = document.getElementById('updPass').value;
 
             if(newName === "" || newPass === "") {
-                alert("براہ کرم دونوں خانے پُر کریں!");
+                alert("Please enter both fields!");
                 return;
             }
+            alert("Success! Profile updated to: " + newName);
+        }
 
-            // یہاں ہم کمپیوٹر کو بتا رہے ہیں کہ کیا کرنا ہے
-            console.log("Saving to Database: ", newName, newPass);
-            alert("کامیابی! یوزر نیم اور پاسورڈ تبدیل ہو گیا ہے۔");
-            
-            closeProfile();
+        // لاگ آؤٹ کرنے کا فنکشن
+        function handleLogout() {
+            if(confirm("Are you sure you want to logout?")) {
+                alert("Logging out...");
+                // یہاں آپ کا لاگ آؤٹ کا لاجک آئے گا (مثلاً sessionStorage.clear() )
+                window.location.reload(); 
+            }
         }
     </script>
 </body>
 </html>
+<div class="admin-profile-wrapper">
+    <div class="profile-trigger">👤 MY SETTINGS</div>
+    
+    <div class="profile-menu">
+        <h4 style="margin: 0 0 10px 0; border-bottom: 1px solid #000; font-size: 12px;">EDIT ADMIN</h4>
+        
+        <label>NEW USERNAME:</label>
+        <input type="text" id="updName" placeholder="New Name">
+        
+        <label>NEW PASSWORD:</label>
+        <input type="password" id="updPass" placeholder="New Password">
+        
+        <button class="action-btn" onclick="updateAdminProfile()">UPDATE CLOUD</button>
+        <button class="action-btn logout-btn" onclick="logout()">LOGOUT</button>
+    </div>
+</div>
