@@ -108,3 +108,31 @@ function logout() { sessionStorage.clear(); navTo('loginPage'); }
 function togglePass() { const p = document.getElementById("password"); p.type = p.type === "password"?"text":"password"; }
 
 window.onload = () => renderPage(window.location.hash.replace('#', '') || 'loginPage');
+
+async function createNewUser() {
+    const n = document.getElementById("newU").value.trim();
+    const p = document.getElementById("newP").value.trim();
+    const canAdd = document.getElementById("pAdd").checked;
+    const canDel = document.getElementById("pDel").checked;
+
+    if(!n || !p) return alert("براہ کرم یوزر نیم اور پاسورڈ لکھیں!");
+
+    try {
+        await db.collection("users").add({
+            name: n,
+            pass: p,
+            role: 'user', 
+            pAdd: canAdd, 
+            pDel: canDel
+        });
+        alert("USER SAVED SUCCESSFULLY!");
+        
+        // خانے خالی کر دیں
+        document.getElementById("newU").value = "";
+        document.getElementById("newP").value = "";
+        fetchUsers(); // لسٹ اپڈیٹ کریں
+    } catch (error) {
+        console.error("Error saving user: ", error);
+        alert("سیو کرنے میں غلطی ہوئی!");
+    }
+}
