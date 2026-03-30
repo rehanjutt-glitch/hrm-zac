@@ -76,22 +76,35 @@ async function saveEmployee() {
     navTo('dashboardPage');
 }
 
-async function fetchEmployees() {
-    const body = document.getElementById("empListBody");
-    body.innerHTML = "Loading...";
-    let query = db.collection("employees");
-    if(currentFilter !== "All") query = query.where("status", "==", currentFilter);
-    const snap = await query.get();
-    body.innerHTML = "";
-    snap.forEach(doc => {
-        const e = doc.data();
-        body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
-            <td>${e.id}</td><td>${e.name.toUpperCase()} (${e.status})</td>
-            <td>${e.des}</td><td>${e.pho}</td>
-            <td><button onclick="toggleStatus('${doc.id}','${e.status}')">TOGGLE</button></td>
+// fetchEmployees کے لوپ کے اندر یہ والا حصہ اپڈیٹ کریں
+snap.forEach(doc => {
+    const e = doc.data();
+    const currentStatus = e.status || "Active";
+    
+    // رنگ اور نام کا فیصلہ یہاں ہوگا
+    let statusColor = currentStatus === 'Active' ? '#28a745' : '#dc3545'; // سبز اور سرخ
+    let btnText = currentStatus === 'Active' ? 'SET INACTIVE' : 'SET ACTIVE';
+
+    body.innerHTML += `
+        <tr class="${currentStatus === 'Active' ? 'active-row' : 'inactive-row'}">
+            <td>${e.id}</td>
+            <td>
+                ${e.name.toUpperCase()} <br>
+                <span style="color: ${statusColor}; font-weight: bold; font-size: 10px;">
+                    ● ${currentStatus.toUpperCase()}
+                </span>
+            </td>
+            <td>${e.des}</td>
+            <td>${e.pho}</td>
+            <td>
+                <button class="action-btn" 
+                        style="background: ${statusColor}; border: none; color: white; padding: 5px 10px; cursor: pointer;" 
+                        onclick="toggleStatus('${doc.id}','${currentStatus}')">
+                    ${btnText}
+                </button>
+            </td>
         </tr>`;
-    });
-}
+});
 
 async function toggleStatus(id, s) {
     await db.collection("employees").doc(id).update({status: s==='Active'?'Inactive':'Active'});
