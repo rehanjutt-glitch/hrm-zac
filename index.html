@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM MASTER - SMART MONTH CALC</title>
+    <title>HRM MASTER - ADVANCED CALC</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
@@ -11,67 +11,110 @@
         .hidden { display: none; }
         
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; font-weight: bold; }
-        .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
+        .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; transition: 0.2s; }
+        .main-btn:active { transform: scale(0.98); }
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; }
-        .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
-        
-        .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; }
-        .profile-trigger { display: flex; align-items: center; cursor: pointer; background: #000; color: #fff; padding: 8px 15px; border: 2px solid #000; }
-        
-        .calc-info { background: #e3f2fd; padding: 15px; border: 2px dashed #000; margin: 10px 0; font-weight: bold; }
-        .type-selector { display: flex; gap: 10px; margin-bottom: 10px; }
-        .type-selector button { flex: 1; padding: 10px; cursor: pointer; border: 2px solid #000; font-weight: bold; }
-        .active-type { background: #000; color: #fff; }
+        .pass-box { position: relative; }
+        .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; z-index: 10; }
 
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
+        .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
+        .master-btn { grid-column: span 2; background: #1a237e; }
+        .sal-btn { background: #2e7d32; }
+        .rep-btn { background: #01579b; }
+
+        .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; position: relative; }
+        .profile-trigger { display: flex; align-items: center; cursor: pointer; background: #000; color: #fff; padding: 8px 15px; border: 2px solid #000; }
+        .nav-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #fff; object-fit: cover; }
+        .dropdown-menu { position: absolute; top: 100%; right: 0; background: #fff; border: 3px solid #000; width: 220px; z-index: 1000; padding: 15px; box-shadow: 5px 5px 0 #000; text-align: center; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 2px solid #000; padding: 12px; text-align: center; }
+        th { background: #eee; }
+
+        .calc-info { background: #e3f2fd; padding: 15px; border: 2px dashed #000; margin: 10px 0; font-weight: bold; }
+        
+        /* New Type Selector Styling */
+        .type-selector { display: flex; gap: 10px; margin: 10px 0; }
+        .type-selector button { flex: 1; padding: 12px; border: 2px solid #000; cursor: pointer; font-weight: bold; background: #fff; }
+        .active-type { background: #000 !important; color: #fff !important; }
+
+        /* Salary Slip Design */
         .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; }
+        .slip-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
+        .slip-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 18px; }
         .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
         .sig-box { border-top: 2px solid #000; width: 40%; text-align: center; padding-top: 5px; font-weight: bold; }
 
         @media print {
             .no-print { display: none; }
-            .slip-card { page-break-after: always; width: 100%; border: 1px solid #000; }
+            body { background: white; }
+            .container { border: none; box-shadow: none; width: 100%; }
+            .slip-card { page-break-after: always; width: 100%; margin: 0 0 20px 0; border: 1px solid #000; }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="loginPage" class="container">
-        <h1>MESKAY HRM</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button class="main-btn" onclick="handleLogin()">LOGIN</button>
+        <h1>MESKAY HRM CLOUD</h1>
+        <p>Please enter your credentials to login</p>
+        <input type="text" id="username" placeholder="Username / Login ID">
+        <div class="pass-box">
+            <input type="password" id="password" placeholder="Password">
+            <i class="fa-solid fa-eye eye-icon" id="eyeToggle"></i>
+        </div>
+        <button class="main-btn" id="loginSubmit">SECURE LOGIN</button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
         <div class="top-bar">
-            <div class="profile-trigger" onclick="location.reload()">
-                <span>Logout</span>
+            <div class="profile-trigger" id="profileToggle">
+                <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
+                <span id="navName">Loading...</span>
+            </div>
+            <div id="profileMenu" class="dropdown-menu hidden">
+                <img id="menuPic" src="https://via.placeholder.com/60" style="border-radius:50%; border:2px solid #000"><br>
+                <input type="file" id="picUpload" onchange="uploadImage()" hidden>
+                <label for="picUpload" style="cursor:pointer; color:blue; text-decoration:underline; font-size:12px;">Change Photo</label>
+                <hr>
+                <button class="main-btn" id="adminBtnLink" onclick="navTo('adminPage')">⚙️ Admin Panel</button>
+                <button class="main-btn btn-red" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
 
         <div class="menu-grid">
-            <button class="menu-btn" onclick="showView('all')">ALL STAFF <span class="badge" id="cntAll">0</span></button>
-            <button class="menu-btn" onclick="showView('Active')">ACTIVE <span class="badge" id="cntActive">0</span></button>
-            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW</button>
-            <button class="menu-btn" onclick="navTo('salaryPage')" style="background:#2e7d32; grid-column:span 2;">SALARY CALCULATOR</button>
-            <button class="menu-btn" onclick="navTo('reportPage')" style="background:#01579b; grid-column:span 2;">REPORTS & SLIPS</button>
+            <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
+            <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
+            <button class="menu-btn" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
+            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW EMPLOYEE</button>
+            <button class="menu-btn master-btn" onclick="showView('update')">UPDATE & MANAGE INFO</button>
+            <button class="menu-btn sal-btn" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
+            <button class="menu-btn rep-btn" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
         </div>
     </div>
 
     <div id="addPage" class="container hidden">
-        <h2>Add Employee</h2>
-        <input type="text" id="newEmpId" placeholder="ID">
+        <h2>Add New Employee</h2>
+        <input type="text" id="newEmpId" placeholder="Employee ID">
         <input type="text" id="newEmpName" placeholder="Full Name">
-        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE</button>
+        <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="listPage" class="container hidden">
+        <h2 id="listTitle">Records</h2>
+        <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="salaryPage" class="container hidden">
-        <h2>Smart Salary Calculator</h2>
+        <h2>Salary Calculator</h2>
         <select id="salEmpList"></select>
         
         <div class="type-selector">
@@ -79,41 +122,49 @@
             <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
         </div>
 
-        <label>Start Date:</label><input type="date" id="startDate" onchange="autoCalc()">
-        <label>End Date:</label><input type="date" id="endDate" onchange="autoCalc()">
+        <label>From:</label><input type="date" id="startDate" onchange="autoCalcDays()">
+        <label>To:</label><input type="date" id="endDate" onchange="autoCalcDays()">
         
         <div class="calc-info">
-            Days Worked: <span id="displayDays">0</span><br>
-            <small id="monthInfo" style="color: blue;"></small>
+            Days: <span id="displayDays">0</span> 
+            <span id="monthDaysInfo" style="font-size: 12px; color: blue; display: block;"></span>
         </div>
         
-        <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
+        <input type="number" id="salWages" placeholder="Enter Salary Amount" onkeyup="autoCalcDays()">
         
-        <div class="calc-info" style="background:#c8e6c9">Total Amount: <span id="displayTotal">0</span></div>
+        <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
         
-        <button class="main-btn btn-green" onclick="saveSalary()">SAVE RECORD</button>
+        <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="reportPage" class="container hidden">
         <div class="no-print">
-            <h2>Reports</h2>
-            <input type="month" id="repMonth">
-            <button class="main-btn btn-green" onclick="generateReport()">VIEW</button>
+            <h2>Salary Reports</h2>
+            <div style="display:flex; gap:10px;">
+                <input type="month" id="repMonth">
+                <select id="repEmpFilter"><option value="all">All Staff</option></select>
+            </div>
+            <button class="main-btn btn-green" onclick="generateReport()">GENERATE</button>
             <button class="main-btn" onclick="window.print()">PRINT</button>
             <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
         </div>
         <div id="printArea"></div>
     </div>
 
-    <div id="listPage" class="container hidden">
-        <h2>Staff List</h2>
-        <table id="empTable" border="1" width="100%"><thead><tr><th>ID</th><th>Name</th></tr></thead><tbody id="empTableBody"></tbody></table>
+    <div id="adminPage" class="container hidden">
+        <h2>Admin Management</h2>
+        <input type="text" id="newPersonName" placeholder="Full Name">
+        <input type="text" id="newLoginName" placeholder="Login Username">
+        <input type="text" id="newLoginPass" placeholder="Login Password">
+        <select id="newRole"><option value="user">User</option><option value="manager">Manager</option><option value="admin">Admin</option></select>
+        <button class="main-btn btn-green" onclick="createNewUser()">CREATE USER</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -126,13 +177,37 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
+        let currentUser = null;
         let calcMode = 'monthly';
 
-        function handleLogin() {
-            if(document.getElementById("username").value === "Meskay" && document.getElementById("password").value === "Pakistan786") {
-                navTo('dashboardPage');
-            } else alert("Wrong!");
+        // LOGIN SYSTEM
+        document.getElementById("loginSubmit").addEventListener("click", handleLogin);
+        document.getElementById("eyeToggle").addEventListener("click", () => {
+            const p = document.getElementById("password");
+            p.type = p.type === "password" ? "text" : "password";
+        });
+
+        async function handleLogin() {
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
+            if (!u || !p) return alert("Please fill all fields!");
+            if (u === "Meskay" && p === "Pakistan786") {
+                currentUser = { name: "Master Admin", role: "admin", loginU: "Meskay" };
+                return loginOk();
+            }
+            try {
+                const snap = await db.collection("users").where("loginU", "==", u).where("pass", "==", p).get();
+                if (!snap.empty) { currentUser = snap.docs[0].data(); loginOk(); } 
+                else { alert("Invalid Credentials!"); }
+            } catch (e) { alert("Connection Error!"); }
+        }
+
+        function loginOk() {
+            document.getElementById("navName").innerText = currentUser.name;
+            document.getElementById("adminBtnLink").style.display = (currentUser.role === 'admin') ? 'block' : 'none';
+            navTo('dashboardPage'); loadProfilePic();
         }
 
         function navTo(id) {
@@ -140,100 +215,40 @@
             document.getElementById(id).classList.remove('hidden');
             if(id === 'dashboardPage') updateCounts();
             if(id === 'salaryPage') loadSalEmps();
+            if(id === 'reportPage') loadReportFilters();
         }
 
+        // SALARY MODE LOGIC
         function setCalcMode(mode) {
             calcMode = mode;
-            document.getElementById("btnMonthly").className = mode === 'monthly' ? 'active-type' : '';
-            document.getElementById("btnDaily").className = mode === 'daily' ? 'active-type' : '';
-            autoCalc();
+            document.getElementById("btnMonthly").classList.toggle("active-type", mode === 'monthly');
+            document.getElementById("btnDaily").classList.toggle("active-type", mode === 'daily');
+            document.getElementById("salWages").placeholder = (mode === 'monthly') ? "Enter Monthly Fixed Salary" : "Enter Daily Rate";
+            autoCalcDays();
         }
 
-        // SMART CALCULATION LOGIC
-        function autoCalc() {
-            const startVal = document.getElementById("startDate").value;
-            const endVal = document.getElementById("endDate").value;
-            const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
-
-            if (startVal && endVal) {
-                const start = new Date(startVal);
-                const end = new Date(endVal);
+        function autoCalcDays() {
+            const sVal = document.getElementById("startDate").value;
+            const eVal = document.getElementById("endDate").value;
+            const rate = parseFloat(document.getElementById("salWages").value) || 0;
+            
+            if (sVal && eVal) {
+                const s = new Date(sVal);
+                const e = new Date(eVal);
                 
-                // 1. Calculate Days Worked
-                const diffTime = Math.abs(end - start);
-                const daysWorked = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                if (e < s) {
+                    document.getElementById("displayDays").innerText = "0";
+                    document.getElementById("displayTotal").innerText = "0";
+                    return;
+                }
+
+                const daysWorked = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
                 document.getElementById("displayDays").innerText = daysWorked;
 
-                // 2. Get Days in Current Month (Based on End Date)
-                const year = end.getFullYear();
-                const month = end.getMonth() + 1; 
-                const daysInMonth = new Date(year, month, 0).getDate(); // Magic line to get total days in month
-                
-                document.getElementById("monthInfo").innerText = calcMode === 'monthly' ? `(Dividing by ${daysInMonth} days for this month)` : "";
-
                 let total = 0;
-                if(calcMode === 'monthly') {
-                    // Formula: (Monthly Salary / Actual Days in Month) * Days Worked
-                    total = Math.round((amount / daysInMonth) * daysWorked);
-                } else {
-                    total = amount * daysWorked;
-                }
-                document.getElementById("displayTotal").innerText = total;
-            }
-        }
-
-        async function saveSalary() {
-            const n = document.getElementById("salEmpList").options[document.getElementById("salEmpList").selectedIndex].text;
-            await db.collection("salaries").add({
-                empName: n, total: document.getElementById("displayTotal").innerText,
-                days: document.getElementById("displayDays").innerText,
-                startDate: document.getElementById("startDate").value,
-                endDate: document.getElementById("endDate").value,
-                dateKey: document.getElementById("endDate").value.substring(0,7)
-            });
-            alert("Saved!"); navTo('dashboardPage');
-        }
-
-        async function updateCounts() {
-            const snap = await db.collection("employees").get();
-            document.getElementById("cntAll").innerText = snap.size;
-            document.getElementById("cntActive").innerText = snap.size; // Simplified
-        }
-
-        async function loadSalEmps() {
-            const sel = document.getElementById("salEmpList");
-            sel.innerHTML = "";
-            const snap = await db.collection("employees").get();
-            snap.forEach(doc => sel.innerHTML += `<option>${doc.data().name}</option>`);
-        }
-
-        async function saveNewEmployee() {
-            await db.collection("employees").add({ id: document.getElementById("newEmpId").value, name: document.getElementById("newEmpName").value });
-            alert("Added!"); navTo('dashboardPage');
-        }
-
-        async function generateReport() {
-            const m = document.getElementById("repMonth").value;
-            const area = document.getElementById("printArea");
-            const snap = await db.collection("salaries").where("dateKey", "==", m).get();
-            area.innerHTML = "";
-            snap.forEach(doc => {
-                const s = doc.data();
-                area.innerHTML += `<div class="slip-card">
-                    <h2 style="text-align:center">MESKAY & FEMTEE</h2>
-                    <p>Name: ${s.empName}</p><p>Days: ${s.days}</p><p>Period: ${s.startDate} to ${s.endDate}</p>
-                    <hr><h3>NET PAY: ${s.total}</h3>
-                    <div class="sig-container"><div class="sig-box">Prepared By</div><div class="sig-box">Receiving</div></div>
-                </div>`;
-            });
-        }
-
-        async function showView() {
-            navTo('listPage');
-            const b = document.getElementById("empTableBody"); b.innerHTML = "";
-            const snap = await db.collection("employees").get();
-            snap.forEach(doc => b.innerHTML += `<tr><td>${doc.data().id}</td><td>${doc.data().name}</td></tr>`);
-        }
-    </script>
-</body>
-</html>
+                if (calcMode === 'monthly') {
+                    // Smart Month Detection based on End Date
+                    const year = e.getFullYear();
+                    const month = e.getMonth() + 1;
+                    const daysInMonth = new Date(year, month, 0).getDate();
+                    document.getElementById
