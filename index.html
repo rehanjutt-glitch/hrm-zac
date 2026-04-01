@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM Cloud Pro</title>
+    <title>HRM CLOUD PRO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -11,81 +11,91 @@
 
     <div id="loginPage" class="container">
         <h1>HRM LOGIN</h1>
-        <input type="text" id="username" placeholder="یوزر نیم">
-        <input type="password" id="password" placeholder="پاسورڈ">
-        <button class="main-btn" onclick="handleLogin()">لاگ ان کریں</button>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button class="main-btn" onclick="handleLogin()">LOGIN</button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
         <div class="top-bar">
             <div class="profile-dropdown">
                 <div class="profile-trigger" onclick="toggleMenu()">
-                    <img id="displayPic" src="https://via.placeholder.com/40" class="nav-img">
+                    <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
                     <span id="navName">User</span>
                 </div>
                 <div id="profileMenu" class="dropdown-content hidden">
                     <div class="menu-header">
                         <img id="menuPic" src="https://via.placeholder.com/60">
                         <input type="file" id="picUpload" onchange="uploadImage()" hidden>
-                        <label for="picUpload" class="upload-label">تصویر بدلیں</label>
+                        <label for="picUpload" class="upload-label">Change Photo</label>
                     </div>
-                    <button onclick="navTo('adminPage')" id="adminBtn">⚙️ ایڈمن پینل</button>
-                    <button onclick="logout()" class="logout-btn">🚪 لاگ آؤٹ</button>
+                    <button onclick="navTo('adminPage')" id="adminBtn">⚙️ Admin Panel</button>
+                    <button onclick="logout()" class="logout-btn">🚪 Logout</button>
                 </div>
             </div>
         </div>
 
         <div class="menu-grid">
-            <button class="menu-btn" onclick="showView('all')">تمام ایمپلائز</button>
-            <button class="menu-btn" onclick="navTo('addPage')">نیا ایمپلائی ایڈ کریں</button>
-            <button class="menu-btn" onclick="showView('Active')">ایکٹو ایمپلائز</button>
-            <button class="menu-btn" onclick="showView('Inactive')">ان ایکٹو ایمپلائز</button>
-            <button class="menu-btn master-btn" onclick="showView('master')">مین مینجمنٹ (Update)</button>
+            <button class="menu-btn" onclick="showView('all')">
+                ALL EMPLOYEES <span class="badge" id="countAll">0</span>
+            </button>
+            <button class="menu-btn" onclick="navTo('addPage')">
+                ADD NEW <span class="badge">+</span>
+            </button>
+            <button class="menu-btn" onclick="showView('Active')">
+                ACTIVE <span class="badge" id="countActive">0</span>
+            </button>
+            <button class="menu-btn" onclick="showView('Inactive')">
+                INACTIVE <span class="badge" id="countInactive">0</span>
+            </button>
+            <button class="menu-btn master-btn" onclick="showView('master')">
+                MAIN MANAGEMENT (Update Status)
+            </button>
         </div>
     </div>
 
     <div id="listPage" class="container hidden">
-        <h2 id="listTitle">ایمپلائی ڈیٹا</h2>
-        <input type="text" onkeyup="searchEmp(this.value)" placeholder="تلاش کریں...">
+        <h2 id="listTitle">Employee List</h2>
+        <input type="text" onkeyup="searchEmp(this.value)" placeholder="Search Name...">
         <div class="table-scroll">
             <table>
                 <thead>
-                    <tr><th>ID</th><th>نام</th><th>عہدہ</th><th>سٹیٹس</th><th>ایکشن</th></tr>
+                    <tr><th>ID</th><th>Name</th><th>Designation</th><th>Status</th><th>Action</th></tr>
                 </thead>
                 <tbody id="empTableBody"></tbody>
             </table>
         </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">واپس ڈیش بورڈ</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK TO DASHBOARD</button>
     </div>
 
     <div id="addPage" class="container hidden">
-        <h2>نیا ریکارڈ درج کریں</h2>
-        <input type="text" id="eId" placeholder="ID">
-        <input type="text" id="eName" placeholder="مکمل نام">
-        <input type="text" id="eDes" placeholder="عہدہ">
-        <button class="main-btn" onclick="saveEmployee()">کلاؤڈ پر محفوظ کریں</button>
-        <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">کینسل</button>
+        <h2>Add New Employee</h2>
+        <input type="text" id="eId" placeholder="Employee ID">
+        <input type="text" id="eName" placeholder="Full Name">
+        <input type="text" id="eDes" placeholder="Designation">
+        <button class="main-btn" onclick="saveEmployee()">SAVE TO CLOUD</button>
+        <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">CANCEL</button>
     </div>
 
     <div id="adminPage" class="container hidden">
-        <h2>ایڈمن پینل - یوزر مینجمنٹ</h2>
+        <h2>Admin Panel - Users</h2>
         <div class="admin-box">
-            <h3>نیا اکاؤنٹ بنائیں</h3>
-            <input type="text" id="newAccName" placeholder="بندے کا نام (Full Name)">
-            <input type="text" id="newLoginU" placeholder="لاگ ان یوزر نیم (Unique)">
-            <input type="password" id="newPass" placeholder="پاسورڈ">
-            <button class="main-btn" onclick="createNewUser()">یوزر سیو کریں</button>
+            <h3>Create New User</h3>
+            <input type="text" id="newAccName" placeholder="Full Name">
+            <input type="text" id="newLoginU" placeholder="Login Username">
+            <input type="password" id="newPass" placeholder="Password">
+            <button class="main-btn" onclick="createNewUser()">SAVE USER</button>
         </div>
         <hr>
         <div class="admin-box">
-            <h3>اکاؤنٹ اپڈیٹ کریں</h3>
-            <input type="text" id="oldU" placeholder="پرانا یوزر نیم">
-            <input type="password" id="oldP" placeholder="پرانا پاسورڈ">
-            <input type="text" id="updU" placeholder="نیا یوزر نیم">
-            <input type="password" id="updP" placeholder="نیا پاسورڈ">
-            <button class="main-btn" onclick="updateUserAccount()">اپڈیٹ کریں</button>
+            <h3>Update Account</h3>
+            <input type="text" id="oldU" placeholder="Old Username">
+            <input type="password" id="oldP" placeholder="Old Password">
+            <input type="text" id="updU" placeholder="New Username">
+            <input type="password" id="updP" placeholder="New Password">
+            <button class="main-btn" onclick="updateUserAccount()">UPDATE NOW</button>
         </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">واپس</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
