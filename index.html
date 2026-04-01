@@ -3,99 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM CLOUD PRO</title>
+    <title>Cloud HRM Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="loginPage" class="container">
-        <h1>HRM LOGIN</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
+        <h1>HRM SYSTEM LOGIN</h1>
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Username">
+        </div>
+        <div class="input-group pass-box">
+            <input type="password" id="password" placeholder="Password">
+            <i class="fa-solid fa-eye" id="toggleEye" onclick="togglePassView()"></i>
+        </div>
         <button class="main-btn" onclick="handleLogin()">LOGIN</button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
-        <div class="top-bar">
-            <div class="profile-dropdown">
-                <div class="profile-trigger" onclick="toggleMenu()">
-                    <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
-                    <span id="navName">User</span>
-                </div>
-                <div id="profileMenu" class="dropdown-content hidden">
-                    <div class="menu-header">
+        <div class="top-nav">
+            <div class="profile-area" onclick="toggleProfileMenu()">
+                <img id="navPic" src="https://via.placeholder.com/40">
+                <span id="navName">Loading...</span>
+                <div id="profileMenu" class="dropdown hidden">
+                    <div class="drop-header">
                         <img id="menuPic" src="https://via.placeholder.com/60">
-                        <input type="file" id="picUpload" onchange="uploadImage()" hidden>
-                        <label for="picUpload" class="upload-label">Change Photo</label>
+                        <input type="file" id="picInput" onchange="uploadPhoto()" hidden>
+                        <label for="picInput">Change Photo</label>
                     </div>
-                    <button onclick="navTo('adminPage')" id="adminBtn">⚙️ Admin Panel</button>
+                    <button onclick="navTo('adminPage')" id="adminLink">⚙️ Admin Panel</button>
+                    <button onclick="navTo('profileSetPage')">👤 My Settings</button>
                     <button onclick="logout()" class="logout-btn">🚪 Logout</button>
                 </div>
             </div>
         </div>
 
         <div class="menu-grid">
-            <button class="menu-btn" onclick="showView('all')">
-                ALL EMPLOYEES <span class="badge" id="countAll">0</span>
-            </button>
-            <button class="menu-btn" onclick="navTo('addPage')">
-                ADD NEW <span class="badge">+</span>
-            </button>
-            <button class="menu-btn" onclick="showView('Active')">
-                ACTIVE <span class="badge" id="countActive">0</span>
-            </button>
-            <button class="menu-btn" onclick="showView('Inactive')">
-                INACTIVE <span class="badge" id="countInactive">0</span>
-            </button>
-            <button class="menu-btn master-btn" onclick="showView('master')">
-                MAIN MANAGEMENT (Update Status)
-            </button>
+            <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
+            <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
+            <button class="menu-btn" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
+            <button class="menu-btn" onclick="navTo('addPage')" id="addBtn">ADD NEW EMPLOYEE</button>
+            <button class="menu-btn update-btn" onclick="showView('update')" id="updBtn">UPDATE EMPLOYEE INFO</button>
+            <button class="menu-btn salary-btn" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
+            <button class="menu-btn report-btn" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
         </div>
     </div>
 
     <div id="listPage" class="container hidden">
-        <h2 id="listTitle">Employee List</h2>
-        <input type="text" onkeyup="searchEmp(this.value)" placeholder="Search Name...">
+        <h2 id="listTitle">Employee Records</h2>
+        <input type="text" onkeyup="searchTable(this.value)" placeholder="Search employee...">
         <div class="table-scroll">
             <table>
-                <thead>
-                    <tr><th>ID</th><th>Name</th><th>Designation</th><th>Status</th><th>Action</th></tr>
-                </thead>
+                <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Action</th></tr></thead>
                 <tbody id="empTableBody"></tbody>
             </table>
         </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK TO DASHBOARD</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
-    <div id="addPage" class="container hidden">
-        <h2>Add New Employee</h2>
-        <input type="text" id="eId" placeholder="Employee ID">
-        <input type="text" id="eName" placeholder="Full Name">
-        <input type="text" id="eDes" placeholder="Designation">
-        <button class="main-btn" onclick="saveEmployee()">SAVE TO CLOUD</button>
+    <div id="salaryPage" class="container hidden">
+        <h2>Generate Salary</h2>
+        <select id="salEmpList"></select>
+        <input type="date" id="salDateCal"> 
+        <input type="text" id="salDateMan" placeholder="Manual Date (DD-MM-YYYY)">
+        <input type="number" id="salDays" placeholder="Total Days Worked">
+        <input type="number" id="salWages" placeholder="Daily Wages/Rate">
+        <div id="salResult" class="result-box">Total: 0</div>
+        <button class="main-btn" onclick="calcSalary()">CALCULATE & SAVE</button>
         <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">CANCEL</button>
     </div>
 
-    <div id="adminPage" class="container hidden">
-        <h2>Admin Panel - Users</h2>
-        <div class="admin-box">
-            <h3>Create New User</h3>
-            <input type="text" id="newAccName" placeholder="Full Name">
-            <input type="text" id="newLoginU" placeholder="Login Username">
-            <input type="password" id="newPass" placeholder="Password">
-            <button class="main-btn" onclick="createNewUser()">SAVE USER</button>
+    <div id="reportPage" class="container hidden">
+        <div class="no-print">
+            <h2>Salary Reports</h2>
+            <input type="month" id="reportMonth">
+            <button class="main-btn" onclick="generateReport()">VIEW REPORT</button>
+            <button class="main-btn" onclick="window.print()">PRINT REPORT / SLIPS</button>
+            <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">BACK</button>
         </div>
-        <hr>
+        <div id="printArea"></div>
+    </div>
+
+    <div id="adminPage" class="container hidden">
+        <h2>Admin - User Management</h2>
         <div class="admin-box">
-            <h3>Update Account</h3>
-            <input type="text" id="oldU" placeholder="Old Username">
-            <input type="password" id="oldP" placeholder="Old Password">
-            <input type="text" id="updU" placeholder="New Username">
-            <input type="password" id="updP" placeholder="New Password">
-            <button class="main-btn" onclick="updateUserAccount()">UPDATE NOW</button>
+            <input type="text" id="newUserName" placeholder="Full Person Name">
+            <input type="text" id="newUserLogin" placeholder="Login ID (Username)">
+            <input type="text" id="newUserPass" placeholder="Password">
+            <select id="newUserRole">
+                <option value="user">User (View Only)</option>
+                <option value="manager">Manager (Salary/Add)</option>
+                <option value="admin">Admin (Full Access)</option>
+            </select>
+            <button class="main-btn" onclick="createNewAccount()">CREATE ACCOUNT</button>
         </div>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="profileSetPage" class="container hidden">
+        <h2>My Account Settings</h2>
+        <input type="text" id="myOldPass" placeholder="Confirm Old Password">
+        <input type="text" id="myNewName" placeholder="Update My Full Name">
+        <input type="text" id="myNewPass" placeholder="New Password">
+        <button class="main-btn" onclick="updateMyProfile()">UPDATE SETTINGS</button>
+        <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
