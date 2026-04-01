@@ -13,105 +13,167 @@ const storage = firebase.storage();
 
 let currentUser = null;
 
-// NAVIGATION
+// NAVIGATION WITH URL HASH
 function navTo(id) {
+    window.location.hash = id;
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
-    if(id === 'dashboardPage') updateDashboardCounts();
+    if(id === 'dashboardPage') updateCounts();
+    if(id === 'salaryPage') loadEmpToSelect();
 }
 
-function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
+window.onhashchange = () => {
+    const page = window.location.hash.replace('#','') || 'loginPage';
+    navTo(page);
+};
 
-// LOGIN LOGIC
+// PASSWORD EYE TOGGLE
+function togglePassView() {
+    const p = document.getElementById("password");
+    const eye = document.getElementById("toggleEye");
+    if(p.type === "password") {
+        p.type = "text"; eye.classList.replace("fa-eye", "fa-eye-slash");
+    } else {
+        p.type = "password"; eye.classList.replace("fa-eye-slash", "fa-eye");
+    }
+}
+
+// LOGIN
 async function handleLogin() {
     const u = document.getElementById("username").value.trim();
     const p = document.getElementById("password").value.trim();
     
+    // Master Admin
     if(u === "Meskay" && p === "Pakistan786") {
-        currentUser = { name: "Admin", role: "admin", loginU: "Meskay" };
-        loginSuccess();
-        return;
+        currentUser = { name: "Admin", role: "admin", loginU: "Meskay", docId: 'master' };
+        loginOk(); return;
     }
 
-    const snap = await db.collection("users").where("loginU", "==", u).where("pass", "==", p).get();
+    const snap = await db.collection("users").where("loginU","==",u).where("pass","==",p).get();
     if(!snap.empty) {
         currentUser = snap.docs[0].data();
-        loginSuccess();
-    } else { alert("Invalid Credentials!"); }
+        currentUser.docId = snap.docs[0].id;
+        loginOk();
+    } else { alert("Login Failed!"); }
 }
 
-function loginSuccess() {
+function loginOk() {
     document.getElementById("navName").innerText = currentUser.name;
-    document.getElementById("adminBtn").style.display = (currentUser.role === 'admin') ? 'block' : 'none';
+    applyAccess();
     navTo('dashboardPage');
     loadProfilePic();
 }
 
-// UPDATE QUANTITIES ON BUTTONS
-async function updateDashboardCounts() {
+function applyAccess() {
+    const r = currentUser.role;
+    document.getElementById("adminLink").style.display = (r === 'admin') ? 'block' : 'none';
+    document.getElementById("addBtn").style.display = (r === 'user') ? 'none' : 'block';
+    document.getElementById("updBtn").style.display = (r === 'user') ? 'none' : 'block';
+}
+
+// DASHBOARD COUNTS
+async function updateCounts() {
     const snap = await db.collection("employees").get();
     let all = 0, act = 0, inact = 0;
     snap.forEach(doc => {
         all++;
         if(doc.data().status === 'Active') act++; else inact++;
     });
-    document.getElementById("countAll").innerText = all;
-    document.getElementById("countActive").innerText = act;
-    document.getElementById("countInactive").innerText = inact;
+    document.getElementById("cntAll").innerText = all;
+    document.getElementById("cntActive").innerText = act;
+    document.getElementById("cntInactive").innerText = inact;
 }
 
-// SHOW EMPLOYEES
+// EMPLOYEE VIEW / UPDATE
 async function showView(mode) {
     navTo('listPage');
     const body = document.getElementById("empTableBody");
-    body.innerHTML = "Syncing...";
+    body.innerHTML = "Loading...";
     
     let query = db.collection("employees");
-    if(mode === 'Active' || mode === 'Inactive') query = query.where("status", "==", mode);
+    if(mode === 'Active' || mode === 'Inactive') query = query.where("status","==",mode);
     
     const snap = await query.get();
     body.innerHTML = "";
     snap.forEach(doc => {
         const e = doc.data();
-        const sClass = e.status === 'Active' ? 'active-bg' : 'inactive-bg';
-        const actionHtml = (mode === 'master') ? 
-            `<button class="status-btn ${sClass}" onclick="toggleEmpStatus('${doc.id}','${e.status}')">${e.status}</button>` : 
-            `<span class="status-btn ${sClass}">${e.status}</span>`;
-
-        body.innerHTML += `<tr>
-            <td>${e.id}</td><td>${e.name.toUpperCase()}</td><td>${e.des}</td>
-            <td>${actionHtml}</td><td>${mode==='master'?'Edit':'View'}</td>
+        const sClass = e.status === 'Active' ? 'active-text' : 'inactive-text';
+        const action = (mode === 'update') ? 
+            `<button onclick="changeStatus('${doc.id}','${e.status}')">Toggle Status</button>` : 'View Only';
+        
+        body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
+            <td>${e.id}</td><td>${e.name}</td><td class="${sClass}">${e.status}</td><td>${action}</td>
         </tr>`;
     });
 }
 
-async function toggleEmpStatus(id, s) {
-    const newStatus = s === 'Active' ? 'Inactive' : 'Active';
-    await db.collection("employees").doc(id).update({ status: newStatus });
-    showView('master');
+async function changeStatus(id, s) {
+    await db.collection("employees").doc(id).update({ status: s==='Active'?'Inactive':'Active' });
+    showView('update');
 }
 
-// SAVE EMPLOYEE
-async function saveEmployee() {
-    const emp = {
-        id: document.getElementById("eId").value,
-        name: document.getElementById("eName").value,
-        des: document.getElementById("eDes").value,
-        status: "Active"
-    };
-    await db.collection("employees").add(emp);
-    alert("Employee Added!");
+// SALARY CALCULATION
+async function loadEmpToSelect() {
+    const sel = document.getElementById("salEmpList");
+    sel.innerHTML = "";
+    const snap = await db.collection("employees").where("status","==","Active").get();
+    snap.forEach(doc => {
+        sel.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
+    });
+}
+
+async function calcSalary() {
+    const id = document.getElementById("salEmpList").value;
+    const days = document.getElementById("salDays").value;
+    const wages = document.getElementById("salWages").value;
+    const date = document.getElementById("salDateCal").value || document.getElementById("salDateMan").value;
+    const total = days * wages;
+    
+    if(!id || !date) return alert("Select Employee and Date");
+
+    await db.collection("salaries").add({
+        empId: id,
+        date: date,
+        days: days,
+        wages: wages,
+        total: total,
+        empName: document.getElementById("salEmpList").options[document.getElementById("salEmpList").selectedIndex].text
+    });
+    alert("Salary Saved: " + total);
     navTo('dashboardPage');
 }
 
-// STORAGE: PROFILE PIC
-async function uploadImage() {
-    const file = document.getElementById("picUpload").files[0];
-    if(!file) return;
+// REPORTS
+async function generateReport() {
+    const month = document.getElementById("reportMonth").value; // YYYY-MM
+    const area = document.getElementById("printArea");
+    area.innerHTML = "Generating...";
+    
+    const snap = await db.collection("salaries").get();
+    area.innerHTML = `<h2>Report for ${month}</h2>`;
+    
+    snap.forEach(doc => {
+        const s = doc.data();
+        if(s.date.includes(month)) {
+            area.innerHTML += `
+            <div class="slip-card">
+                <h3>Salary Slip</h3>
+                <p>Employee: ${s.empName}</p>
+                <p>Date: ${s.date}</p>
+                <p>Days: ${s.days} | Rate: ${s.wages}</p>
+                <hr>
+                <h4>Total Payable: ${s.total}</h4>
+            </div>`;
+        }
+    });
+}
+
+// PROFILE & ADMIN
+async function uploadPhoto() {
+    const file = document.getElementById("picInput").files[0];
     const ref = storage.ref('profiles/' + currentUser.loginU);
     await ref.put(file);
     loadProfilePic();
-    alert("Photo Updated!");
 }
 
 async function loadProfilePic() {
@@ -119,22 +181,20 @@ async function loadProfilePic() {
         const url = await storage.ref('profiles/' + currentUser.loginU).getDownloadURL();
         document.getElementById("navPic").src = url;
         document.getElementById("menuPic").src = url;
-    } catch(e) {}
+    } catch(e){}
 }
 
-// ADMIN: UPDATE USER
-async function updateUserAccount() {
-    const oldU = document.getElementById("oldU").value;
-    const oldP = document.getElementById("oldP").value;
-    const newU = document.getElementById("updU").value;
-    const newP = document.getElementById("updP").value;
+async function updateMyProfile() {
+    const oldP = document.getElementById("myOldPass").value;
+    const nName = document.getElementById("myNewName").value;
+    const nPass = document.getElementById("myNewPass").value;
 
-    const snap = await db.collection("users").where("loginU", "==", oldU).where("pass", "==", oldP).get();
-    if(!snap.empty) {
-        await db.collection("users").doc(snap.docs[0].id).update({ loginU: newU, pass: newP });
-        alert("Account Updated! Please Login again.");
-        logout();
-    } else { alert("Verification Failed!"); }
+    if(oldP !== currentUser.pass && currentUser.loginU !== 'Meskay') return alert("Old Password Wrong!");
+    
+    await db.collection("users").doc(currentUser.docId).update({ name: nName, pass: nPass });
+    alert("Profile Updated! Login again.");
+    logout();
 }
 
-function logout() { location.reload(); }
+function logout() { location.hash = ''; location.reload(); }
+function toggleProfileMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
