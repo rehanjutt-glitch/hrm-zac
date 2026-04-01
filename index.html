@@ -3,39 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud HRM Pro</title>
-    <link rel="stylesheet" href="style.css">
+    <title>HRM CLOUD MASTER PRO</title>
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
+        .container { width: 95%; max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border: 3px solid #000; box-shadow: 10px 10px 0 #000; border-radius: 8px; }
+        .hidden { display: none; }
+        
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; }
+        .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
+        .btn-red { background: #dc3545; }
+        .btn-green { background: #28a745; }
+
+        .pass-box { position: relative; }
+        .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
+        .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
+        .master-btn { grid-column: span 2; background: #1a237e; }
+        .sal-btn { background: #2e7d32; }
+        .rep-btn { background: #01579b; }
+
+        .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; position: relative; }
+        .profile-trigger { display: flex; align-items: center; cursor: pointer; background: #000; color: #fff; padding: 8px 15px; border: 2px solid #000; }
+        .nav-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #fff; object-fit: cover; }
+        .dropdown-menu { position: absolute; top: 100%; right: 0; background: #fff; border: 3px solid #000; width: 220px; z-index: 1000; padding: 15px; box-shadow: 5px 5px 0 #000; text-align: center; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 2px solid #000; padding: 12px; text-align: center; }
+        th { background: #eee; }
+        .active-row { border-left: 10px solid green; }
+        .inactive-row { border-left: 10px solid red; }
+
+        @media print {
+            .no-print { display: none; }
+            .slip-card { page-break-after: always; border: 2px solid #000; padding: 30px; margin: 20px; text-align: left; }
+        }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="loginPage" class="container">
-        <h1>HRM SYSTEM LOGIN</h1>
-        <div class="input-group">
-            <input type="text" id="username" placeholder="Username">
-        </div>
-        <div class="input-group pass-box">
+        <h1>HRM SYSTEM</h1>
+        <input type="text" id="username" placeholder="Username">
+        <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
-            <i class="fa-solid fa-eye" id="toggleEye" onclick="togglePassView()"></i>
+            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
         </div>
         <button class="main-btn" onclick="handleLogin()">LOGIN</button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
-        <div class="top-nav">
-            <div class="profile-area" onclick="toggleProfileMenu()">
-                <img id="navPic" src="https://via.placeholder.com/40">
-                <span id="navName">Loading...</span>
-                <div id="profileMenu" class="dropdown hidden">
-                    <div class="drop-header">
-                        <img id="menuPic" src="https://via.placeholder.com/60">
-                        <input type="file" id="picInput" onchange="uploadPhoto()" hidden>
-                        <label for="picInput">Change Photo</label>
-                    </div>
-                    <button onclick="navTo('adminPage')" id="adminLink">⚙️ Admin Panel</button>
-                    <button onclick="navTo('profileSetPage')">👤 My Settings</button>
-                    <button onclick="logout()" class="logout-btn">🚪 Logout</button>
-                </div>
+        <div class="top-bar">
+            <div class="profile-trigger" onclick="toggleMenu()">
+                <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
+                <span id="navName">User</span>
+            </div>
+            <div id="profileMenu" class="dropdown-menu hidden">
+                <img id="menuPic" src="https://via.placeholder.com/60" style="border-radius:50%; border:2px solid #000"><br>
+                <input type="file" id="picUpload" onchange="uploadImage()" hidden>
+                <label for="picUpload" style="cursor:pointer; color:blue; text-decoration:underline; font-size:12px;">Change Photo</label>
+                <hr>
+                <button class="main-btn" onclick="navTo('adminPage')" id="adminBtn">⚙️ Admin Panel</button>
+                <button class="main-btn btn-red" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
 
@@ -43,76 +75,204 @@
             <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
             <button class="menu-btn" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
-            <button class="menu-btn" onclick="navTo('addPage')" id="addBtn">ADD NEW EMPLOYEE</button>
-            <button class="menu-btn update-btn" onclick="showView('update')" id="updBtn">UPDATE EMPLOYEE INFO</button>
-            <button class="menu-btn salary-btn" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
-            <button class="menu-btn report-btn" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
+            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW EMPLOYEE</button>
+            <button class="menu-btn master-btn" onclick="showView('update')">UPDATE & MANAGE INFO</button>
+            <button class="menu-btn sal-btn" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
+            <button class="menu-btn rep-btn" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
         </div>
     </div>
 
     <div id="listPage" class="container hidden">
-        <h2 id="listTitle">Employee Records</h2>
-        <input type="text" onkeyup="searchTable(this.value)" placeholder="Search employee...">
-        <div class="table-scroll">
-            <table>
-                <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody id="empTableBody"></tbody>
-            </table>
-        </div>
+        <h2 id="listTitle">Records</h2>
+        <input type="text" onkeyup="searchTable(this.value)" placeholder="Search...">
+        <table>
+            <thead id="tableHead"></thead>
+            <tbody id="empTableBody"></tbody>
+        </table>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="salaryPage" class="container hidden">
         <h2>Generate Salary</h2>
         <select id="salEmpList"></select>
-        <input type="date" id="salDateCal"> 
+        <input type="date" id="salDate">
         <input type="text" id="salDateMan" placeholder="Manual Date (DD-MM-YYYY)">
-        <input type="number" id="salDays" placeholder="Total Days Worked">
-        <input type="number" id="salWages" placeholder="Daily Wages/Rate">
-        <div id="salResult" class="result-box">Total: 0</div>
-        <button class="main-btn" onclick="calcSalary()">CALCULATE & SAVE</button>
-        <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">CANCEL</button>
+        <input type="number" id="salDays" placeholder="Working Days">
+        <input type="number" id="salWages" placeholder="Daily Rate">
+        <button class="main-btn btn-green" onclick="saveSalary()">SAVE SALARY</button>
+        <button class="main-btn btn-red" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="reportPage" class="container hidden">
         <div class="no-print">
-            <h2>Salary Reports</h2>
-            <input type="month" id="reportMonth">
-            <button class="main-btn" onclick="generateReport()">VIEW REPORT</button>
-            <button class="main-btn" onclick="window.print()">PRINT REPORT / SLIPS</button>
-            <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">BACK</button>
+            <h2>Reports</h2>
+            <input type="month" id="repMonth">
+            <button class="main-btn btn-green" onclick="generateReport()">VIEW</button>
+            <button class="main-btn" onclick="window.print()">PRINT SLIPS</button>
+            <button class="main-btn btn-red" onclick="navTo('dashboardPage')">BACK</button>
         </div>
         <div id="printArea"></div>
     </div>
 
     <div id="adminPage" class="container hidden">
-        <h2>Admin - User Management</h2>
-        <div class="admin-box">
-            <input type="text" id="newUserName" placeholder="Full Person Name">
-            <input type="text" id="newUserLogin" placeholder="Login ID (Username)">
-            <input type="text" id="newUserPass" placeholder="Password">
-            <select id="newUserRole">
-                <option value="user">User (View Only)</option>
-                <option value="manager">Manager (Salary/Add)</option>
-                <option value="admin">Admin (Full Access)</option>
-            </select>
-            <button class="main-btn" onclick="createNewAccount()">CREATE ACCOUNT</button>
-        </div>
+        <h2>Admin Panel</h2>
+        <input type="text" id="newPersonName" placeholder="Full Name">
+        <input type="text" id="newLoginName" placeholder="Username">
+        <input type="text" id="newLoginPass" placeholder="Password">
+        <select id="newRole">
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button class="main-btn btn-green" onclick="createNewUser()">CREATE</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
-    </div>
-
-    <div id="profileSetPage" class="container hidden">
-        <h2>My Account Settings</h2>
-        <input type="text" id="myOldPass" placeholder="Confirm Old Password">
-        <input type="text" id="myNewName" placeholder="Update My Full Name">
-        <input type="text" id="myNewPass" placeholder="New Password">
-        <button class="main-btn" onclick="updateMyProfile()">UPDATE SETTINGS</button>
-        <button class="main-btn btn-sec" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
-    <script src="script.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrzmh9TbcyuLAG6LkoKERcBuHvQ-sf0oU",
+            authDomain: "my-hrm-project-d1aef.firebaseapp.com",
+            projectId: "my-hrm-project-d1aef",
+            storageBucket: "my-hrm-project-d1aef.appspot.com",
+            messagingSenderId: "165053525844",
+            appId: "1:165053525844:web:6abc82aca238d9e84862c1"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        let currentUser = null;
+
+        function navTo(id) {
+            window.location.hash = id;
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'dashboardPage') updateCounts();
+            if(id === 'salaryPage') loadSalEmps();
+        }
+
+        function togglePass() {
+            const p = document.getElementById("password");
+            p.type = (p.type === "password") ? "text" : "password";
+        }
+
+        async function handleLogin() {
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
+            if(u === "Meskay" && p === "Pakistan786") {
+                currentUser = { name: "Master Admin", role: "admin", loginU: "Meskay" };
+                loginOk(); return;
+            }
+            const snap = await db.collection("users").where("loginU","==",u).where("pass","==",p).get();
+            if(!snap.empty) { currentUser = snap.docs[0].data(); loginOk(); } else alert("Access Denied!");
+        }
+
+        function loginOk() {
+            document.getElementById("navName").innerText = currentUser.name;
+            document.getElementById("adminBtn").style.display = (currentUser.role === 'admin') ? 'block' : 'none';
+            navTo('dashboardPage');
+            loadProfilePic();
+        }
+
+        async function updateCounts() {
+            const snap = await db.collection("employees").get();
+            let all = 0, act = 0, inact = 0;
+            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; else inact++; });
+            document.getElementById("cntAll").innerText = all;
+            document.getElementById("cntActive").innerText = act;
+            document.getElementById("cntInactive").innerText = inact;
+        }
+
+        async function showView(mode) {
+            navTo('listPage');
+            const head = document.getElementById("tableHead");
+            const body = document.getElementById("empTableBody");
+            body.innerHTML = "Loading...";
+
+            // اگر اپڈیٹ موڈ ہے تو ایکشن کالم دکھائیں، ورنہ نہیں
+            head.innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
+            
+            let query = db.collection("employees");
+            if(mode === 'Active' || mode === 'Inactive') query = query.where("status","==",mode);
+            
+            const snap = await query.get();
+            body.innerHTML = "";
+            snap.forEach(doc => {
+                const e = doc.data();
+                const actionCell = (mode === 'update') ? 
+                    `<td>
+                        <button class="btn-green" onclick="toggleStatus('${doc.id}','${e.status}')">Status</button>
+                        <button class="btn-red" onclick="delEmp('${doc.id}')">Delete</button>
+                    </td>` : '';
+
+                body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
+                    <td>${e.id}</td><td>${e.name}</td>
+                    <td style="color:${e.status==='Active'?'green':'red'}; font-weight:bold">${e.status}</td>
+                    ${actionCell}
+                </tr>`;
+            });
+        }
+
+        async function toggleStatus(id, s) {
+            await db.collection("employees").doc(id).update({ status: s==='Active'?'Inactive':'Active' });
+            showView('update');
+        }
+
+        async function delEmp(id) {
+            if(confirm("Delete Employee?")) { await db.collection("employees").doc(id).delete(); showView('update'); }
+        }
+
+        async function loadSalEmps() {
+            const sel = document.getElementById("salEmpList");
+            sel.innerHTML = "";
+            const snap = await db.collection("employees").where("status","==","Active").get();
+            snap.forEach(doc => sel.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`);
+        }
+
+        async function saveSalary() {
+            const d = document.getElementById("salDays").value;
+            const r = document.getElementById("salWages").value;
+            const dt = document.getElementById("salDate").value || document.getElementById("salDateMan").value;
+            await db.collection("salaries").add({
+                empName: document.getElementById("salEmpList").options[document.getElementById("salEmpList").selectedIndex].text,
+                date: dt, total: d * r, days: d, rate: r
+            });
+            alert("Salary Saved!"); navTo('dashboardPage');
+        }
+
+        async function generateReport() {
+            const month = document.getElementById("repMonth").value;
+            const area = document.getElementById("printArea");
+            const snap = await db.collection("salaries").get();
+            area.innerHTML = "";
+            snap.forEach(doc => {
+                const s = doc.data();
+                if(s.date.includes(month)) {
+                    area.innerHTML += `<div class="slip-card"><h2>SALARY SLIP</h2><p>Name: ${s.empName}</p><p>Date: ${s.date}</p><hr><p>Days: ${s.days} x Rate: ${s.rate}</p><h3>TOTAL: ${s.total}</h3></div>`;
+                }
+            });
+        }
+
+        async function uploadImage() {
+            const file = document.getElementById("picUpload").files[0];
+            await storage.ref('profiles/' + currentUser.loginU).put(file);
+            loadProfilePic();
+        }
+
+        async function loadProfilePic() {
+            try {
+                const url = await storage.ref('profiles/' + currentUser.loginU).getDownloadURL();
+                document.getElementById("navPic").src = url;
+                document.getElementById("menuPic").src = url;
+            } catch(e) {}
+        }
+
+        function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
+        function logout() { location.reload(); }
+    </script>
 </body>
 </html>
