@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM CLOUD MASTER PRO</title>
+    <title>HRM MASTER - FIXED</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
         .container { width: 95%; max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border: 3px solid #000; box-shadow: 10px 10px 0 #000; border-radius: 8px; }
         .hidden { display: none; }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; font-weight: bold; }
         .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
@@ -36,6 +36,8 @@
         .active-row { border-left: 10px solid green; }
         .inactive-row { border-left: 10px solid red; }
 
+        .calc-info { background: #e3f2fd; padding: 15px; border: 2px dashed #000; margin: 10px 0; font-weight: bold; }
+
         @media print {
             .no-print { display: none; }
             .slip-card { page-break-after: always; border: 2px solid #000; padding: 30px; margin: 20px; text-align: left; }
@@ -46,7 +48,7 @@
 <body>
 
     <div id="loginPage" class="container">
-        <h1>HRM SYSTEM</h1>
+        <h1>HRM MASTER LOGIN</h1>
         <input type="text" id="username" placeholder="Username">
         <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
@@ -82,9 +84,20 @@
         </div>
     </div>
 
+    <div id="addPage" class="container hidden">
+        <h2>Add New Employee</h2>
+        <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 101)">
+        <input type="text" id="newEmpName" placeholder="Employee Full Name">
+        <select id="newEmpStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
+        <button class="main-btn btn-red" onclick="navTo('dashboardPage')">CANCEL</button>
+    </div>
+
     <div id="listPage" class="container hidden">
         <h2 id="listTitle">Records</h2>
-        <input type="text" onkeyup="searchTable(this.value)" placeholder="Search...">
         <table>
             <thead id="tableHead"></thead>
             <tbody id="empTableBody"></tbody>
@@ -95,10 +108,13 @@
     <div id="salaryPage" class="container hidden">
         <h2>Generate Salary</h2>
         <select id="salEmpList"></select>
-        <input type="date" id="salDate">
-        <input type="text" id="salDateMan" placeholder="Manual Date (DD-MM-YYYY)">
-        <input type="number" id="salDays" placeholder="Working Days">
-        <input type="number" id="salWages" placeholder="Daily Rate">
+        <label>Start Date:</label>
+        <input type="date" id="startDate" onchange="autoCalcDays()">
+        <label>End Date:</label>
+        <input type="date" id="endDate" onchange="autoCalcDays()">
+        <div class="calc-info">Days: <span id="displayDays">0</span></div>
+        <input type="number" id="salWages" placeholder="Daily Rate" onkeyup="autoCalcDays()">
+        <div class="calc-info" style="background:#c8e6c9">Total: <span id="displayTotal">0</span></div>
         <button class="main-btn btn-green" onclick="saveSalary()">SAVE SALARY</button>
         <button class="main-btn btn-red" onclick="navTo('dashboardPage')">BACK</button>
     </div>
@@ -108,14 +124,14 @@
             <h2>Reports</h2>
             <input type="month" id="repMonth">
             <button class="main-btn btn-green" onclick="generateReport()">VIEW</button>
-            <button class="main-btn" onclick="window.print()">PRINT SLIPS</button>
+            <button class="main-btn" onclick="window.print()">PRINT</button>
             <button class="main-btn btn-red" onclick="navTo('dashboardPage')">BACK</button>
         </div>
         <div id="printArea"></div>
     </div>
 
     <div id="adminPage" class="container hidden">
-        <h2>Admin Panel</h2>
+        <h2>Admin Management</h2>
         <input type="text" id="newPersonName" placeholder="Full Name">
         <input type="text" id="newLoginName" placeholder="Username">
         <input type="text" id="newLoginPass" placeholder="Password">
@@ -124,7 +140,7 @@
             <option value="manager">Manager</option>
             <option value="admin">Admin</option>
         </select>
-        <button class="main-btn btn-green" onclick="createNewUser()">CREATE</button>
+        <button class="main-btn btn-green" onclick="createNewUser()">CREATE USER</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
@@ -160,6 +176,42 @@
             p.type = (p.type === "password") ? "text" : "password";
         }
 
+        // ADD NEW EMPLOYEE FUNCTION (FIXED)
+        async function saveNewEmployee() {
+            const id = document.getElementById("newEmpId").value.trim();
+            const name = document.getElementById("newEmpName").value.trim();
+            const status = document.getElementById("newEmpStatus").value;
+
+            if(!id || !name) return alert("Please enter ID and Name!");
+
+            try {
+                await db.collection("employees").add({
+                    id: id,
+                    name: name,
+                    status: status,
+                    createdAt: new Date()
+                });
+                alert("Employee Added Successfully!");
+                document.getElementById("newEmpId").value = "";
+                document.getElementById("newEmpName").value = "";
+                navTo('dashboardPage');
+            } catch(e) { alert("Error saving data!"); }
+        }
+
+        function autoCalcDays() {
+            const start = new Date(document.getElementById("startDate").value);
+            const end = new Date(document.getElementById("endDate").value);
+            const rate = document.getElementById("salWages").value || 0;
+            if (start && end && end >= start) {
+                const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById("displayDays").innerText = diffDays;
+                document.getElementById("displayTotal").innerText = diffDays * rate;
+            } else {
+                document.getElementById("displayDays").innerText = "0";
+                document.getElementById("displayTotal").innerText = "0";
+            }
+        }
+
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
@@ -191,9 +243,7 @@
             navTo('listPage');
             const head = document.getElementById("tableHead");
             const body = document.getElementById("empTableBody");
-            body.innerHTML = "Loading...";
-
-            // اگر اپڈیٹ موڈ ہے تو ایکشن کالم دکھائیں، ورنہ نہیں
+            body.innerHTML = "Syncing...";
             head.innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
             
             let query = db.collection("employees");
@@ -204,16 +254,8 @@
             snap.forEach(doc => {
                 const e = doc.data();
                 const actionCell = (mode === 'update') ? 
-                    `<td>
-                        <button class="btn-green" onclick="toggleStatus('${doc.id}','${e.status}')">Status</button>
-                        <button class="btn-red" onclick="delEmp('${doc.id}')">Delete</button>
-                    </td>` : '';
-
-                body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
-                    <td>${e.id}</td><td>${e.name}</td>
-                    <td style="color:${e.status==='Active'?'green':'red'}; font-weight:bold">${e.status}</td>
-                    ${actionCell}
-                </tr>`;
+                    `<td><button class="btn-green" onclick="toggleStatus('${doc.id}','${e.status}')">Status</button> <button class="btn-red" onclick="delEmp('${doc.id}')">Delete</button></td>` : '';
+                body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}"><td>${e.id}</td><td>${e.name}</td><td style="color:${e.status==='Active'?'green':'red'}; font-weight:bold">${e.status}</td>${actionCell}</tr>`;
             });
         }
 
@@ -234,12 +276,15 @@
         }
 
         async function saveSalary() {
-            const d = document.getElementById("salDays").value;
-            const r = document.getElementById("salWages").value;
-            const dt = document.getElementById("salDate").value || document.getElementById("salDateMan").value;
+            const start = document.getElementById("startDate").value;
+            const end = document.getElementById("endDate").value;
+            const days = document.getElementById("displayDays").innerText;
+            const total = document.getElementById("displayTotal").innerText;
+            const rate = document.getElementById("salWages").value;
+            if(!start || !end || days == "0") return alert("Check Dates!");
             await db.collection("salaries").add({
                 empName: document.getElementById("salEmpList").options[document.getElementById("salEmpList").selectedIndex].text,
-                date: dt, total: d * r, days: d, rate: r
+                startDate: start, endDate: end, total: total, days: days, rate: rate, dateKey: end.substring(0,7)
             });
             alert("Salary Saved!"); navTo('dashboardPage');
         }
@@ -247,13 +292,11 @@
         async function generateReport() {
             const month = document.getElementById("repMonth").value;
             const area = document.getElementById("printArea");
-            const snap = await db.collection("salaries").get();
+            const snap = await db.collection("salaries").where("dateKey","==",month).get();
             area.innerHTML = "";
             snap.forEach(doc => {
                 const s = doc.data();
-                if(s.date.includes(month)) {
-                    area.innerHTML += `<div class="slip-card"><h2>SALARY SLIP</h2><p>Name: ${s.empName}</p><p>Date: ${s.date}</p><hr><p>Days: ${s.days} x Rate: ${s.rate}</p><h3>TOTAL: ${s.total}</h3></div>`;
-                }
+                area.innerHTML += `<div class="slip-card"><h2>SALARY SLIP</h2><p>Name: ${s.empName}</p><p>Period: ${s.startDate} to ${s.endDate}</p><hr><p>Days: ${s.days} | Rate: ${s.rate}</p><h3>TOTAL: ${s.total}</h3></div>`;
             });
         }
 
@@ -269,6 +312,15 @@
                 document.getElementById("navPic").src = url;
                 document.getElementById("menuPic").src = url;
             } catch(e) {}
+        }
+
+        async function createNewUser() {
+            const name = document.getElementById("newPersonName").value;
+            const u = document.getElementById("newLoginName").value;
+            const p = document.getElementById("newLoginPass").value;
+            const r = document.getElementById("newRole").value;
+            await db.collection("users").add({ name: name, loginU: u, pass: p, role: r });
+            alert("User Created!"); navTo('dashboardPage');
         }
 
         function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
