@@ -15,6 +15,7 @@
         .main-btn:active { transform: scale(0.98); }
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
+        .btn-blue { background: #01579b; }
 
         .pass-box { position: relative; }
         .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; z-index: 10; }
@@ -27,7 +28,10 @@
         .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; position: relative; }
         .profile-trigger { display: flex; align-items: center; cursor: pointer; background: #000; color: #fff; padding: 8px 15px; border: 2px solid #000; }
         .nav-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #fff; object-fit: cover; }
-        .dropdown-menu { position: absolute; top: 100%; right: 0; background: #fff; border: 3px solid #000; width: 220px; z-index: 1000; padding: 15px; box-shadow: 5px 5px 0 #000; text-align: center; }
+        
+        /* Dropdown Style Updates */
+        .dropdown-menu { position: absolute; top: 100%; right: 0; background: #fff; border: 3px solid #000; width: 220px; z-index: 1000; padding: 10px; box-shadow: 5px 5px 0 #000; text-align: center; }
+        .dropdown-menu button { margin-bottom: 5px; width: 100%; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 2px solid #000; padding: 12px; text-align: center; }
@@ -74,6 +78,7 @@
                 <span id="navName">Admin</span>
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
+                <button class="main-btn btn-blue hidden" id="adminOnlyBtn" onclick="navTo('userAdminPage')">⚙️ User Admin</button>
                 <button class="main-btn btn-red" onclick="location.reload()">🚪 Logout</button>
             </div>
         </div>
@@ -86,7 +91,6 @@
             <button class="menu-btn master-btn" data-access="salary" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
             <button class="menu-btn master-btn" data-access="reports" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
             <button class="menu-btn master-btn" data-access="edit" onclick="showView('update')">MANAGE EMPLOYEES</button>
-            <button class="menu-btn master-btn hidden" id="adminOnlyBtn" onclick="navTo('userAdminPage')" style="background:#d84315">USER MANAGEMENT (ADMIN)</button>
         </div>
     </div>
 
@@ -213,20 +217,17 @@
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
 
-            // Master Admin Check
             if (u === "Meskay" && p === "Pakistan786") {
                 currentUser = { name: "Master Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
                 return loginOk();
             }
 
-            // Check Users from DB
             const userSnap = await db.collection("users").where("username", "==", u).where("password", "==", p).get();
             if (!userSnap.empty) {
                 const userData = userSnap.docs[0].data();
                 currentUser = { name: userData.fullName, role: "user", access: userData.permissions };
                 return loginOk();
             }
-
             alert("Invalid Credentials!");
         }
 
@@ -237,6 +238,7 @@
         }
 
         function applyPermissions() {
+            // Dashboard Menu Buttons
             const btns = document.querySelectorAll('.menu-btn');
             btns.forEach(btn => {
                 const req = btn.getAttribute('data-access');
@@ -247,30 +249,38 @@
                 }
             });
 
-            // Admin only button visibility
+            // Admin Only Button (now in Profile Menu)
+            const adminBtn = document.getElementById("adminOnlyBtn");
             if (currentUser.role === 'admin') {
-                document.getElementById("adminOnlyBtn").classList.remove('hidden');
+                adminBtn.classList.remove('hidden');
             } else {
-                document.getElementById("adminOnlyBtn").classList.add('hidden');
+                adminBtn.classList.add('hidden');
             }
         }
 
+        function toggleMenu() { 
+            document.getElementById("profileMenu").classList.toggle("hidden"); 
+        }
+
+        function navTo(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById("profileMenu").classList.add("hidden"); // Close dropdown when navigating
+            
+            if(id === 'dashboardPage') updateCounts();
+            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
+            if(id === 'userAdminPage') loadUsers();
+        }
+
+        // --- Rest of functions (Unchanged) ---
         async function createNewUser() {
             const fn = document.getElementById("newFullNm").value;
             const un = document.getElementById("newUserNm").value;
             const up = document.getElementById("newUserPs").value;
             const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
-
             if(!fn || !un || !up) return alert("All fields are required!");
-
-            await db.collection("users").add({
-                fullName: fn,
-                username: un,
-                password: up,
-                permissions: perms
-            });
-            alert("User Created!");
-            loadUsers();
+            await db.collection("users").add({ fullName: fn, username: un, password: up, permissions: perms });
+            alert("User Created!"); loadUsers();
         }
 
         async function loadUsers() {
@@ -280,39 +290,12 @@
             body.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
-                body.innerHTML += `<tr>
-                    <td>${d.fullName}</td>
-                    <td>${d.username}</td>
-                    <td><small>${d.permissions.join(', ')}</small></td>
-                    <td><button class="btn-red" style="padding:5px;" onclick="deleteUser('${doc.id}')">Delete</button></td>
-                </tr>`;
+                body.innerHTML += `<tr><td>${d.fullName}</td><td>${d.username}</td><td><small>${d.permissions.join(', ')}</small></td><td><button class="btn-red" style="padding:5px;" onclick="deleteUser('${doc.id}')">Delete</button></td></tr>`;
             });
         }
 
-        async function deleteUser(id) {
-            if(confirm("Delete this user?")) {
-                await db.collection("users").doc(id).delete();
-                loadUsers();
-            }
-        }
-
-        function navTo(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            if(id === 'dashboardPage') updateCounts();
-            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
-            if(id === 'userAdminPage') loadUsers();
-        }
-
-        // --- All your original functions remain exactly the same below ---
-
-        function togglePass() {
-            const p = document.getElementById("password");
-            p.type = p.type === "password" ? "text" : "password";
-        }
-
-        function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
-
+        async function deleteUser(id) { if(confirm("Delete this user?")) { await db.collection("users").doc(id).delete(); loadUsers(); } }
+        function togglePass() { const p = document.getElementById("password"); p.type = p.type === "password" ? "text" : "password"; }
         function setCalcMode(mode) {
             calcMode = mode;
             document.getElementById("btnMonthly").classList.toggle("active-type", mode === 'monthly');
@@ -320,14 +303,12 @@
             document.getElementById("baseAmount").placeholder = mode === 'monthly' ? "Monthly Fix Salary" : "Daily Wage Rate";
             autoCalc();
         }
-
         function autoCalc() {
             const sVal = document.getElementById("startDate").value;
             const eVal = document.getElementById("endDate").value;
             const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
             if (sVal && eVal) {
-                const s = new Date(sVal);
-                const e = new Date(eVal);
+                const s = new Date(sVal); const e = new Date(eVal);
                 const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
                 document.getElementById("displayDays").innerText = days;
                 if (calcMode === 'monthly') {
@@ -340,25 +321,18 @@
                 }
             }
         }
-
         async function updateCounts() {
             const snap = await db.collection("employees").get();
             let all = 0, act = 0, inact = 0;
-            snap.forEach(doc => { 
-                all++; 
-                if(doc.data().status === 'Active') act++; 
-                else inact++;
-            });
+            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; else inact++; });
             document.getElementById("cntAll").innerText = all;
             document.getElementById("cntActive").innerText = act;
             document.getElementById("cntInactive").innerText = inact;
         }
-
         async function loadEmpDropdowns() {
             const salSel = document.getElementById("salEmpList");
             const repSel = document.getElementById("repEmpList");
-            salSel.innerHTML = "";
-            repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
+            salSel.innerHTML = ""; repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
             const snap = await db.collection("employees").where("status","==","Active").get();
             snap.forEach(doc => {
                 const data = doc.data();
@@ -366,7 +340,6 @@
                 repSel.innerHTML += `<option value="${data.name}">${data.name}</option>`;
             });
         }
-
         async function saveSalary() {
             const empRefId = document.getElementById("salEmpList").value;
             const empSnap = await db.collection("employees").doc(empRefId).get();
@@ -374,20 +347,12 @@
             const t = document.getElementById("displayTotal").innerText;
             if(t == "0") return alert("Calculate first!");
             await db.collection("salaries").add({
-                empName: empData.name,
-                empId: empData.id,
-                phone: empData.phone || 'N/A',
-                bank: empData.bank || '',
-                acc: empData.acc || '',
-                total: t,
-                days: document.getElementById("displayDays").innerText,
-                startDate: document.getElementById("startDate").value,
-                endDate: document.getElementById("endDate").value,
-                dateKey: document.getElementById("endDate").value.substring(0,7)
+                empName: empData.name, empId: empData.id, phone: empData.phone || 'N/A', bank: empData.bank || '', acc: empData.acc || '',
+                total: t, days: document.getElementById("displayDays").innerText, startDate: document.getElementById("startDate").value,
+                endDate: document.getElementById("endDate").value, dateKey: document.getElementById("endDate").value.substring(0,7)
             });
             alert("Salary Saved!"); navTo('dashboardPage');
         }
-
         async function generateReport() {
             const m = document.getElementById("repMonth").value;
             const selectedEmp = document.getElementById("repEmpList").value;
@@ -401,10 +366,7 @@
             if (selectedEmp === "all") {
                 let tableHtml = `<div class="slip-card" style="width:95%; border:none;"><h2 style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px;">MESKAY & FEMTEE - STAFF SALARY LIST (${m})</h2><table style="width:100%; margin-top:10px;"><thead><tr style="background:#eee;"><th style="width:12%;">ID No</th><th>Employee Name</th><th>Days</th><th>Salary Amount</th><th>Receiving Sign</th></tr></thead><tbody>`;
                 let grandTotal = 0;
-                snap.forEach(doc => {
-                    const s = doc.data(); grandTotal += parseInt(s.total);
-                    tableHtml += `<tr><td style="font-weight:bold;">${s.empId || '-'}</td><td style="text-align:left; padding-left:10px;">${s.empName}</td><td>${s.days}</td><td style="font-weight:bold;">${s.total} PKR</td><td style="height:45px; border: 2px solid #000;"></td></tr>`;
-                });
+                snap.forEach(doc => { const s = doc.data(); grandTotal += parseInt(s.total); tableHtml += `<tr><td style="font-weight:bold;">${s.empId || '-'}</td><td style="text-align:left; padding-left:10px;">${s.empName}</td><td>${s.days}</td><td style="font-weight:bold;">${s.total} PKR</td><td style="height:45px; border: 2px solid #000;"></td></tr>`; });
                 tableHtml += `<tr style="background:#f9f9f9; font-weight:bold;"><td colspan="3" style="text-align:right;">GRAND TOTAL:</td><td>${grandTotal} PKR</td><td></td></tr></tbody></table><div class="sig-container" style="margin-top:30px;"><div class="sig-box">Verified By (Admin)</div><div class="sig-box">Manager/Authorized Signature</div></div></div>`;
                 area.innerHTML = tableHtml;
             } else {
@@ -415,7 +377,6 @@
                 });
             }
         }
-
         async function showView(mode) {
             navTo('listPage');
             const b = document.getElementById("empTableBody"); b.innerHTML = "";
@@ -428,53 +389,31 @@
             snap.forEach(doc => {
                 const e = doc.data(); const docId = doc.id;
                 if(mode === 'all' || e.status === mode || isUpdate) {
-                    let actionBtn = "";
-                    if(isUpdate) {
-                        actionBtn = `<td><button onclick="editEmp('${docId}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button><button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button></td>`;
-                    }
+                    let actionBtn = ""; if(isUpdate) actionBtn = `<td><button onclick="editEmp('${docId}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button><button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button></td>`;
                     const statusColor = e.status === 'Active' ? 'green' : 'red';
                     b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td style="color:${statusColor}; font-weight:bold;">${e.status}</td>${actionBtn}</tr>`;
                 }
             });
         }
-
         async function editEmp(docId) {
             const doc = await db.collection("employees").doc(docId).get();
             const data = doc.data();
-            document.getElementById("editDocId").value = docId;
-            document.getElementById("editEmpId").value = data.id;
-            document.getElementById("editEmpName").value = data.name;
-            document.getElementById("editEmpPhone").value = data.phone || '';
-            document.getElementById("editEmpBank").value = data.bank || '';
-            document.getElementById("editEmpAcc").value = data.acc || '';
-            document.getElementById("editEmpStatus").value = data.status;
-            navTo('editPage');
+            document.getElementById("editDocId").value = docId; document.getElementById("editEmpId").value = data.id;
+            document.getElementById("editEmpName").value = data.name; document.getElementById("editEmpPhone").value = data.phone || '';
+            document.getElementById("editEmpBank").value = data.bank || ''; document.getElementById("editEmpAcc").value = data.acc || '';
+            document.getElementById("editEmpStatus").value = data.status; navTo('editPage');
         }
-
         async function updateEmployeeData() {
             const docId = document.getElementById("editDocId").value;
-            const updatedData = {
-                id: document.getElementById("editEmpId").value,
-                name: document.getElementById("editEmpName").value,
-                phone: document.getElementById("editEmpPhone").value,
-                bank: document.getElementById("editEmpBank").value,
-                acc: document.getElementById("editEmpAcc").value,
-                status: document.getElementById("editEmpStatus").value
-            };
+            const updatedData = { id: document.getElementById("editEmpId").value, name: document.getElementById("editEmpName").value, phone: document.getElementById("editEmpPhone").value, bank: document.getElementById("editEmpBank").value, acc: document.getElementById("editEmpAcc").value, status: document.getElementById("editEmpStatus").value };
             if(!updatedData.id || !updatedData.name) return alert("ID and Name are required!");
-            await db.collection("employees").doc(docId).update(updatedData);
-            alert("Employee Details Updated!"); showView('update');
+            await db.collection("employees").doc(docId).update(updatedData); alert("Employee Details Updated!"); showView('update');
         }
-
         async function delEmp(id) { if(confirm("Are you sure?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
-
         async function saveNewEmployee() {
-            const id = document.getElementById("newEmpId").value;
-            const name = document.getElementById("newEmpName").value;
-            const phone = document.getElementById("newEmpPhone").value;
-            const bank = document.getElementById("newEmpBank").value;
-            const acc = document.getElementById("newEmpAcc").value;
-            const status = document.getElementById("newEmpStatus").value;
+            const id = document.getElementById("newEmpId").value; const name = document.getElementById("newEmpName").value;
+            const phone = document.getElementById("newEmpPhone").value; const bank = document.getElementById("newEmpBank").value;
+            const acc = document.getElementById("newEmpAcc").value; const status = document.getElementById("newEmpStatus").value;
             if(!id || !name) return alert("ID and Name are required!");
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
