@@ -125,15 +125,24 @@
     </div>
 
     <div id="reportPage" class="container hidden">
+        <div id="reportPage" class="container hidden">
         <div class="no-print">
-            <h2>Reports</h2>
-            <input type="month" id="repMonth">
-            <button class="main-btn btn-green" onclick="generateReport()">GENERATE</button>
-            <button class="main-btn" onclick="window.print()">PRINT</button>
-            <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+            <h2>Salary Reports & Search</h2>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <input type="month" id="repMonth">
+                <input type="text" id="searchEmpId" placeholder="Enter Employee ID to Search">
+            </div>
+            
+            <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                <button class="main-btn btn-green" style="flex:1" onclick="generateReport('single')">🔍 Search & Single Slip</button>
+                <button class="main-btn" style="flex:1; background:#673ab7;" onclick="generateReport('all')">📋 View Full Month List</button>
+                <button class="main-btn" style="flex:1; background:#f44336;" onclick="window.print()">🖨️ Print Now</button>
+                <button class="main-btn" style="flex:1" onclick="navTo('dashboardPage')">BACK</button>
+            </div>
         </div>
+        
         <div id="printArea"></div>
-    </div>
+        </div>
 
     <div id="listPage" class="container hidden">
         <h2 id="listTitle">Records</h2>
@@ -242,36 +251,114 @@
             snap.forEach(doc => sel.innerHTML += `<option>${doc.data().name}</option>`);
         }
 
-        async function saveSalary() {
-            const n = document.getElementById("salEmpList").value;
-            const t = document.getElementById("displayTotal").innerText;
-            if(t == "0") return alert("Calculate first!");
+                async function saveSalary() {
+            const sel = document.getElementById("salEmpList");
+            const name = sel.options[sel.selectedIndex].text;
+            const empId = sel.value; // یہ ملازم کی آئی ڈی ہونی چاہیے
+
             await db.collection("salaries").add({
-                empName: n, total: t, days: document.getElementById("displayDays").innerText,
-                startDate: document.getElementById("startDate").value,
-                endDate: document.getElementById("endDate").value,
-                dateKey: document.getElementById("endDate").value.substring(0,7)
+                empId: empId, 
+                empName: name,
+                // ... باقی ڈیٹا جیسے ڈیزگنیشن اور ٹوٹل وغیرہ
             });
+        }
+
             alert("Salary Saved!"); navTo('dashboardPage');
         }
 
-        async function generateReport() {
-            const m = document.getElementById("repMonth").value;
+                async function generateReport(mode) {
+            const month = document.getElementById("repMonth").value;
+            const searchId = document.getElementById("searchEmpId").value.trim();
             const area = document.getElementById("printArea");
-            const snap = await db.collection("salaries").where("dateKey", "==", m).get();
-            area.innerHTML = snap.empty ? "<h3>No Records</h3>" : "";
-            snap.forEach(doc => {
-                const s = doc.data();
-                area.innerHTML += `
-                    <div class="slip-card">
-                        <div style="text-align:center; border-bottom:2px solid #000;"><h2>MESKAY & FEMTEE</h2></div>
-                        <p><strong>Employee:</strong> ${s.empName}</p>
-                        <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
-                        <hr><h3>NET PAYABLE: ${s.total} PKR</h3>
-                        <div class="sig-container"><div class="sig-box">Admin</div><div class="sig-box">Receiving</div></div>
-                    </div>`;
-            });
+
+            if (!month) return alert("براہ کرم مہینہ سلیکٹ کریں");
+
+            let q = db.collection("salaries").where("dateKey", "==", month);
+            const snap = await q.get();
+
+            if (snap.empty) {
+                area.innerHTML = "<h3>اس مہینے کا کوئی ریکارڈ نہیں ملا۔</h3>";
+                return;
+            }
+
+            area.innerHTML = ""; // پرانا ڈیٹا صاف کریں
+
+            if (mode === 'single') {
+                // ایک ملازم کی سلپ (Search by ID)
+                if (!searchId) return alert("سرچ کرنے کے لیے Employee ID لکھیں");
+                
+                let found = false;
+                snap.forEach(doc => {
+                    const s = doc.data();
+                    // یہاں ہم چیک کر رہے ہیں کہ کیا سیلری ریکارڈ میں موجود نام یا آئی ڈی میچ کرتی ہے
+                    if (s.empId === searchId || s.empName.includes(searchId)) {
+                        found = true;
+                        area.innerHTML = `
+                            <div class="slip-card">
+                                <div class="slip-header">
+                                    <h2>MESKAY & FEMTEE</h2>
+                                    <p>Individual Salary Slip</p>
+                                </div>
+                                <div class="slip-row"><span>Employee ID:</span> <span>${s.empId || 'N/A'}</span></div>
+                                <div class="slip-row"><span>Name:</span> <span>${s.empName}</span></div>
+                                <div class="slip-row"><span>Designation:</span> <span>${s.designation || '-'}</span></div>
+                                <div class="slip-row"><span>Period:</span> <span>${s.startDate} to ${s.endDate}</span></div>
+                                <div class="slip-row"><span>Days Worked:</span> <span>${s.days}</span></div>
+                                <hr>
+                                <div class="slip-row"><h3>NET PAYABLE:</h3> <h3>${s.total} PKR</h3></div>
+                                <div class="sig-container">
+                                    <div class="sig-box">Prepared By</div>
+                                    <div class="sig-box">Receiver's Signature</div>
+                                </div>
+                            </div>`;
+                    }
+                });
+                if (!found) alert("اس آئی ڈی کا کوئی ریکارڈ اس مہینے میں نہیں ملا۔");
+
+            } else {
+                // تمام ملازمین کی ایک ہی لسٹ (Summary Table)
+                let tableHTML = `
+                    <div style="padding:20px;">
+                        <h2>Salary Summary - ${month}</h2>
+                        <table border="2" style="width:100%; border-collapse:collapse;">
+                            <thead style="background:#eee;">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Days</th>
+                                    <th>Total Amount</th>
+                                    <th>Signature</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                let grandTotal = 0;
+                snap.forEach(doc => {
+                    const s = doc.data();
+                    grandTotal += parseInt(s.total);
+                    tableHTML += `
+                        <tr>
+                            <td>${s.empId || '-'}</td>
+                            <td>${s.empName}</td>
+                            <td>${s.days}</td>
+                            <td>${s.total}</td>
+                            <td style="width:150px;"></td>
+                        </tr>`;
+                });
+
+                tableHTML += `
+                            <tr style="background:#f9f9f9; font-weight:bold;">
+                                <td colspan="3" style="text-align:right">Grand Total:</td>
+                                <td>${grandTotal} PKR</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`;
+                area.innerHTML = tableHTML;
+            }
         }
+
 
         async function showView(mode) {
             navTo('listPage');
