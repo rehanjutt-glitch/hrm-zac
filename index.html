@@ -3,92 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM MASTER - SECURE</title>
-    
+    <title>HRM MASTER - UPDATED v2</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
-        .container { width: 95%; max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border: 3px solid #000; box-shadow: 10px 10px 0 #000; border-radius: 8px; }
-        .hidden { display: none !important; } /* اب یہ سختی سے ہائیڈ کرے گا */
-        
+        .container { width: 95%; max-width: 1000px; margin: 20px auto; background: #fff; padding: 25px; border: 3px solid #000; box-shadow: 10px 10px 0 #000; border-radius: 8px; }
+        .hidden { display: none; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; font-weight: bold; }
-        .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; transition: 0.2s; }
+        .main-btn { padding: 12px 20px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin: 5px; font-size: 14px; transition: 0.2s; }
         .main-btn:active { transform: scale(0.98); }
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
-        .btn-blue { background: #007bff; color: white; }
+        .btn-blue { background: #01579b; }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
-        .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
-        .master-btn { grid-column: span 2; background: #1a237e; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: #eee; padding: 15px; border: 2px solid #000; cursor: pointer; }
+        .stat-card h3 { margin: 0; font-size: 14px; }
+        .stat-card span { font-size: 24px; font-weight: bold; color: #1a237e; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 2px solid #000; padding: 10px; text-align: center; font-size: 14px; }
+        th { background: #f8f9fa; }
+
+        /* Profile Style */
+        .profile-card { border: 4px solid #000; padding: 40px; text-align: left; max-width: 600px; margin: 20px auto; position: relative; }
+        .profile-header { border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; text-align: center; }
+        .profile-row { margin: 15px 0; font-size: 18px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 2px solid #000; padding: 12px; text-align: center; }
-        th { background: #eee; }
-
-        /* Modal / Detail View Styling */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .detail-card { background: #fff; padding: 30px; border: 4px solid #000; width: 90%; max-width: 500px; text-align: left; position: relative; border-radius: 10px; box-shadow: 10px 10px 0px #000; }
-        .detail-row { margin: 15px 0; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-        .detail-row strong { color: #000; width: 140px; display: inline-block; }
-
-        @media print { .no-print { display: none; } }
+        @media print {
+            .no-print { display: none; }
+            .profile-card { border: 1px solid #000; width: 100%; margin: 0; box-shadow: none; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="loginPage" class="container">
-        <h1>HRM LOGIN</h1>
-        <p>Enter credentials to access system</p>
-        <input type="text" id="username" placeholder="Username / Login ID">
+        <h1>MESKAY HRM SYSTEM</h1>
+        <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button class="main-btn" onclick="handleLogin()">SECURE LOGIN</button>
+        <button class="main-btn" style="width:100%" onclick="handleLogin()">LOGIN</button>
+        <p style="font-size: 12px; color: #666;">Admin: Meskay / Manager: Staff123</p>
     </div>
 
     <div id="dashboardPage" class="container hidden">
-        <h2>WELCOME ADMIN</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px;">
+            <h2 id="welcomeText">Welcome</h2>
+            <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
+        </div>
+
         <div class="menu-grid">
-            <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
-            <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
-            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW STAFF</button>
-            <button class="menu-btn master-btn" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
-            <button class="menu-btn master-btn" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
-            <button class="menu-btn master-btn" onclick="showView('update')">MANAGE EMPLOYEES</button>
-            <button class="main-btn btn-red" onclick="location.reload()" style="grid-column: span 2;">LOGOUT</button>
+            <div class="stat-card" onclick="filterList('all')"><h3>Total Staff</h3><span id="cntAll">0</span></div>
+            <div class="stat-card" onclick="filterList('Active')" style="border-color: green;"><h3>Active</h3><span id="cntActive" style="color: green;">0</span></div>
+            <div class="stat-card" onclick="filterList('Inactive')" style="border-color: red;"><h3>Inactive</h3><span id="cntInactive" style="color: red;">0</span></div>
         </div>
-    </div>
 
-    <div id="listPage" class="container hidden">
-        <h2 id="listTitle">Employee Records</h2>
+        <div class="no-print">
+            <button class="main-btn btn-green" onclick="navTo('addPage')">+ Add Staff</button>
+            <button class="main-btn btn-blue" onclick="navTo('salaryPage')">Salary Calculator</button>
+            <button class="main-btn btn-blue" onclick="navTo('reportPage')">Reports</button>
+        </div>
+
+        <h3>Employee Management List</h3>
         <div style="overflow-x:auto;">
-            <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
-        </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK TO DASHBOARD</button>
-    </div>
-
-    <div id="detailModal" class="modal hidden">
-        <div class="detail-card">
-            <h2 style="border-bottom: 3px solid #000;">Employee Profile</h2>
-            <div id="detailContent"></div>
-            <button class="main-btn btn-red" onclick="closeDetails()">CLOSE</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="mainListBody"></tbody>
+            </table>
         </div>
     </div>
 
     <div id="addPage" class="container hidden">
-        <h2>Add New Employee</h2>
+        <h2>Add New Staff</h2>
         <input type="text" id="newEmpId" placeholder="Employee ID">
         <input type="text" id="newEmpName" placeholder="Full Name">
         <input type="text" id="newEmpPhone" placeholder="Phone Number">
         <input type="text" id="newEmpBank" placeholder="Bank Name">
-        <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN">
-        <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
-        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
+        <input type="text" id="newEmpAcc" placeholder="Account / IBAN">
+        <select id="newEmpStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
-    <div id="salaryPage" class="container hidden"><h2>Salary Calc</h2><button onclick="navTo('dashboardPage')">Back</button></div>
-    <div id="reportPage" class="container hidden"><h2>Reports</h2><button onclick="navTo('dashboardPage')">Back</button></div>
+    <div id="profilePage" class="container hidden">
+        <div class="no-print">
+            <button class="main-btn" onclick="navTo('dashboardPage')">← Back</button>
+            <button class="main-btn btn-blue" onclick="window.print()">Print Profile</button>
+        </div>
+        <div class="profile-card" id="profileContent">
+            </div>
+    </div>
+
+    <div id="salaryPage" class="container hidden">
+        <h2>Salary Calculator</h2>
+        <select id="salEmpList"></select>
+        <input type="date" id="startDate" onchange="autoCalc()">
+        <input type="date" id="endDate" onchange="autoCalc()">
+        <input type="number" id="baseAmount" placeholder="Amount" onkeyup="autoCalc()">
+        <div style="background:#eee; padding:10px; margin:10px 0;">Payable: <span id="displayTotal">0</span></div>
+        <button class="main-btn btn-green" onclick="saveSalary()">SAVE</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="reportPage" class="container hidden">
+        <h2>Reports</h2>
+        <input type="month" id="repMonth">
+        <button class="main-btn btn-blue" onclick="generateReport()">GENERATE</button>
+        <div id="printArea"></div>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
@@ -105,92 +138,131 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // لاگ ان فنکشن
+        let userRole = ""; // 'admin' or 'manager'
+
         function handleLogin() {
-            const u = document.getElementById("username").value.trim();
-            const p = document.getElementById("password").value.trim();
-            
+            const u = document.getElementById("username").value;
+            const p = document.getElementById("password").value;
+
             if (u === "Meskay" && p === "Pakistan786") {
-                navTo('dashboardPage');
-                updateCounts();
+                userRole = "admin";
+            } else if (u === "Staff123" && p === "Staff123") {
+                userRole = "manager";
             } else {
-                alert("غلط معلومات! دوبارہ کوشش کریں۔");
+                return alert("Invalid Login");
             }
+            
+            document.getElementById("welcomeText").innerText = `Role: ${userRole.toUpperCase()}`;
+            navTo('dashboardPage');
         }
 
-        // پیج نیویگیشن (صرف متعلقہ پیج دکھانے کے لیے)
         function navTo(id) {
-            const sections = ['loginPage', 'dashboardPage', 'listPage', 'addPage', 'salaryPage', 'reportPage'];
-            sections.forEach(s => {
-                const el = document.getElementById(s);
-                if(el) el.classList.add('hidden');
-            });
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
+            if(id === 'dashboardPage') filterList('all');
+            if(id === 'salaryPage') loadEmpDropdowns();
         }
 
-        async function updateCounts() {
+        async function filterList(status) {
+            const tbody = document.getElementById("mainListBody");
+            tbody.innerHTML = "Loading...";
+            
             const snap = await db.collection("employees").get();
-            let all = 0, act = 0;
-            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; });
-            document.getElementById("cntAll").innerText = all;
-            document.getElementById("cntActive").innerText = act;
-        }
+            let all=0, act=0, inact=0;
+            tbody.innerHTML = "";
 
-        async function showView(mode) {
-            navTo('listPage');
-            const b = document.getElementById("empTableBody");
-            b.innerHTML = "<tr><td colspan='5'>لوڈنگ ہو رہی ہے...</td></tr>";
-            
-            const isUpdate = mode === 'update';
-            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th><th>Details</th>${isUpdate ? '<th>Actions</th>' : ''}</tr>`;
-            
-            const snap = await db.collection("employees").get();
-            b.innerHTML = "";
-            
             snap.forEach(doc => {
                 const e = doc.data();
-                if(mode === 'all' || e.status === mode || isUpdate) {
-                    let actionBtn = isUpdate ? `<td><button onclick="toggleStatus('${doc.id}', '${e.status === 'Active' ? 'Inactive' : 'Active'}')" style="background:#ff9800; color:white; border:none; padding:5px; border-radius:3px;">تبدیل کریں</button></td>` : "";
-                    
-                    b.innerHTML += `<tr>
-                        <td>${e.id}</td>
-                        <td>${e.name}</td>
-                        <td style="color:${e.status === 'Active' ? 'green' : 'red'}; font-weight:bold;">${e.status}</td>
-                        <td><button class="btn-blue" style="padding:5px 10px; cursor:pointer;" onclick="viewEmpDetails('${doc.id}')">View 👁️</button></td>
-                        ${actionBtn}
-                    </tr>`;
+                all++; e.status === 'Active' ? act++ : inact++;
+
+                if (status === 'all' || e.status === status) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.name}</td>
+                            <td style="color:${e.status==='Active'?'green':'red'}">${e.status}</td>
+                            <td>
+                                <button class="main-btn btn-blue" onclick="viewProfile('${doc.id}')">View</button>
+                                ${userRole === 'admin' ? `<button class="main-btn btn-red" onclick="delEmp('${doc.id}')">Del</button>` : ''}
+                            </td>
+                        </tr>`;
                 }
             });
+            document.getElementById("cntAll").innerText = all;
+            document.getElementById("cntActive").innerText = act;
+            document.getElementById("cntInactive").innerText = inact;
         }
 
-        async function viewEmpDetails(docId) {
+        async function viewProfile(docId) {
             const doc = await db.collection("employees").doc(docId).get();
             const e = doc.data();
-            document.getElementById("detailContent").innerHTML = `
-                <div class="detail-row"><strong>ID:</strong> ${e.id}</div>
-                <div class="detail-row"><strong>نام:</strong> ${e.name}</div>
-                <div class="detail-row"><strong>فون:</strong> ${e.phone || '-'}</div>
-                <div class="detail-row"><strong>بینک:</strong> ${e.bank || '-'}</div>
-                <div class="detail-row"><strong>اکاؤنٹ نمبر:</strong> ${e.acc || '-'}</div>
-                <div class="detail-row"><strong>اسٹیٹس:</strong> ${e.status}</div>
+            const profileArea = document.getElementById("profileContent");
+            
+            profileArea.innerHTML = `
+                <div class="profile-header">
+                    <h1 style="margin:0;">MESKAY & FEMTEE</h1>
+                    <p>OFFICIAL EMPLOYEE PROFILE</p>
+                </div>
+                <div class="profile-row"><strong>Employee ID:</strong> ${e.id}</div>
+                <div class="profile-row"><strong>Full Name:</strong> ${e.name}</div>
+                <div class="profile-row"><strong>Phone:</strong> ${e.phone || 'N/A'}</div>
+                <div class="profile-row"><strong>Bank Name:</strong> ${e.bank || 'N/A'}</div>
+                <div class="profile-row"><strong>Account/IBAN:</strong> ${e.acc || 'N/A'}</div>
+                <div class="profile-row"><strong>Current Status:</strong> ${e.status}</div>
+                <div style="margin-top:50px; display:flex; justify-content:space-between;">
+                    <div style="border-top:1px solid #000; width:150px; text-align:center;">Admin Sign</div>
+                    <div style="border-top:1px solid #000; width:150px; text-align:center;">Stamp</div>
+                </div>
             `;
-            document.getElementById("detailModal").classList.remove("hidden");
+            navTo('profilePage');
         }
 
-        function closeDetails() { document.getElementById("detailModal").classList.add("hidden"); }
-
         async function saveNewEmployee() {
-            const id = document.getElementById("newEmpId").value;
-            const name = document.getElementById("newEmpName").value;
-            if(!id || !name) return alert("آئی ڈی اور نام ضروری ہے!");
-            await db.collection("employees").add({
-                id, name, 
+            const data = {
+                id: document.getElementById("newEmpId").value,
+                name: document.getElementById("newEmpName").value,
                 phone: document.getElementById("newEmpPhone").value,
                 bank: document.getElementById("newEmpBank").value,
                 acc: document.getElementById("newEmpAcc").value,
                 status: document.getElementById("newEmpStatus").value
+            };
+            if(!data.id || !data.name) return alert("Required fields missing");
+            await db.collection("employees").add(data);
+            alert("Added!"); navTo('dashboardPage');
+        }
+
+        async function delEmp(id) { if(confirm("Confirm Delete?")) { await db.collection("employees").doc(id).delete(); filterList('all'); } }
+
+        // Salary & Helper Functions
+        function autoCalc() {
+            const s = new Date(document.getElementById("startDate").value);
+            const e = new Date(document.getElementById("endDate").value);
+            const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
+            if(s && e && amount) {
+                const days = Math.ceil(Math.abs(e - s) / (86400000)) + 1;
+                const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
+                document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * days);
+            }
+        }
+
+        async function loadEmpDropdowns() {
+            const sel = document.getElementById("salEmpList");
+            sel.innerHTML = "";
+            const snap = await db.collection("employees").where("status","==","Active").get();
+            snap.forEach(doc => sel.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`);
+        }
+
+        async function saveSalary() {
+            const t = document.getElementById("displayTotal").innerText;
+            if(t == "0") return alert("Calculate first");
+            const empId = document.getElementById("salEmpList").value;
+            const emp = (await db.collection("employees").doc(empId).get()).data();
+            await db.collection("salaries").add({
+                empName: emp.name,
+                total: t,
+                dateKey: document.getElementById("endDate").value.substring(0,7)
             });
-            alert("ملازم شامل کر دیا گیا!"); navTo('dashboardPage'); updateCounts();
+            alert("Saved!"); navTo('dashboardPage');
         }
     </script>
 </body>
