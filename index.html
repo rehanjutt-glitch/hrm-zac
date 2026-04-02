@@ -54,7 +54,7 @@
 <body>
 
     <div id="loginPage" class="container">
-        <h1>MESKAY HRM CLOUD</h1>
+        <h1>HRM LOGIN</h1>
         <p>Enter credentials to access system</p>
         <input type="text" id="username" placeholder="Username / Login ID">
         <div class="pass-box">
@@ -67,7 +67,7 @@
     <div id="dashboardPage" class="container hidden">
         <div class="top-bar">
             <div class="profile-trigger" onclick="toggleMenu()">
-                <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
+               <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
                 <span id="navName">Admin</span>
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
@@ -86,14 +86,18 @@
         </div>
     </div>
 
-    <div id="addPage" class="container hidden">
+        <div id="addPage" class="container hidden">
         <h2>Add New Employee</h2>
-        <input type="text" id="newEmpId" placeholder="Employee ID">
+        <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 001)">
         <input type="text" id="newEmpName" placeholder="Full Name">
-        <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+        <input type="text" id="newDesignation" placeholder="Designation (e.g. Driver, Loader)">
+        <select id="newEmpStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
         <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
-    </div>
+        </div>
 
     <div id="salaryPage" class="container hidden">
         <h2>Salary Calculator</h2>
@@ -282,10 +286,36 @@
             });
         }
         async function delEmp(id) { if(confirm("Delete?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
-        async function saveNewEmployee() {
-            await db.collection("employees").add({ id: document.getElementById("newEmpId").value, name: document.getElementById("newEmpName").value, status: document.getElementById("newEmpStatus").value });
-            alert("Saved!"); navTo('dashboardPage');
+                async function saveNewEmployee() {
+            const id = document.getElementById("newEmpId").value;
+            const name = document.getElementById("newEmpName").value;
+            const desig = document.getElementById("newDesignation").value;
+            const status = document.getElementById("newEmpStatus").value;
+
+            if(!id || !name || !desig) {
+                return alert("براہ کرم تمام خانے پُر کریں (ID, Name, Designation)");
+            }
+
+            try {
+                await db.collection("employees").add({ 
+                    id: id, 
+                    name: name, 
+                    designation: desig, 
+                    status: status 
+                });
+                alert("Employee Added Successfully!");
+                
+                // فارم خالی کرنے کے لیے
+                document.getElementById("newEmpId").value = "";
+                document.getElementById("newEmpName").value = "";
+                document.getElementById("newDesignation").value = "";
+                
+                navTo('dashboardPage');
+            } catch (e) {
+                alert("Error saving employee: " + e);
+            }
         }
+
     </script>
 </body>
 </html>
