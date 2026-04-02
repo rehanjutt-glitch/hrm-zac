@@ -38,4 +38,333 @@
         
         .type-selector { display: flex; gap: 10px; margin: 10px 0; }
         .type-selector button { flex: 1; padding: 12px; border: 2px solid #000; cursor: pointer; font-weight: bold; background: #fff; }
-        .active-type { background: #00
+        .active-type { background: #000 !important; color: #fff !important; }
+
+        .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; border-radius: 5px; }
+        .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
+        .sig-box { border-top: 2px solid #000; width: 40%; text-align: center; padding-top: 5px; font-weight: bold; }
+
+        @media print {
+            .no-print { display: none; }
+            body { background: white; }
+            .slip-card { page-break-after: always; width: 100%; margin: 0 0 20px 0; border: 1px solid #000; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="loginPage" class="container">
+        <h1>MESKAY HRM CLOUD</h1>
+        <p>Enter credentials to access system</p>
+        <input type="text" id="username" placeholder="Username / Login ID">
+        <div class="pass-box">
+            <input type="password" id="password" placeholder="Password">
+            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
+        </div>
+        <button class="main-btn" onclick="handleLogin()">SECURE LOGIN</button>
+    </div>
+
+    <div id="dashboardPage" class="container hidden">
+        <div class="top-bar">
+            <div class="profile-trigger" onclick="toggleMenu()">
+                <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
+                <span id="navName">Admin</span>
+            </div>
+            <div id="profileMenu" class="dropdown-menu hidden">
+                <button class="main-btn btn-red" onclick="location.reload()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
+            <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
+            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW STAFF</button>
+            <button class="menu-btn master-btn" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
+            <button class="menu-btn master-btn" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
+            <button class="menu-btn master-btn" onclick="showView('update')">MANAGE EMPLOYEES</button>
+        </div>
+    </div>
+
+    <div id="addPage" class="container hidden">
+        <h2>Add New Employee</h2>
+        <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 101)">
+        <input type="text" id="newEmpName" placeholder="Full Name">
+        <input type="text" id="newEmpPhone" placeholder="Phone Number">
+        <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
+        <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN (Optional)">
+        <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="salaryPage" class="container hidden">
+        <h2>Salary Calculator</h2>
+        <select id="salEmpList"></select>
+        
+        <div class="type-selector">
+            <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
+            <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
+        </div>
+
+        <label>From:</label><input type="date" id="startDate" onchange="autoCalc()">
+        <label>To:</label><input type="date" id="endDate" onchange="autoCalc()">
+        
+        <div class="calc-info">
+            Days Worked: <span id="displayDays">0</span> 
+            <small id="monthInfo" style="display:block; color:blue;"></small>
+        </div>
+        
+        <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
+        <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
+        
+        <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="reportPage" class="container hidden">
+        <div class="no-print">
+            <h2>Reports & Slips</h2>
+            <div style="display: flex; gap: 10px;">
+                <input type="month" id="repMonth">
+                <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
+            </div>
+            <button class="main-btn btn-green" onclick="generateReport()">GENERATE REPORT</button>
+            <button class="main-btn" onclick="window.print()">PRINT SLIPS</button>
+            <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        </div>
+        <div id="printArea"></div>
+    </div>
+
+    <div id="listPage" class="container hidden">
+        <h2 id="listTitle">Employee Records</h2>
+        <div style="overflow-x:auto;">
+            <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
+        </div>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrzmh9TbcyuLAG6LkoKERcBuHvQ-sf0oU",
+            authDomain: "my-hrm-project-d1aef.firebaseapp.com",
+            projectId: "my-hrm-project-d1aef",
+            storageBucket: "my-hrm-project-d1aef.appspot.com",
+            messagingSenderId: "165053525844",
+            appId: "1:165053525844:web:6abc82aca238d9e84862c1"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let calcMode = 'monthly';
+
+        async function handleLogin() {
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
+            if (u === "Meskay" && p === "Pakistan786") {
+                currentUser = { name: "Master Admin", role: "admin" };
+                return loginOk();
+            }
+            alert("Invalid Credentials!");
+        }
+
+        function loginOk() {
+            document.getElementById("navName").innerText = currentUser.name;
+            navTo('dashboardPage');
+        }
+
+        function togglePass() {
+            const p = document.getElementById("password");
+            p.type = p.type === "password" ? "text" : "password";
+        }
+
+        function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
+
+        function navTo(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'dashboardPage') updateCounts();
+            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
+        }
+
+        function setCalcMode(mode) {
+            calcMode = mode;
+            document.getElementById("btnMonthly").classList.toggle("active-type", mode === 'monthly');
+            document.getElementById("btnDaily").classList.toggle("active-type", mode === 'daily');
+            document.getElementById("baseAmount").placeholder = mode === 'monthly' ? "Monthly Fix Salary" : "Daily Wage Rate";
+            autoCalc();
+        }
+
+        function autoCalc() {
+            const sVal = document.getElementById("startDate").value;
+            const eVal = document.getElementById("endDate").value;
+            const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
+            if (sVal && eVal) {
+                const s = new Date(sVal);
+                const e = new Date(eVal);
+                const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById("displayDays").innerText = days;
+                if (calcMode === 'monthly') {
+                    const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
+                    document.getElementById("monthInfo").innerText = `(Dividing by ${daysInMonth} days)`;
+                    document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * days);
+                } else {
+                    document.getElementById("monthInfo").innerText = "";
+                    document.getElementById("displayTotal").innerText = amount * days;
+                }
+            }
+        }
+
+        async function updateCounts() {
+            const snap = await db.collection("employees").get();
+            let all = 0, act = 0;
+            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; });
+            document.getElementById("cntAll").innerText = all;
+            document.getElementById("cntActive").innerText = act;
+        }
+
+        async function loadEmpDropdowns() {
+            const salSel = document.getElementById("salEmpList");
+            const repSel = document.getElementById("repEmpList");
+            salSel.innerHTML = "";
+            repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
+            const snap = await db.collection("employees").where("status","==","Active").get();
+            snap.forEach(doc => {
+                const data = doc.data();
+                salSel.innerHTML += `<option value="${doc.id}">${data.name} (${data.id})</option>`;
+                repSel.innerHTML += `<option value="${data.name}">${data.name}</option>`;
+            });
+        }
+
+        async function saveSalary() {
+            const empRefId = document.getElementById("salEmpList").value;
+            const empSnap = await db.collection("employees").doc(empRefId).get();
+            const empData = empSnap.data();
+            
+            const t = document.getElementById("displayTotal").innerText;
+            if(t == "0") return alert("Calculate first!");
+            
+            await db.collection("salaries").add({
+                empName: empData.name,
+                empId: empData.id,
+                phone: empData.phone || 'N/A',
+                bank: empData.bank || 'N/A',
+                acc: empData.acc || 'N/A',
+                total: t,
+                days: document.getElementById("displayDays").innerText,
+                startDate: document.getElementById("startDate").value,
+                endDate: document.getElementById("endDate").value,
+                dateKey: document.getElementById("endDate").value.substring(0,7)
+            });
+            alert("Salary Saved!"); navTo('dashboardPage');
+        }
+
+        async function generateReport() {
+            const m = document.getElementById("repMonth").value;
+            const selectedEmp = document.getElementById("repEmpList").value;
+            const area = document.getElementById("printArea");
+            
+            let query = db.collection("salaries").where("dateKey", "==", m);
+            if (selectedEmp !== "all") {
+                query = query.where("empName", "==", selectedEmp);
+            }
+            
+            const snap = await query.get();
+            area.innerHTML = snap.empty ? "<h3>No Records Found</h3>" : "";
+            
+            snap.forEach(doc => {
+                const s = doc.data();
+                area.innerHTML += `
+                    <div class="slip-card">
+                        <div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;">
+                            <h2 style="margin:5px;">MESKAY & FEMTEE</h2>
+                            <p style="margin:5px;">Monthly Salary Slip</p>
+                        </div>
+                        <p><strong>Employee ID:</strong> ${s.empId} | <strong>Name:</strong> ${s.empName}</p>
+                        <p><strong>Phone:</strong> ${s.phone}</p>
+                        <p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>
+                        <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
+                        <div style="background:#eee; padding:10px; border:1px solid #000;">
+                            <h3 style="margin:0;">NET PAYABLE: ${s.total} PKR</h3>
+                        </div>
+                        <div class="sig-container">
+                            <div class="sig-box">Prepared By (Admin)</div>
+                            <div class="sig-box">Employee Signature</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function showView(mode) {
+            navTo('listPage');
+            const b = document.getElementById("empTableBody"); b.innerHTML = "";
+            const isUpdate = mode === 'update';
+            
+            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Phone</th><th>Status</th>${isUpdate ? '<th>Actions</th>' : ''}</tr>`;
+            
+            const snap = await db.collection("employees").get();
+            snap.forEach(doc => {
+                const e = doc.data();
+                const docId = doc.id;
+                
+                if(mode === 'all' || e.status === mode || isUpdate) {
+                    let actionBtn = "";
+                    if(isUpdate) {
+                        const nextStatus = e.status === 'Active' ? 'Inactive' : 'Active';
+                        const btnColor = e.status === 'Active' ? '#ff9800' : '#2196f3';
+                        actionBtn = `<td>
+                            <button onclick="toggleStatus('${docId}', '${nextStatus}')" style="background:${btnColor}; color:white; border:none; padding:5px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Set ${nextStatus}</button>
+                            <button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
+                        </td>`;
+                    }
+                    
+                    const statusColor = e.status === 'Active' ? 'green' : 'red';
+                    
+                    b.innerHTML += `<tr>
+                        <td>${e.id}</td>
+                        <td>${e.name}</td>
+                        <td>${e.phone || '-'}</td>
+                        <td style="color:${statusColor}; font-weight:bold;">${e.status}</td>
+                        ${actionBtn}
+                    </tr>`;
+                }
+            });
+        }
+
+        async function toggleStatus(docId, newStatus) {
+            if(confirm(`Change status to ${newStatus}?`)) {
+                await db.collection("employees").doc(docId).update({ status: newStatus });
+                showView('update');
+            }
+        }
+
+        async function delEmp(id) { if(confirm("Are you sure?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
+
+        async function saveNewEmployee() {
+            const id = document.getElementById("newEmpId").value;
+            const name = document.getElementById("newEmpName").value;
+            const phone = document.getElementById("newEmpPhone").value;
+            const bank = document.getElementById("newEmpBank").value;
+            const acc = document.getElementById("newEmpAcc").value;
+            const status = document.getElementById("newEmpStatus").value;
+
+            if(!id || !name) return alert("ID and Name are required!");
+
+            await db.collection("employees").add({ 
+                id: id, 
+                name: name, 
+                phone: phone,
+                bank: bank,
+                acc: acc,
+                status: status 
+            });
+            alert("Employee Added Successfully!");
+            navTo('dashboardPage');
+        }
+    </script>
+</body>
+</html>
