@@ -54,12 +54,12 @@
 <body>
 
     <div id="loginPage" class="container">
-        <h1>HRM LOGIN</h1>
+        <h1>MESKAY HRM CLOUD</h1>
         <p>Enter credentials to access system</p>
         <input type="text" id="username" placeholder="Username / Login ID">
-        <div class="pass-box">
+        <div class="pass-box" style="position: relative;">
             <input type="password" id="password" placeholder="Password">
-            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
+            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()" style="position: absolute; right: 15px; top: 12px; cursor: pointer;"></i>
         </div>
         <button class="main-btn" onclick="handleLogin()">SECURE LOGIN</button>
     </div>
