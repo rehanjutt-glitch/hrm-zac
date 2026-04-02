@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM MASTER - ADVANCED CALC</title>
+    <title>HRM MASTER - FIXED CONNECTION</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
@@ -23,9 +23,7 @@
         .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
         .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
         .master-btn { grid-column: span 2; background: #1a237e; }
-        .sal-btn { background: #2e7d32; }
-        .rep-btn { background: #01579b; }
-
+        
         .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; position: relative; }
         .profile-trigger { display: flex; align-items: center; cursor: pointer; background: #000; color: #fff; padding: 8px 15px; border: 2px solid #000; }
         .nav-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #fff; object-fit: cover; }
@@ -37,22 +35,17 @@
 
         .calc-info { background: #e3f2fd; padding: 15px; border: 2px dashed #000; margin: 10px 0; font-weight: bold; }
         
-        /* New Type Selector Styling */
         .type-selector { display: flex; gap: 10px; margin: 10px 0; }
         .type-selector button { flex: 1; padding: 12px; border: 2px solid #000; cursor: pointer; font-weight: bold; background: #fff; }
         .active-type { background: #000 !important; color: #fff !important; }
 
-        /* Salary Slip Design */
         .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; }
-        .slip-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
-        .slip-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 18px; }
         .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
         .sig-box { border-top: 2px solid #000; width: 40%; text-align: center; padding-top: 5px; font-weight: bold; }
 
         @media print {
             .no-print { display: none; }
             body { background: white; }
-            .container { border: none; box-shadow: none; width: 100%; }
             .slip-card { page-break-after: always; width: 100%; margin: 0 0 20px 0; border: 1px solid #000; }
         }
     </style>
@@ -62,39 +55,34 @@
 
     <div id="loginPage" class="container">
         <h1>MESKAY HRM CLOUD</h1>
-        <p>Please enter your credentials to login</p>
+        <p>Enter credentials to access system</p>
         <input type="text" id="username" placeholder="Username / Login ID">
         <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
-            <i class="fa-solid fa-eye eye-icon" id="eyeToggle"></i>
+            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
         </div>
-        <button class="main-btn" id="loginSubmit">SECURE LOGIN</button>
+        <button class="main-btn" onclick="handleLogin()">SECURE LOGIN</button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
         <div class="top-bar">
-            <div class="profile-trigger" id="profileToggle">
+            <div class="profile-trigger" onclick="toggleMenu()">
                 <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
-                <span id="navName">Loading...</span>
+                <span id="navName">Admin</span>
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
-                <img id="menuPic" src="https://via.placeholder.com/60" style="border-radius:50%; border:2px solid #000"><br>
-                <input type="file" id="picUpload" onchange="uploadImage()" hidden>
-                <label for="picUpload" style="cursor:pointer; color:blue; text-decoration:underline; font-size:12px;">Change Photo</label>
-                <hr>
                 <button class="main-btn" id="adminBtnLink" onclick="navTo('adminPage')">⚙️ Admin Panel</button>
-                <button class="main-btn btn-red" onclick="logout()">🚪 Logout</button>
+                <button class="main-btn btn-red" onclick="location.reload()">🚪 Logout</button>
             </div>
         </div>
 
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
-            <button class="menu-btn" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
-            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW EMPLOYEE</button>
-            <button class="menu-btn master-btn" onclick="showView('update')">UPDATE & MANAGE INFO</button>
-            <button class="menu-btn sal-btn" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
-            <button class="menu-btn rep-btn" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
+            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW STAFF</button>
+            <button class="menu-btn master-btn" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
+            <button class="menu-btn master-btn" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
+            <button class="menu-btn master-btn" onclick="showView('update')">MANAGE EMPLOYEES</button>
         </div>
     </div>
 
@@ -107,12 +95,6 @@
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
-    <div id="listPage" class="container hidden">
-        <h2 id="listTitle">Records</h2>
-        <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
-    </div>
-
     <div id="salaryPage" class="container hidden">
         <h2>Salary Calculator</h2>
         <select id="salEmpList"></select>
@@ -122,16 +104,15 @@
             <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
         </div>
 
-        <label>From:</label><input type="date" id="startDate" onchange="autoCalcDays()">
-        <label>To:</label><input type="date" id="endDate" onchange="autoCalcDays()">
+        <label>From:</label><input type="date" id="startDate" onchange="autoCalc()">
+        <label>To:</label><input type="date" id="endDate" onchange="autoCalc()">
         
         <div class="calc-info">
-            Days: <span id="displayDays">0</span> 
-            <span id="monthDaysInfo" style="font-size: 12px; color: blue; display: block;"></span>
+            Days Worked: <span id="displayDays">0</span> 
+            <small id="monthInfo" style="display:block; color:blue;"></small>
         </div>
         
-        <input type="number" id="salWages" placeholder="Enter Salary Amount" onkeyup="autoCalcDays()">
-        
+        <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
         <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
         
         <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
@@ -140,11 +121,8 @@
 
     <div id="reportPage" class="container hidden">
         <div class="no-print">
-            <h2>Salary Reports</h2>
-            <div style="display:flex; gap:10px;">
-                <input type="month" id="repMonth">
-                <select id="repEmpFilter"><option value="all">All Staff</option></select>
-            </div>
+            <h2>Reports</h2>
+            <input type="month" id="repMonth">
             <button class="main-btn btn-green" onclick="generateReport()">GENERATE</button>
             <button class="main-btn" onclick="window.print()">PRINT</button>
             <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
@@ -152,19 +130,14 @@
         <div id="printArea"></div>
     </div>
 
-    <div id="adminPage" class="container hidden">
-        <h2>Admin Management</h2>
-        <input type="text" id="newPersonName" placeholder="Full Name">
-        <input type="text" id="newLoginName" placeholder="Login Username">
-        <input type="text" id="newLoginPass" placeholder="Login Password">
-        <select id="newRole"><option value="user">User</option><option value="manager">Manager</option><option value="admin">Admin</option></select>
-        <button class="main-btn btn-green" onclick="createNewUser()">CREATE USER</button>
+    <div id="listPage" class="container hidden">
+        <h2 id="listTitle">Records</h2>
+        <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -177,204 +150,142 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         let currentUser = null;
         let calcMode = 'monthly';
 
-        // LOGIN SYSTEM
-        document.getElementById("loginSubmit").addEventListener("click", handleLogin);
-        document.getElementById("eyeToggle").addEventListener("click", () => {
-            const p = document.getElementById("password");
-            p.type = p.type === "password" ? "text" : "password";
-        });
-
+        // LOGIN FUNCTION (FIXED CONNECTION)
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
-            if (!u || !p) return alert("Please fill all fields!");
+
             if (u === "Meskay" && p === "Pakistan786") {
-                currentUser = { name: "Master Admin", role: "admin", loginU: "Meskay" };
+                currentUser = { name: "Master Admin", role: "admin" };
                 return loginOk();
             }
+
             try {
                 const snap = await db.collection("users").where("loginU", "==", u).where("pass", "==", p).get();
-                if (!snap.empty) { currentUser = snap.docs[0].data(); loginOk(); } 
-                else { alert("Invalid Credentials!"); }
-            } catch (e) { alert("Connection Error!"); }
+                if (!snap.empty) {
+                    currentUser = snap.docs[0].data();
+                    loginOk();
+                } else { alert("Invalid Credentials!"); }
+            } catch (e) { alert("Firebase Connection Error!"); }
         }
 
         function loginOk() {
             document.getElementById("navName").innerText = currentUser.name;
-            document.getElementById("adminBtnLink").style.display = (currentUser.role === 'admin') ? 'block' : 'none';
-            navTo('dashboardPage'); loadProfilePic();
+            navTo('dashboardPage');
         }
+
+        function togglePass() {
+            const p = document.getElementById("password");
+            p.type = p.type === "password" ? "text" : "password";
+        }
+
+        function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
 
         function navTo(id) {
             document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             if(id === 'dashboardPage') updateCounts();
             if(id === 'salaryPage') loadSalEmps();
-            if(id === 'reportPage') loadReportFilters();
         }
 
-        // SALARY MODE LOGIC
+        // SMART CALCULATION
         function setCalcMode(mode) {
             calcMode = mode;
             document.getElementById("btnMonthly").classList.toggle("active-type", mode === 'monthly');
             document.getElementById("btnDaily").classList.toggle("active-type", mode === 'daily');
-            document.getElementById("salWages").placeholder = (mode === 'monthly') ? "Enter Monthly Fixed Salary" : "Enter Daily Rate";
-            autoCalcDays();
+            document.getElementById("baseAmount").placeholder = mode === 'monthly' ? "Monthly Fix Salary" : "Daily Wage Rate";
+            autoCalc();
         }
 
-        function autoCalcDays() {
+        function autoCalc() {
             const sVal = document.getElementById("startDate").value;
             const eVal = document.getElementById("endDate").value;
-            const rate = parseFloat(document.getElementById("salWages").value) || 0;
-            
+            const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
+
             if (sVal && eVal) {
                 const s = new Date(sVal);
                 const e = new Date(eVal);
-                
-                if (e < s) {
-                    document.getElementById("displayDays").innerText = "0";
-                    document.getElementById("displayTotal").innerText = "0";
-                    return;
-                }
+                const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById("displayDays").innerText = days;
 
-                const daysWorked = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
-                document.getElementById("displayDays").innerText = daysWorked;
-
-                let total = 0;
                 if (calcMode === 'monthly') {
-                    // Smart Month Detection based on End Date
-                    const year = e.getFullYear();
-                    const month = e.getMonth() + 1;
-                    const daysInMonth = new Date(year, month, 0).getDate();
-                    document.getElementById("monthDaysInfo").innerText = `(Based on ${daysInMonth} days in this month)`;
-                    total = Math.round((rate / daysInMonth) * daysWorked);
+                    const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
+                    document.getElementById("monthInfo").innerText = `(Dividing by ${daysInMonth} days in this month)`;
+                    document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * days);
                 } else {
-                    document.getElementById("monthDaysInfo").innerText = "";
-                    total = rate * daysWorked;
+                    document.getElementById("monthInfo").innerText = "";
+                    document.getElementById("displayTotal").innerText = amount * days;
                 }
-                document.getElementById("displayTotal").innerText = total;
             }
         }
 
-        // FIREBASE OPERATIONS
         async function updateCounts() {
             const snap = await db.collection("employees").get();
-            let all = 0, act = 0, inact = 0;
-            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; else inact++; });
+            let all = 0, act = 0;
+            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; });
             document.getElementById("cntAll").innerText = all;
             document.getElementById("cntActive").innerText = act;
-            document.getElementById("cntInactive").innerText = inact;
-        }
-
-        async function saveNewEmployee() {
-            const id = document.getElementById("newEmpId").value;
-            const name = document.getElementById("newEmpName").value;
-            if(!id || !name) return alert("Fill fields!");
-            await db.collection("employees").add({ id: id, name: name, status: document.getElementById("newEmpStatus").value });
-            alert("Employee Saved!"); navTo('dashboardPage');
         }
 
         async function loadSalEmps() {
-            const sel = document.getElementById("salEmpList");
-            sel.innerHTML = "";
+            const sel = document.getElementById("salEmpList"); sel.innerHTML = "";
             const snap = await db.collection("employees").where("status","==","Active").get();
-            snap.forEach(doc => sel.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`);
+            snap.forEach(doc => sel.innerHTML += `<option>${doc.data().name}</option>`);
         }
 
         async function saveSalary() {
-            const n = document.getElementById("salEmpList").options[document.getElementById("salEmpList").selectedIndex].text;
-            const total = document.getElementById("displayTotal").innerText;
-            if (total == "0") return alert("Calculate salary first!");
-            
+            const n = document.getElementById("salEmpList").value;
+            const t = document.getElementById("displayTotal").innerText;
+            if(t == "0") return alert("Calculate first!");
             await db.collection("salaries").add({
-                empName: n, 
+                empName: n, total: t, days: document.getElementById("displayDays").innerText,
                 startDate: document.getElementById("startDate").value,
                 endDate: document.getElementById("endDate").value,
-                total: total,
-                days: document.getElementById("displayDays").innerText,
-                rate: document.getElementById("salWages").value,
-                calcType: calcMode,
                 dateKey: document.getElementById("endDate").value.substring(0,7)
             });
             alert("Salary Saved!"); navTo('dashboardPage');
         }
 
-        async function loadReportFilters() {
-            const f = document.getElementById("repEmpFilter");
-            f.innerHTML = `<option value="all">All Staff</option>`;
-            const snap = await db.collection("employees").get();
-            snap.forEach(doc => f.innerHTML += `<option value="${doc.data().name}">${doc.data().name}</option>`);
-        }
-
         async function generateReport() {
             const m = document.getElementById("repMonth").value;
-            const filter = document.getElementById("repEmpFilter").value;
             const area = document.getElementById("printArea");
-            if (!m) return alert("Select Month!");
-            
-            let q = db.collection("salaries").where("dateKey", "==", m);
-            if(filter !== "all") q = q.where("empName", "==", filter);
-
-            const snap = await q.get();
-            area.innerHTML = snap.empty ? "<h3>No Records Found.</h3>" : "";
+            const snap = await db.collection("salaries").where("dateKey", "==", m).get();
+            area.innerHTML = snap.empty ? "<h3>No Records</h3>" : "";
             snap.forEach(doc => {
                 const s = doc.data();
                 area.innerHTML += `
                     <div class="slip-card">
-                        <div class="slip-header"><h2>MESKAY & FEMTEE</h2><p>Monthly Salary Voucher</p></div>
-                        <div class="slip-row"><span>Employee:</span> <span>${s.empName}</span></div>
-                        <div class="slip-row"><span>Period:</span> <span>${s.startDate} to ${s.endDate}</span></div>
-                        <div class="slip-row"><span>Days Worked:</span> <span>${s.days}</span></div>
-                        <div class="slip-row"><span>Basis:</span> <span>${s.calcType === 'monthly' ? 'Monthly Fix' : 'Daily Wage'}</span></div>
-                        <hr><div class="slip-row"><h3>NET PAYABLE:</h3> <h3>${s.total} PKR</h3></div>
-                        <div class="sig-container">
-                            <div class="sig-box">Prepared By (Admin)</div>
-                            <div class="sig-box">Receiving Signature</div>
-                        </div>
+                        <div style="text-align:center; border-bottom:2px solid #000;"><h2>MESKAY & FEMTEE</h2></div>
+                        <p><strong>Employee:</strong> ${s.empName}</p>
+                        <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
+                        <hr><h3>NET PAYABLE: ${s.total} PKR</h3>
+                        <div class="sig-container"><div class="sig-box">Admin</div><div class="sig-box">Receiving</div></div>
                     </div>`;
             });
         }
 
         async function showView(mode) {
             navTo('listPage');
-            const h = document.getElementById("tableHead");
-            const b = document.getElementById("empTableBody");
-            h.innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
-            let q = db.collection("employees");
-            if(mode === 'Active' || mode === 'Inactive') q = q.where("status","==",mode);
-            const snap = await q.get();
-            b.innerHTML = "";
+            const b = document.getElementById("empTableBody"); b.innerHTML = "";
+            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
+            const snap = await db.collection("employees").get();
             snap.forEach(doc => {
                 const e = doc.data();
-                const btn = (mode==='update')?`<td><button onclick="toggleStatus('${doc.id}','${e.status}')">Toggle</button> <button onclick="delEmp('${doc.id}')">Delete</button></td>`:'';
-                b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.status}</td>${btn}</tr>`;
+                if(mode === 'all' || e.status === mode || mode === 'update') {
+                    const btn = mode === 'update' ? `<td><button onclick="delEmp('${doc.id}')">Delete</button></td>` : "";
+                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.status}</td>${btn}</tr>`;
+                }
             });
         }
-
-        async function toggleStatus(id, s) { await db.collection("employees").doc(id).update({ status: s==='Active'?'Inactive':'Active' }); showView('update'); }
         async function delEmp(id) { if(confirm("Delete?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
-        async function createNewUser() {
-            await db.collection("users").add({ name: document.getElementById("newPersonName").value, loginU: document.getElementById("newLoginName").value, pass: document.getElementById("newLoginPass").value, role: document.getElementById("newRole").value });
-            alert("New Login Created!"); navTo('dashboardPage');
+        async function saveNewEmployee() {
+            await db.collection("employees").add({ id: document.getElementById("newEmpId").value, name: document.getElementById("newEmpName").value, status: document.getElementById("newEmpStatus").value });
+            alert("Saved!"); navTo('dashboardPage');
         }
-        async function uploadImage() {
-            const file = document.getElementById("picUpload").files[0];
-            await storage.ref('profiles/' + currentUser.loginU).put(file);
-            loadProfilePic();
-        }
-        async function loadProfilePic() {
-            try {
-                const url = await storage.ref('profiles/' + currentUser.loginU).getDownloadURL();
-                document.getElementById("navPic").src = url; document.getElementById("menuPic").src = url;
-            } catch(e) {}
-        }
-        document.getElementById("profileToggle").onclick = () => document.getElementById("profileMenu").classList.toggle("hidden");
-        function logout() { location.reload(); }
     </script>
 </body>
 </html>
