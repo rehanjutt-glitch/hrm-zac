@@ -19,6 +19,7 @@
         .pass-box { position: relative; }
         .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; z-index: 10; }
 
+        /* Grid updated to accommodate the new button */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
         .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
@@ -78,6 +79,7 @@
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
+            <button class="menu-btn" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
             <button class="menu-btn" onclick="navTo('addPage')">ADD NEW STAFF</button>
             <button class="menu-btn master-btn" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
             <button class="menu-btn master-btn" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
@@ -242,10 +244,15 @@
 
         async function updateCounts() {
             const snap = await db.collection("employees").get();
-            let all = 0, act = 0;
-            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; });
+            let all = 0, act = 0, inact = 0;
+            snap.forEach(doc => { 
+                all++; 
+                if(doc.data().status === 'Active') act++; 
+                else inact++;
+            });
             document.getElementById("cntAll").innerText = all;
             document.getElementById("cntActive").innerText = act;
+            document.getElementById("cntInactive").innerText = inact;
         }
 
         async function loadEmpDropdowns() {
@@ -381,6 +388,11 @@
             const b = document.getElementById("empTableBody"); b.innerHTML = "";
             const isUpdate = mode === 'update';
             
+            // Set correct title based on mode
+            if(mode === 'Inactive') document.getElementById("listTitle").innerText = "Inactive Staff Records";
+            else if(mode === 'Active') document.getElementById("listTitle").innerText = "Active Staff Records";
+            else document.getElementById("listTitle").innerText = "Employee Records";
+
             document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Phone</th><th>Status</th>${isUpdate ? '<th>Actions</th>' : ''}</tr>`;
             
             const snap = await db.collection("employees").get();
@@ -410,7 +422,6 @@
             });
         }
 
-        // New function to load data into edit form
         async function editEmp(docId) {
             const doc = await db.collection("employees").doc(docId).get();
             const data = doc.data();
@@ -426,7 +437,6 @@
             navTo('editPage');
         }
 
-        // New function to update data in Firestore
         async function updateEmployeeData() {
             const docId = document.getElementById("editDocId").value;
             const updatedData = {
