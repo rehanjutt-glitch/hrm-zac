@@ -47,7 +47,7 @@
         @media print {
             .no-print { display: none; }
             body { background: white; }
-            .slip-card { page-break-after: always; width: 100%; margin: 0 0 20px 0; border: 1px solid #000; }
+            .slip-card { page-break-after: auto; width: 100%; margin: 0; border: 1px solid #000; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -268,6 +268,8 @@
             const selectedEmp = document.getElementById("repEmpList").value;
             const area = document.getElementById("printArea");
             
+            if (!m) return alert("Please select a month first!");
+
             let query = db.collection("salaries").where("dateKey", "==", m);
             if (selectedEmp !== "all") {
                 query = query.where("empName", "==", selectedEmp);
@@ -276,27 +278,77 @@
             const snap = await query.get();
             area.innerHTML = snap.empty ? "<h3>No Records Found</h3>" : "";
             
-            snap.forEach(doc => {
-                const s = doc.data();
-                area.innerHTML += `
-                    <div class="slip-card">
-                        <div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;">
-                            <h2 style="margin:5px;">MESKAY & FEMTEE</h2>
-                            <p style="margin:5px;">Monthly Salary Slip</p>
-                        </div>
-                        <p><strong>Employee ID:</strong> ${s.empId} | <strong>Name:</strong> ${s.empName}</p>
-                        <p><strong>Phone:</strong> ${s.phone}</p>
-                        <p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>
-                        <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
-                        <div style="background:#eee; padding:10px; border:1px solid #000;">
-                            <h3 style="margin:0;">NET PAYABLE: ${s.total} PKR</h3>
-                        </div>
-                        <div class="sig-container">
-                            <div class="sig-box">Prepared By (Admin)</div>
-                            <div class="sig-box">Employee Signature</div>
+            if (snap.empty) return;
+
+            if (selectedEmp === "all") {
+                let tableHtml = `
+                    <div class="slip-card" style="width:95%; border:none;">
+                        <h2 style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px;">
+                            MESKAY & FEMTEE - STAFF SALARY LIST (${m})
+                        </h2>
+                        <table style="width:100%; margin-top:10px;">
+                            <thead>
+                                <tr style="background:#eee;">
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Days</th>
+                                    <th>Bank/Acc</th>
+                                    <th>Total Payable</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                let grandTotal = 0;
+                snap.forEach(doc => {
+                    const s = doc.data();
+                    grandTotal += parseInt(s.total);
+                    tableHtml += `
+                        <tr>
+                            <td>${s.empId}</td>
+                            <td>${s.empName}</td>
+                            <td>${s.days}</td>
+                            <td style="font-size:12px;">${s.bank}<br>${s.acc}</td>
+                            <td style="font-weight:bold;">${s.total} PKR</td>
+                        </tr>`;
+                });
+
+                tableHtml += `
+                            <tr style="background:#f9f9f9; font-weight:bold;">
+                                <td colspan="4" style="text-align:right;">GRAND TOTAL:</td>
+                                <td>${grandTotal} PKR</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                        <div class="sig-container" style="margin-top:30px;">
+                            <div class="sig-box">Verified By</div>
+                            <div class="sig-box">Authorized Signature</div>
                         </div>
                     </div>`;
-            });
+                area.innerHTML = tableHtml;
+
+            } else {
+                snap.forEach(doc => {
+                    const s = doc.data();
+                    area.innerHTML += `
+                        <div class="slip-card">
+                            <div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;">
+                                <h2 style="margin:5px;">MESKAY & FEMTEE</h2>
+                                <p style="margin:5px;">Monthly Salary Slip</p>
+                            </div>
+                            <p><strong>Employee ID:</strong> ${s.empId} | <strong>Name:</strong> ${s.empName}</p>
+                            <p><strong>Phone:</strong> ${s.phone}</p>
+                            <p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>
+                            <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
+                            <div style="background:#eee; padding:10px; border:1px solid #000;">
+                                <h3 style="margin:0;">NET PAYABLE: ${s.total} PKR</h3>
+                            </div>
+                            <div class="sig-container">
+                                <div class="sig-box">Prepared By (Admin)</div>
+                                <div class="sig-box">Employee Signature</div>
+                            </div>
+                        </div>`;
+                });
+            }
         }
 
         async function showView(mode) {
