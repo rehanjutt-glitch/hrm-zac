@@ -86,18 +86,19 @@
         </div>
     </div>
 
-        <div id="addPage" class="container hidden">
+            <div id="addPage" class="container hidden">
         <h2>Add New Employee</h2>
         <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 001)">
         <input type="text" id="newEmpName" placeholder="Full Name">
-        <input type="text" id="newDesignation" placeholder="Designation (e.g. Driver, Loader)">
+        <input type="text" id="newDesignation" placeholder="Designation (e.g. Driver)">
+        <input type="number" id="newPhone" placeholder="Phone Number (e.g. 03001234567)">
         <select id="newEmpStatus">
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
         </select>
         <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
-        </div>
+    </div>
 
     <div id="salaryPage" class="container hidden">
         <h2>Salary Calculator</h2>
@@ -286,14 +287,15 @@
             });
         }
         async function delEmp(id) { if(confirm("Delete?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
-                async function saveNewEmployee() {
+                      async function saveNewEmployee() {
             const id = document.getElementById("newEmpId").value;
             const name = document.getElementById("newEmpName").value;
             const desig = document.getElementById("newDesignation").value;
+            const phone = document.getElementById("newPhone").value;
             const status = document.getElementById("newEmpStatus").value;
 
-            if(!id || !name || !desig) {
-                return alert("براہ کرم تمام خانے پُر کریں (ID, Name, Designation)");
+            if(!id || !name || !desig || !phone) {
+                return alert("براہ کرم تمام خانے پُر کریں (ID, Name, Designation, Phone)");
             }
 
             try {
@@ -301,21 +303,23 @@
                     id: id, 
                     name: name, 
                     designation: desig, 
+                    phone: phone,
                     status: status 
                 });
                 alert("Employee Added Successfully!");
                 
-                // فارم خالی کرنے کے لیے
+                // فارم صاف کرنے کے لیے
                 document.getElementById("newEmpId").value = "";
                 document.getElementById("newEmpName").value = "";
                 document.getElementById("newDesignation").value = "";
+                document.getElementById("newPhone").value = "";
                 
                 navTo('dashboardPage');
             } catch (e) {
-                alert("Error saving employee: " + e);
+                alert("Error: " + e);
             }
         }
-
+  
     </script>
 </body>
 </html>
