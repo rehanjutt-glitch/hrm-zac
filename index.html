@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM MASTER - FIXED CONNECTION</title>
+    <title>HRM MASTER - UPDATED</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
@@ -39,7 +39,7 @@
         .type-selector button { flex: 1; padding: 12px; border: 2px solid #000; cursor: pointer; font-weight: bold; background: #fff; }
         .active-type { background: #000 !important; color: #fff !important; }
 
-        .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; }
+        .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; border-radius: 5px; }
         .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
         .sig-box { border-top: 2px solid #000; width: 40%; text-align: center; padding-top: 5px; font-weight: bold; }
 
@@ -71,7 +71,6 @@
                 <span id="navName">Admin</span>
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
-                <button class="main-btn" id="adminBtnLink" onclick="navTo('adminPage')">⚙️ Admin Panel</button>
                 <button class="main-btn btn-red" onclick="location.reload()">🚪 Logout</button>
             </div>
         </div>
@@ -88,8 +87,11 @@
 
     <div id="addPage" class="container hidden">
         <h2>Add New Employee</h2>
-        <input type="text" id="newEmpId" placeholder="Employee ID">
+        <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 101)">
         <input type="text" id="newEmpName" placeholder="Full Name">
+        <input type="text" id="newEmpPhone" placeholder="Phone Number">
+        <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
+        <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN (Optional)">
         <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
         <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
@@ -121,10 +123,13 @@
 
     <div id="reportPage" class="container hidden">
         <div class="no-print">
-            <h2>Reports</h2>
-            <input type="month" id="repMonth">
-            <button class="main-btn btn-green" onclick="generateReport()">GENERATE</button>
-            <button class="main-btn" onclick="window.print()">PRINT</button>
+            <h2>Reports & Slips</h2>
+            <div style="display: flex; gap: 10px;">
+                <input type="month" id="repMonth">
+                <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
+            </div>
+            <button class="main-btn btn-green" onclick="generateReport()">GENERATE REPORT</button>
+            <button class="main-btn" onclick="window.print()">PRINT SLIPS</button>
             <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
         </div>
         <div id="printArea"></div>
@@ -132,7 +137,9 @@
 
     <div id="listPage" class="container hidden">
         <h2 id="listTitle">Records</h2>
-        <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
+        <div style="overflow-x:auto;">
+            <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
+        </div>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
@@ -154,23 +161,14 @@
         let currentUser = null;
         let calcMode = 'monthly';
 
-        // LOGIN FUNCTION (FIXED CONNECTION)
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
-
             if (u === "Meskay" && p === "Pakistan786") {
                 currentUser = { name: "Master Admin", role: "admin" };
                 return loginOk();
             }
-
-            try {
-                const snap = await db.collection("users").where("loginU", "==", u).where("pass", "==", p).get();
-                if (!snap.empty) {
-                    currentUser = snap.docs[0].data();
-                    loginOk();
-                } else { alert("Invalid Credentials!"); }
-            } catch (e) { alert("Firebase Connection Error!"); }
+            alert("Invalid Credentials!");
         }
 
         function loginOk() {
@@ -189,10 +187,9 @@
             document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             if(id === 'dashboardPage') updateCounts();
-            if(id === 'salaryPage') loadSalEmps();
+            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
         }
 
-        // SMART CALCULATION
         function setCalcMode(mode) {
             calcMode = mode;
             document.getElementById("btnMonthly").classList.toggle("active-type", mode === 'monthly');
@@ -205,16 +202,14 @@
             const sVal = document.getElementById("startDate").value;
             const eVal = document.getElementById("endDate").value;
             const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
-
             if (sVal && eVal) {
                 const s = new Date(sVal);
                 const e = new Date(eVal);
                 const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
                 document.getElementById("displayDays").innerText = days;
-
                 if (calcMode === 'monthly') {
                     const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
-                    document.getElementById("monthInfo").innerText = `(Dividing by ${daysInMonth} days in this month)`;
+                    document.getElementById("monthInfo").innerText = `(Dividing by ${daysInMonth} days)`;
                     document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * days);
                 } else {
                     document.getElementById("monthInfo").innerText = "";
@@ -231,18 +226,35 @@
             document.getElementById("cntActive").innerText = act;
         }
 
-        async function loadSalEmps() {
-            const sel = document.getElementById("salEmpList"); sel.innerHTML = "";
+        async function loadEmpDropdowns() {
+            const salSel = document.getElementById("salEmpList");
+            const repSel = document.getElementById("repEmpList");
+            salSel.innerHTML = "";
+            repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
             const snap = await db.collection("employees").where("status","==","Active").get();
-            snap.forEach(doc => sel.innerHTML += `<option>${doc.data().name}</option>`);
+            snap.forEach(doc => {
+                const data = doc.data();
+                salSel.innerHTML += `<option value="${doc.id}">${data.name} (${data.id})</option>`;
+                repSel.innerHTML += `<option value="${data.name}">${data.name}</option>`;
+            });
         }
 
         async function saveSalary() {
-            const n = document.getElementById("salEmpList").value;
+            const empRefId = document.getElementById("salEmpList").value;
+            const empSnap = await db.collection("employees").doc(empRefId).get();
+            const empData = empSnap.data();
+            
             const t = document.getElementById("displayTotal").innerText;
             if(t == "0") return alert("Calculate first!");
+            
             await db.collection("salaries").add({
-                empName: n, total: t, days: document.getElementById("displayDays").innerText,
+                empName: empData.name,
+                empId: empData.id,
+                phone: empData.phone || 'N/A',
+                bank: empData.bank || 'N/A',
+                acc: empData.acc || 'N/A',
+                total: t,
+                days: document.getElementById("displayDays").innerText,
                 startDate: document.getElementById("startDate").value,
                 endDate: document.getElementById("endDate").value,
                 dateKey: document.getElementById("endDate").value.substring(0,7)
@@ -252,18 +264,36 @@
 
         async function generateReport() {
             const m = document.getElementById("repMonth").value;
+            const selectedEmp = document.getElementById("repEmpList").value;
             const area = document.getElementById("printArea");
-            const snap = await db.collection("salaries").where("dateKey", "==", m).get();
-            area.innerHTML = snap.empty ? "<h3>No Records</h3>" : "";
+            
+            let query = db.collection("salaries").where("dateKey", "==", m);
+            if (selectedEmp !== "all") {
+                query = query.where("empName", "==", selectedEmp);
+            }
+            
+            const snap = await query.get();
+            area.innerHTML = snap.empty ? "<h3>No Records Found</h3>" : "";
+            
             snap.forEach(doc => {
                 const s = doc.data();
                 area.innerHTML += `
                     <div class="slip-card">
-                        <div style="text-align:center; border-bottom:2px solid #000;"><h2>MESKAY & FEMTEE</h2></div>
-                        <p><strong>Employee:</strong> ${s.empName}</p>
+                        <div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;">
+                            <h2 style="margin:5px;">MESKAY & FEMTEE</h2>
+                            <p style="margin:5px;">Monthly Salary Slip</p>
+                        </div>
+                        <p><strong>Employee ID:</strong> ${s.empId} | <strong>Name:</strong> ${s.empName}</p>
+                        <p><strong>Phone:</strong> ${s.phone}</p>
+                        <p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>
                         <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
-                        <hr><h3>NET PAYABLE: ${s.total} PKR</h3>
-                        <div class="sig-container"><div class="sig-box">Admin</div><div class="sig-box">Receiving</div></div>
+                        <div style="background:#eee; padding:10px; border:1px solid #000;">
+                            <h3 style="margin:0;">NET PAYABLE: ${s.total} PKR</h3>
+                        </div>
+                        <div class="sig-container">
+                            <div class="sig-box">Prepared By (Admin)</div>
+                            <div class="sig-box">Employee Signature</div>
+                        </div>
                     </div>`;
             });
         }
@@ -271,20 +301,39 @@
         async function showView(mode) {
             navTo('listPage');
             const b = document.getElementById("empTableBody"); b.innerHTML = "";
-            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
+            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Phone</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
             const snap = await db.collection("employees").get();
             snap.forEach(doc => {
                 const e = doc.data();
                 if(mode === 'all' || e.status === mode || mode === 'update') {
-                    const btn = mode === 'update' ? `<td><button onclick="delEmp('${doc.id}')">Delete</button></td>` : "";
-                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.status}</td>${btn}</tr>`;
+                    const btn = mode === 'update' ? `<td><button onclick="delEmp('${doc.id}')" style="background:red; color:white;">Delete</button></td>` : "";
+                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td>${e.status}</td>${btn}</tr>`;
                 }
             });
         }
-        async function delEmp(id) { if(confirm("Delete?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
+
+        async function delEmp(id) { if(confirm("Are you sure?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
+
         async function saveNewEmployee() {
-            await db.collection("employees").add({ id: document.getElementById("newEmpId").value, name: document.getElementById("newEmpName").value, status: document.getElementById("newEmpStatus").value });
-            alert("Saved!"); navTo('dashboardPage');
+            const id = document.getElementById("newEmpId").value;
+            const name = document.getElementById("newEmpName").value;
+            const phone = document.getElementById("newEmpPhone").value;
+            const bank = document.getElementById("newEmpBank").value;
+            const acc = document.getElementById("newEmpAcc").value;
+            const status = document.getElementById("newEmpStatus").value;
+
+            if(!id || !name) return alert("ID and Name are required!");
+
+            await db.collection("employees").add({ 
+                id: id, 
+                name: name, 
+                phone: phone,
+                bank: bank,
+                acc: acc,
+                status: status 
+            });
+            alert("Employee Added Successfully!");
+            navTo('dashboardPage');
         }
     </script>
 </body>
