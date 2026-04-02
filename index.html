@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM MASTER - UPDATED</title>
+    <title>HRM MASTER - SECURE</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
         .container { width: 95%; max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border: 3px solid #000; box-shadow: 10px 10px 0 #000; border-radius: 8px; }
-        .hidden { display: none; }
+        .hidden { display: none !important; } /* اب یہ سختی سے ہائیڈ کرے گا */
         
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; font-weight: bold; }
         .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; transition: 0.2s; }
@@ -28,8 +28,7 @@
 
         /* Modal / Detail View Styling */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .detail-card { background: #fff; padding: 30px; border: 4px solid #000; width: 90%; max-width: 500px; text-align: left; position: relative; border-radius: 10px; }
-        .detail-card h2 { border-bottom: 3px solid #000; padding-bottom: 10px; margin-top: 0; }
+        .detail-card { background: #fff; padding: 30px; border: 4px solid #000; width: 90%; max-width: 500px; text-align: left; position: relative; border-radius: 10px; box-shadow: 10px 10px 0px #000; }
         .detail-row { margin: 15px 0; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
         .detail-row strong { color: #000; width: 140px; display: inline-block; }
 
@@ -40,7 +39,7 @@
 <body>
 
     <div id="loginPage" class="container">
-        <h1>MESKAY HRM CLOUD</h1>
+        <h1>HRM LOGIN</h1>
         <p>Enter credentials to access system</p>
         <input type="text" id="username" placeholder="Username / Login ID">
         <input type="password" id="password" placeholder="Password">
@@ -48,6 +47,7 @@
     </div>
 
     <div id="dashboardPage" class="container hidden">
+        <h2>WELCOME ADMIN</h2>
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
@@ -55,14 +55,7 @@
             <button class="menu-btn master-btn" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
             <button class="menu-btn master-btn" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
             <button class="menu-btn master-btn" onclick="showView('update')">MANAGE EMPLOYEES</button>
-        </div>
-    </div>
-
-    <div id="detailModal" class="modal hidden">
-        <div class="detail-card">
-            <h2>Employee Profile</h2>
-            <div id="detailContent"></div>
-            <button class="main-btn btn-red" onclick="closeDetails()">CLOSE DETAILS</button>
+            <button class="main-btn btn-red" onclick="location.reload()" style="grid-column: span 2;">LOGOUT</button>
         </div>
     </div>
 
@@ -72,6 +65,14 @@
             <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
         </div>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK TO DASHBOARD</button>
+    </div>
+
+    <div id="detailModal" class="modal hidden">
+        <div class="detail-card">
+            <h2 style="border-bottom: 3px solid #000;">Employee Profile</h2>
+            <div id="detailContent"></div>
+            <button class="main-btn btn-red" onclick="closeDetails()">CLOSE</button>
+        </div>
     </div>
 
     <div id="addPage" class="container hidden">
@@ -85,9 +86,9 @@
         <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
-    
-    <div id="salaryPage" class="container hidden">...</div>
-    <div id="reportPage" class="container hidden">...</div>
+
+    <div id="salaryPage" class="container hidden"><h2>Salary Calc</h2><button onclick="navTo('dashboardPage')">Back</button></div>
+    <div id="reportPage" class="container hidden"><h2>Reports</h2><button onclick="navTo('dashboardPage')">Back</button></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
@@ -104,15 +105,26 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // لاگ ان فنکشن
         function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
-            if (u === "Meskay" && p === "Pakistan786") { navTo('dashboardPage'); updateCounts(); }
-            else { alert("Invalid Credentials!"); }
+            
+            if (u === "Meskay" && p === "Pakistan786") {
+                navTo('dashboardPage');
+                updateCounts();
+            } else {
+                alert("غلط معلومات! دوبارہ کوشش کریں۔");
+            }
         }
 
+        // پیج نیویگیشن (صرف متعلقہ پیج دکھانے کے لیے)
         function navTo(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            const sections = ['loginPage', 'dashboardPage', 'listPage', 'addPage', 'salaryPage', 'reportPage'];
+            sections.forEach(s => {
+                const el = document.getElementById(s);
+                if(el) el.classList.add('hidden');
+            });
             document.getElementById(id).classList.remove('hidden');
         }
 
@@ -126,11 +138,10 @@
 
         async function showView(mode) {
             navTo('listPage');
-            const b = document.getElementById("empTableBody"); 
-            b.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+            const b = document.getElementById("empTableBody");
+            b.innerHTML = "<tr><td colspan='5'>لوڈنگ ہو رہی ہے...</td></tr>";
             
             const isUpdate = mode === 'update';
-            // Table Header with Detail column
             document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th><th>Details</th>${isUpdate ? '<th>Actions</th>' : ''}</tr>`;
             
             const snap = await db.collection("employees").get();
@@ -138,57 +149,49 @@
             
             snap.forEach(doc => {
                 const e = doc.data();
-                const docId = doc.id;
-                
                 if(mode === 'all' || e.status === mode || isUpdate) {
-                    let actionBtn = isUpdate ? `<td><button onclick="toggleStatus('${docId}', '${e.status === 'Active' ? 'Inactive' : 'Active'}')" style="background:#ff9800; color:white; border:none; padding:5px; cursor:pointer; border-radius:3px;">Toggle</button></td>` : "";
+                    let actionBtn = isUpdate ? `<td><button onclick="toggleStatus('${doc.id}', '${e.status === 'Active' ? 'Inactive' : 'Active'}')" style="background:#ff9800; color:white; border:none; padding:5px; border-radius:3px;">تبدیل کریں</button></td>` : "";
                     
                     b.innerHTML += `<tr>
                         <td>${e.id}</td>
                         <td>${e.name}</td>
                         <td style="color:${e.status === 'Active' ? 'green' : 'red'}; font-weight:bold;">${e.status}</td>
-                        <td><button class="btn-blue" style="padding:5px 10px; cursor:pointer; border:1px solid #000;" onclick="viewEmpDetails('${docId}')">View 👁️</button></td>
+                        <td><button class="btn-blue" style="padding:5px 10px; cursor:pointer;" onclick="viewEmpDetails('${doc.id}')">View 👁️</button></td>
                         ${actionBtn}
                     </tr>`;
                 }
             });
         }
 
-        // NEW FUNCTION: View Details
         async function viewEmpDetails(docId) {
             const doc = await db.collection("employees").doc(docId).get();
-            if (!doc.exists) return alert("No details found!");
-            
             const e = doc.data();
-            const content = document.getElementById("detailContent");
-            content.innerHTML = `
-                <div class="detail-row"><strong>Employee ID:</strong> ${e.id}</div>
-                <div class="detail-row"><strong>Full Name:</strong> ${e.name}</div>
-                <div class="detail-row"><strong>Phone:</strong> ${e.phone || 'N/A'}</div>
-                <div class="detail-row"><strong>Bank Name:</strong> ${e.bank || 'Not Provided'}</div>
-                <div class="detail-row"><strong>A/C / IBAN:</strong> ${e.acc || 'Not Provided'}</div>
-                <div class="detail-row"><strong>Current Status:</strong> ${e.status}</div>
+            document.getElementById("detailContent").innerHTML = `
+                <div class="detail-row"><strong>ID:</strong> ${e.id}</div>
+                <div class="detail-row"><strong>نام:</strong> ${e.name}</div>
+                <div class="detail-row"><strong>فون:</strong> ${e.phone || '-'}</div>
+                <div class="detail-row"><strong>بینک:</strong> ${e.bank || '-'}</div>
+                <div class="detail-row"><strong>اکاؤنٹ نمبر:</strong> ${e.acc || '-'}</div>
+                <div class="detail-row"><strong>اسٹیٹس:</strong> ${e.status}</div>
             `;
             document.getElementById("detailModal").classList.remove("hidden");
         }
 
-        function closeDetails() {
-            document.getElementById("detailModal").classList.add("hidden");
-        }
+        function closeDetails() { document.getElementById("detailModal").classList.add("hidden"); }
 
         async function saveNewEmployee() {
             const id = document.getElementById("newEmpId").value;
             const name = document.getElementById("newEmpName").value;
-            const phone = document.getElementById("newEmpPhone").value;
-            const bank = document.getElementById("newEmpBank").value;
-            const acc = document.getElementById("newEmpAcc").value;
-            const status = document.getElementById("newEmpStatus").value;
-            if(!id || !name) return alert("ID and Name are required!");
-            await db.collection("employees").add({ id, name, phone, bank, acc, status });
-            alert("Success!"); navTo('dashboardPage'); updateCounts();
+            if(!id || !name) return alert("آئی ڈی اور نام ضروری ہے!");
+            await db.collection("employees").add({
+                id, name, 
+                phone: document.getElementById("newEmpPhone").value,
+                bank: document.getElementById("newEmpBank").value,
+                acc: document.getElementById("newEmpAcc").value,
+                status: document.getElementById("newEmpStatus").value
+            });
+            alert("ملازم شامل کر دیا گیا!"); navTo('dashboardPage'); updateCounts();
         }
-        
-        // Include toggleStatus and delEmp from your original code here
     </script>
 </body>
 </html>
