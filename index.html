@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM MASTER - UPDATED</title>
+    <title>HRM MASTER - FIXED ID</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
@@ -15,7 +15,6 @@
         .main-btn:active { transform: scale(0.98); }
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
-        .btn-orange { background: #fd7e14; color: white; }
 
         .pass-box { position: relative; }
         .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; z-index: 10; }
@@ -250,10 +249,10 @@
             
             await db.collection("salaries").add({
                 empName: empData.name,
-                empId: empData.id,
+                empId: empData.id, // یہ آئی ڈی سیو ہورہی ہے
                 phone: empData.phone || 'N/A',
-                bank: empData.bank || 'N/A',
-                acc: empData.acc || 'N/A',
+                bank: empData.bank || '',
+                acc: empData.acc || '',
                 total: t,
                 days: document.getElementById("displayDays").innerText,
                 startDate: document.getElementById("startDate").value,
@@ -289,11 +288,11 @@
                         <table style="width:100%; margin-top:10px;">
                             <thead>
                                 <tr style="background:#eee;">
-                                    <th>ID</th>
-                                    <th>Name</th>
+                                    <th style="width:12%;">ID No</th>
+                                    <th>Employee Name</th>
                                     <th>Days</th>
-                                    <th>Bank/Acc</th>
-                                    <th>Total Payable</th>
+                                    <th>Salary Amount</th>
+                                    <th>Receiving Sign</th>
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -304,24 +303,25 @@
                     grandTotal += parseInt(s.total);
                     tableHtml += `
                         <tr>
-                            <td>${s.empId}</td>
-                            <td>${s.empName}</td>
+                            <td style="font-weight:bold;">${s.empId || '-'}</td>
+                            <td style="text-align:left; padding-left:10px;">${s.empName}</td>
                             <td>${s.days}</td>
-                            <td style="font-size:12px;">${s.bank}<br>${s.acc}</td>
                             <td style="font-weight:bold;">${s.total} PKR</td>
+                            <td style="height:45px; border: 2px solid #000;"></td>
                         </tr>`;
                 });
 
                 tableHtml += `
                             <tr style="background:#f9f9f9; font-weight:bold;">
-                                <td colspan="4" style="text-align:right;">GRAND TOTAL:</td>
+                                <td colspan="3" style="text-align:right;">GRAND TOTAL:</td>
                                 <td>${grandTotal} PKR</td>
+                                <td></td>
                             </tr>
                         </tbody>
                         </table>
                         <div class="sig-container" style="margin-top:30px;">
-                            <div class="sig-box">Verified By</div>
-                            <div class="sig-box">Authorized Signature</div>
+                            <div class="sig-box">Verified By (Admin)</div>
+                            <div class="sig-box">Manager/Authorized Signature</div>
                         </div>
                     </div>`;
                 area.innerHTML = tableHtml;
@@ -329,18 +329,21 @@
             } else {
                 snap.forEach(doc => {
                     const s = doc.data();
+                    let bankInfo = (s.bank || s.acc) ? `<p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>` : '';
+                    
                     area.innerHTML += `
                         <div class="slip-card">
                             <div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;">
                                 <h2 style="margin:5px;">MESKAY & FEMTEE</h2>
                                 <p style="margin:5px;">Monthly Salary Slip</p>
                             </div>
-                            <p><strong>Employee ID:</strong> ${s.empId} | <strong>Name:</strong> ${s.empName}</p>
+                            <p><strong>Employee ID:</strong> <span style="font-size:1.3em; font-weight:bold; background:#eee; padding:2px 8px; border:1px solid #000;">${s.empId || '-'}</span></p>
+                            <p><strong>Full Name:</strong> ${s.empName}</p>
                             <p><strong>Phone:</strong> ${s.phone}</p>
-                            <p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>
+                            ${bankInfo}
                             <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
-                            <div style="background:#eee; padding:10px; border:1px solid #000;">
-                                <h3 style="margin:0;">NET PAYABLE: ${s.total} PKR</h3>
+                            <div style="background:#eee; padding:12px; border:2px solid #000; margin-top:10px;">
+                                <h3 style="margin:0; text-align:center;">NET PAYABLE: ${s.total} PKR</h3>
                             </div>
                             <div class="sig-container">
                                 <div class="sig-box">Prepared By (Admin)</div>
