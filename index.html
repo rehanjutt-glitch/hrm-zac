@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM By Zulfiqar Ali</title>
+    <title>HRM MASTER - USER CONTROL</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
@@ -19,7 +19,6 @@
         .pass-box { position: relative; }
         .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; z-index: 10; }
 
-        /* Grid updated to accommodate the new button */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
         .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
@@ -43,6 +42,9 @@
         .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; border-radius: 5px; }
         .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
         .sig-box { border-top: 2px solid #000; width: 40%; text-align: center; padding-top: 5px; font-weight: bold; }
+
+        .access-box { text-align: left; background: #f9f9f9; padding: 10px; border: 1px solid #000; margin-bottom: 10px; }
+        .access-box label { display: block; margin: 5px 0; cursor: pointer; }
 
         @media print {
             .no-print { display: none; }
@@ -76,15 +78,45 @@
             </div>
         </div>
 
-        <div class="menu-grid">
-            <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
-            <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
-            <button class="menu-btn" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
-            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW STAFF</button>
-            <button class="menu-btn master-btn" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
-            <button class="menu-btn master-btn" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
-            <button class="menu-btn master-btn" onclick="showView('update')">MANAGE EMPLOYEES</button>
+        <div class="menu-grid" id="mainMenuGrid">
+            <button class="menu-btn" data-access="view" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
+            <button class="menu-btn" data-access="view" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
+            <button class="menu-btn" data-access="view" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
+            <button class="menu-btn" data-access="add" onclick="navTo('addPage')">ADD NEW STAFF</button>
+            <button class="menu-btn master-btn" data-access="salary" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
+            <button class="menu-btn master-btn" data-access="reports" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
+            <button class="menu-btn master-btn" data-access="edit" onclick="showView('update')">MANAGE EMPLOYEES</button>
+            <button class="menu-btn master-btn hidden" id="adminOnlyBtn" onclick="navTo('userAdminPage')" style="background:#d84315">USER MANAGEMENT (ADMIN)</button>
         </div>
+    </div>
+
+    <div id="userAdminPage" class="container hidden">
+        <h2>Admin Panel: Manage Users</h2>
+        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
+            <h3>Create New User / Manager</h3>
+            <input type="text" id="newFullNm" placeholder="Full Name (e.g. Asad Ali)">
+            <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+            <input type="password" id="newUserPs" placeholder="Password">
+            
+            <div class="access-box">
+                <strong>Set Access Permissions:</strong>
+                <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
+                <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
+                <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
+                <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
+                <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
+            </div>
+            
+            <button class="main-btn btn-green" onclick="createNewUser()">CREATE USER</button>
+        </div>
+        
+        <div style="overflow-x:auto;">
+            <table id="userTable">
+                <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Action</th></tr></thead>
+                <tbody id="userListBody"></tbody>
+            </table>
+        </div>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="editPage" class="container hidden">
@@ -124,23 +156,15 @@
     <div id="salaryPage" class="container hidden">
         <h2>Salary Calculator</h2>
         <select id="salEmpList"></select>
-        
         <div class="type-selector">
             <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
             <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
         </div>
-
         <label>From:</label><input type="date" id="startDate" onchange="autoCalc()">
         <label>To:</label><input type="date" id="endDate" onchange="autoCalc()">
-        
-        <div class="calc-info">
-            Days Worked: <span id="displayDays">0</span> 
-            <small id="monthInfo" style="display:block; color:blue;"></small>
-        </div>
-        
+        <div class="calc-info">Days Worked: <span id="displayDays">0</span> <small id="monthInfo" style="display:block; color:blue;"></small></div>
         <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
         <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
-        
         <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
@@ -188,17 +212,99 @@
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
+
+            // Master Admin Check
             if (u === "Meskay" && p === "Pakistan786") {
-                currentUser = { name: "Master Admin", role: "admin" };
+                currentUser = { name: "Master Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
                 return loginOk();
             }
+
+            // Check Users from DB
+            const userSnap = await db.collection("users").where("username", "==", u).where("password", "==", p).get();
+            if (!userSnap.empty) {
+                const userData = userSnap.docs[0].data();
+                currentUser = { name: userData.fullName, role: "user", access: userData.permissions };
+                return loginOk();
+            }
+
             alert("Invalid Credentials!");
         }
 
         function loginOk() {
             document.getElementById("navName").innerText = currentUser.name;
+            applyPermissions();
             navTo('dashboardPage');
         }
+
+        function applyPermissions() {
+            const btns = document.querySelectorAll('.menu-btn');
+            btns.forEach(btn => {
+                const req = btn.getAttribute('data-access');
+                if (req && !currentUser.access.includes(req)) {
+                    btn.classList.add('hidden');
+                } else {
+                    btn.classList.remove('hidden');
+                }
+            });
+
+            // Admin only button visibility
+            if (currentUser.role === 'admin') {
+                document.getElementById("adminOnlyBtn").classList.remove('hidden');
+            } else {
+                document.getElementById("adminOnlyBtn").classList.add('hidden');
+            }
+        }
+
+        async function createNewUser() {
+            const fn = document.getElementById("newFullNm").value;
+            const un = document.getElementById("newUserNm").value;
+            const up = document.getElementById("newUserPs").value;
+            const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
+
+            if(!fn || !un || !up) return alert("All fields are required!");
+
+            await db.collection("users").add({
+                fullName: fn,
+                username: un,
+                password: up,
+                permissions: perms
+            });
+            alert("User Created!");
+            loadUsers();
+        }
+
+        async function loadUsers() {
+            const body = document.getElementById("userListBody");
+            body.innerHTML = "Loading...";
+            const snap = await db.collection("users").get();
+            body.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                body.innerHTML += `<tr>
+                    <td>${d.fullName}</td>
+                    <td>${d.username}</td>
+                    <td><small>${d.permissions.join(', ')}</small></td>
+                    <td><button class="btn-red" style="padding:5px;" onclick="deleteUser('${doc.id}')">Delete</button></td>
+                </tr>`;
+            });
+        }
+
+        async function deleteUser(id) {
+            if(confirm("Delete this user?")) {
+                await db.collection("users").doc(id).delete();
+                loadUsers();
+            }
+        }
+
+        function navTo(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'dashboardPage') updateCounts();
+            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
+            if(id === 'userAdminPage') loadUsers();
+        }
+
+        // --- All your original functions remain exactly the same below ---
 
         function togglePass() {
             const p = document.getElementById("password");
@@ -206,13 +312,6 @@
         }
 
         function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
-
-        function navTo(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            if(id === 'dashboardPage') updateCounts();
-            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
-        }
 
         function setCalcMode(mode) {
             calcMode = mode;
@@ -272,10 +371,8 @@
             const empRefId = document.getElementById("salEmpList").value;
             const empSnap = await db.collection("employees").doc(empRefId).get();
             const empData = empSnap.data();
-            
             const t = document.getElementById("displayTotal").innerText;
             if(t == "0") return alert("Calculate first!");
-            
             await db.collection("salaries").add({
                 empName: empData.name,
                 empId: empData.id,
@@ -295,90 +392,26 @@
             const m = document.getElementById("repMonth").value;
             const selectedEmp = document.getElementById("repEmpList").value;
             const area = document.getElementById("printArea");
-            
             if (!m) return alert("Please select a month first!");
-
             let query = db.collection("salaries").where("dateKey", "==", m);
-            if (selectedEmp !== "all") {
-                query = query.where("empName", "==", selectedEmp);
-            }
-            
+            if (selectedEmp !== "all") query = query.where("empName", "==", selectedEmp);
             const snap = await query.get();
             area.innerHTML = snap.empty ? "<h3>No Records Found</h3>" : "";
-            
             if (snap.empty) return;
-
             if (selectedEmp === "all") {
-                let tableHtml = `
-                    <div class="slip-card" style="width:95%; border:none;">
-                        <h2 style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px;">
-                            MESKAY & FEMTEE - STAFF SALARY LIST (${m})
-                        </h2>
-                        <table style="width:100%; margin-top:10px;">
-                            <thead>
-                                <tr style="background:#eee;">
-                                    <th style="width:12%;">ID No</th>
-                                    <th>Employee Name</th>
-                                    <th>Days</th>
-                                    <th>Salary Amount</th>
-                                    <th>Receiving Sign</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-                
+                let tableHtml = `<div class="slip-card" style="width:95%; border:none;"><h2 style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px;">MESKAY & FEMTEE - STAFF SALARY LIST (${m})</h2><table style="width:100%; margin-top:10px;"><thead><tr style="background:#eee;"><th style="width:12%;">ID No</th><th>Employee Name</th><th>Days</th><th>Salary Amount</th><th>Receiving Sign</th></tr></thead><tbody>`;
                 let grandTotal = 0;
                 snap.forEach(doc => {
-                    const s = doc.data();
-                    grandTotal += parseInt(s.total);
-                    tableHtml += `
-                        <tr>
-                            <td style="font-weight:bold;">${s.empId || '-'}</td>
-                            <td style="text-align:left; padding-left:10px;">${s.empName}</td>
-                            <td>${s.days}</td>
-                            <td style="font-weight:bold;">${s.total} PKR</td>
-                            <td style="height:45px; border: 2px solid #000;"></td>
-                        </tr>`;
+                    const s = doc.data(); grandTotal += parseInt(s.total);
+                    tableHtml += `<tr><td style="font-weight:bold;">${s.empId || '-'}</td><td style="text-align:left; padding-left:10px;">${s.empName}</td><td>${s.days}</td><td style="font-weight:bold;">${s.total} PKR</td><td style="height:45px; border: 2px solid #000;"></td></tr>`;
                 });
-
-                tableHtml += `
-                            <tr style="background:#f9f9f9; font-weight:bold;">
-                                <td colspan="3" style="text-align:right;">GRAND TOTAL:</td>
-                                <td>${grandTotal} PKR</td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                        </table>
-                        <div class="sig-container" style="margin-top:30px;">
-                            <div class="sig-box">Verified By (Admin)</div>
-                            <div class="sig-box">Manager/Authorized Signature</div>
-                        </div>
-                    </div>`;
+                tableHtml += `<tr style="background:#f9f9f9; font-weight:bold;"><td colspan="3" style="text-align:right;">GRAND TOTAL:</td><td>${grandTotal} PKR</td><td></td></tr></tbody></table><div class="sig-container" style="margin-top:30px;"><div class="sig-box">Verified By (Admin)</div><div class="sig-box">Manager/Authorized Signature</div></div></div>`;
                 area.innerHTML = tableHtml;
-
             } else {
                 snap.forEach(doc => {
                     const s = doc.data();
                     let bankInfo = (s.bank || s.acc) ? `<p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>` : '';
-                    
-                    area.innerHTML += `
-                        <div class="slip-card">
-                            <div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;">
-                                <h2 style="margin:5px;">MESKAY & FEMTEE</h2>
-                                <p style="margin:5px;">Monthly Salary Slip</p>
-                            </div>
-                            <p><strong>Employee ID:</strong> <span style="font-size:1.3em; font-weight:bold; background:#eee; padding:2px 8px; border:1px solid #000;">${s.empId || '-'}</span></p>
-                            <p><strong>Full Name:</strong> ${s.empName}</p>
-                            <p><strong>Phone:</strong> ${s.phone}</p>
-                            ${bankInfo}
-                            <p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>
-                            <div style="background:#eee; padding:12px; border:2px solid #000; margin-top:10px;">
-                                <h3 style="margin:0; text-align:center;">NET PAYABLE: ${s.total} PKR</h3>
-                            </div>
-                            <div class="sig-container">
-                                <div class="sig-box">Prepared By (Admin)</div>
-                                <div class="sig-box">Employee Signature</div>
-                            </div>
-                        </div>`;
+                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;"><h2 style="margin:5px;">MESKAY & FEMTEE</h2><p style="margin:5px;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-size:1.3em; font-weight:bold; background:#eee; padding:2px 8px; border:1px solid #000;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p><div style="background:#eee; padding:12px; border:2px solid #000; margin-top:10px;"><h3 style="margin:0; text-align:center;">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By (Admin)</div><div class="sig-box">Employee Signature</div></div></div>`;
                 });
             }
         }
@@ -387,37 +420,20 @@
             navTo('listPage');
             const b = document.getElementById("empTableBody"); b.innerHTML = "";
             const isUpdate = mode === 'update';
-            
-            // Set correct title based on mode
             if(mode === 'Inactive') document.getElementById("listTitle").innerText = "Inactive Staff Records";
             else if(mode === 'Active') document.getElementById("listTitle").innerText = "Active Staff Records";
             else document.getElementById("listTitle").innerText = "Employee Records";
-
             document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Phone</th><th>Status</th>${isUpdate ? '<th>Actions</th>' : ''}</tr>`;
-            
             const snap = await db.collection("employees").get();
             snap.forEach(doc => {
-                const e = doc.data();
-                const docId = doc.id;
-                
+                const e = doc.data(); const docId = doc.id;
                 if(mode === 'all' || e.status === mode || isUpdate) {
                     let actionBtn = "";
                     if(isUpdate) {
-                        actionBtn = `<td>
-                            <button onclick="editEmp('${docId}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button>
-                            <button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
-                        </td>`;
+                        actionBtn = `<td><button onclick="editEmp('${docId}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button><button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button></td>`;
                     }
-                    
                     const statusColor = e.status === 'Active' ? 'green' : 'red';
-                    
-                    b.innerHTML += `<tr>
-                        <td>${e.id}</td>
-                        <td>${e.name}</td>
-                        <td>${e.phone || '-'}</td>
-                        <td style="color:${statusColor}; font-weight:bold;">${e.status}</td>
-                        ${actionBtn}
-                    </tr>`;
+                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td style="color:${statusColor}; font-weight:bold;">${e.status}</td>${actionBtn}</tr>`;
                 }
             });
         }
@@ -425,7 +441,6 @@
         async function editEmp(docId) {
             const doc = await db.collection("employees").doc(docId).get();
             const data = doc.data();
-            
             document.getElementById("editDocId").value = docId;
             document.getElementById("editEmpId").value = data.id;
             document.getElementById("editEmpName").value = data.name;
@@ -433,7 +448,6 @@
             document.getElementById("editEmpBank").value = data.bank || '';
             document.getElementById("editEmpAcc").value = data.acc || '';
             document.getElementById("editEmpStatus").value = data.status;
-            
             navTo('editPage');
         }
 
@@ -447,12 +461,9 @@
                 acc: document.getElementById("editEmpAcc").value,
                 status: document.getElementById("editEmpStatus").value
             };
-
             if(!updatedData.id || !updatedData.name) return alert("ID and Name are required!");
-
             await db.collection("employees").doc(docId).update(updatedData);
-            alert("Employee Details Updated!");
-            showView('update');
+            alert("Employee Details Updated!"); showView('update');
         }
 
         async function delEmp(id) { if(confirm("Are you sure?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
@@ -464,19 +475,9 @@
             const bank = document.getElementById("newEmpBank").value;
             const acc = document.getElementById("newEmpAcc").value;
             const status = document.getElementById("newEmpStatus").value;
-
             if(!id || !name) return alert("ID and Name are required!");
-
-            await db.collection("employees").add({ 
-                id: id, 
-                name: name, 
-                phone: phone,
-                bank: bank,
-                acc: acc,
-                status: status 
-            });
-            alert("Employee Added Successfully!");
-            navTo('dashboardPage');
+            await db.collection("employees").add({ id, name, phone, bank, acc, status });
+            alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
     </script>
 </body>
