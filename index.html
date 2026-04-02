@@ -85,6 +85,28 @@
         </div>
     </div>
 
+    <div id="editPage" class="container hidden">
+        <h2>Edit Employee Details</h2>
+        <input type="hidden" id="editDocId">
+        <label>Employee ID:</label>
+        <input type="text" id="editEmpId">
+        <label>Full Name:</label>
+        <input type="text" id="editEmpName">
+        <label>Phone Number:</label>
+        <input type="text" id="editEmpPhone">
+        <label>Bank Name:</label>
+        <input type="text" id="editEmpBank">
+        <label>Account / IBAN:</label>
+        <input type="text" id="editEmpAcc">
+        <label>Status:</label>
+        <select id="editEmpStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <button class="main-btn btn-green" onclick="updateEmployeeData()">UPDATE DETAILS</button>
+        <button class="main-btn" onclick="showView('update')">CANCEL</button>
+    </div>
+
     <div id="addPage" class="container hidden">
         <h2>Add New Employee</h2>
         <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 101)">
@@ -249,7 +271,7 @@
             
             await db.collection("salaries").add({
                 empName: empData.name,
-                empId: empData.id, // یہ آئی ڈی سیو ہورہی ہے
+                empId: empData.id,
                 phone: empData.phone || 'N/A',
                 bank: empData.bank || '',
                 acc: empData.acc || '',
@@ -369,11 +391,9 @@
                 if(mode === 'all' || e.status === mode || isUpdate) {
                     let actionBtn = "";
                     if(isUpdate) {
-                        const nextStatus = e.status === 'Active' ? 'Inactive' : 'Active';
-                        const btnColor = e.status === 'Active' ? '#ff9800' : '#2196f3';
                         actionBtn = `<td>
-                            <button onclick="toggleStatus('${docId}', '${nextStatus}')" style="background:${btnColor}; color:white; border:none; padding:5px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Set ${nextStatus}</button>
-                            <button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
+                            <button onclick="editEmp('${docId}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button>
+                            <button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
                         </td>`;
                     }
                     
@@ -390,11 +410,39 @@
             });
         }
 
-        async function toggleStatus(docId, newStatus) {
-            if(confirm(`Change status to ${newStatus}?`)) {
-                await db.collection("employees").doc(docId).update({ status: newStatus });
-                showView('update');
-            }
+        // New function to load data into edit form
+        async function editEmp(docId) {
+            const doc = await db.collection("employees").doc(docId).get();
+            const data = doc.data();
+            
+            document.getElementById("editDocId").value = docId;
+            document.getElementById("editEmpId").value = data.id;
+            document.getElementById("editEmpName").value = data.name;
+            document.getElementById("editEmpPhone").value = data.phone || '';
+            document.getElementById("editEmpBank").value = data.bank || '';
+            document.getElementById("editEmpAcc").value = data.acc || '';
+            document.getElementById("editEmpStatus").value = data.status;
+            
+            navTo('editPage');
+        }
+
+        // New function to update data in Firestore
+        async function updateEmployeeData() {
+            const docId = document.getElementById("editDocId").value;
+            const updatedData = {
+                id: document.getElementById("editEmpId").value,
+                name: document.getElementById("editEmpName").value,
+                phone: document.getElementById("editEmpPhone").value,
+                bank: document.getElementById("editEmpBank").value,
+                acc: document.getElementById("editEmpAcc").value,
+                status: document.getElementById("editEmpStatus").value
+            };
+
+            if(!updatedData.id || !updatedData.name) return alert("ID and Name are required!");
+
+            await db.collection("employees").doc(docId).update(updatedData);
+            alert("Employee Details Updated!");
+            showView('update');
         }
 
         async function delEmp(id) { if(confirm("Are you sure?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
