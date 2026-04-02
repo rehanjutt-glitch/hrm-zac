@@ -169,15 +169,29 @@
         let calcMode = 'monthly';
 
         // LOGIN FUNCTION (FIXED CONNECTION)
+            // لاگ ان کرنے کا مین فنکشن
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
 
+            if (!u || !p) {
+                alert("براہ کرم یوزر نیم اور پاسورڈ لکھیں");
+               return;
+            }
+               // ماسٹر لاگ ان چیک
             if (u === "Meskay" && p === "Pakistan786") {
                 currentUser = { name: "Master Admin", role: "admin" };
-                return loginOk();
+                loginOk();
+                return;
             }
 
+            // فائر بیس سے چیک کریں
+            try {
+                const snap = await db.collection("users")
+                                     .where("loginU", "==", u)
+                                     .where("pass", "==", p)
+                                     .get();
+              
             try {
                 const snap = await db.collection("users").where("loginU", "==", u).where("pass", "==", p).get();
                 if (!snap.empty) {
@@ -187,14 +201,21 @@
             } catch (e) { alert("Firebase Connection Error!"); }
         }
 
+         // کامیاب لاگ ان کے بعد ڈیش بورڈ دکھانے کا فنکشن
         function loginOk() {
             document.getElementById("navName").innerText = currentUser.name;
+            // ڈیش بورڈ پر لے جائیں
             navTo('dashboardPage');
         }
 
+       // پاسورڈ دکھانے اور چھپانے کا فنکشن
         function togglePass() {
             const p = document.getElementById("password");
-            p.type = p.type === "password" ? "text" : "password";
+            if (p.type === "password") {
+                p.type = "text";
+            } else {
+                p.type = "password";
+            }
         }
 
         function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
@@ -276,10 +297,16 @@
             let q = db.collection("salaries").where("dateKey", "==", month);
             const snap = await q.get();
 
-            if (snap.empty) {
-                area.innerHTML = "<h3>اس مہینے کا کوئی ریکارڈ نہیں ملا۔</h3>";
-                return;
+                    currentUser = snap.docs[0].data();
+                    loginOk();
+                } else {
+                    alert("غلط یوزر نیم یا پاسورڈ!");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("فائر بیس سے رابطہ نہیں ہو رہا: " + e.message);
             }
+        }
 
             area.innerHTML = ""; // پرانا ڈیٹا صاف کریں
 
