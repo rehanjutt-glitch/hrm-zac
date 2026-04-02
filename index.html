@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM MASTER - FIXED CONNECTION</title>
+    <title>HRM CLOUD MASTER PRO</title>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
         .container { width: 95%; max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border: 3px solid #000; box-shadow: 10px 10px 0 #000; border-radius: 8px; }
         .hidden { display: none; }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; font-weight: bold; }
-        .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; transition: 0.2s; }
-        .main-btn:active { transform: scale(0.98); }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; }
+        .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
 
         .pass-box { position: relative; }
-        .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; z-index: 10; }
+        .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; }
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
         .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
         .master-btn { grid-column: span 2; background: #1a237e; }
-        
+        .sal-btn { background: #2e7d32; }
+        .rep-btn { background: #01579b; }
+
         .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; position: relative; }
         .profile-trigger { display: flex; align-items: center; cursor: pointer; background: #000; color: #fff; padding: 8px 15px; border: 2px solid #000; }
         .nav-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #fff; object-fit: cover; }
@@ -32,21 +33,12 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 2px solid #000; padding: 12px; text-align: center; }
         th { background: #eee; }
-
-        .calc-info { background: #e3f2fd; padding: 15px; border: 2px dashed #000; margin: 10px 0; font-weight: bold; }
-        
-        .type-selector { display: flex; gap: 10px; margin: 10px 0; }
-        .type-selector button { flex: 1; padding: 12px; border: 2px solid #000; cursor: pointer; font-weight: bold; background: #fff; }
-        .active-type { background: #000 !important; color: #fff !important; }
-
-        .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; }
-        .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
-        .sig-box { border-top: 2px solid #000; width: 40%; text-align: center; padding-top: 5px; font-weight: bold; }
+        .active-row { border-left: 10px solid green; }
+        .inactive-row { border-left: 10px solid red; }
 
         @media print {
             .no-print { display: none; }
-            body { background: white; }
-            .slip-card { page-break-after: always; width: 100%; margin: 0 0 20px 0; border: 1px solid #000; }
+            .slip-card { page-break-after: always; border: 2px solid #000; padding: 30px; margin: 20px; text-align: left; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -54,104 +46,91 @@
 <body>
 
     <div id="loginPage" class="container">
-        <h1>MESKAY HRM CLOUD</h1>
-        <p>Enter credentials to access system</p>
-        <input type="text" id="username" placeholder="Username / Login ID">
-        <div class="pass-box" style="position: relative;">
+        <h1>HRM SYSTEM</h1>
+        <input type="text" id="username" placeholder="Username">
+        <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
-            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()" style="position: absolute; right: 15px; top: 12px; cursor: pointer;"></i>
+            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
         </div>
-        <button class="main-btn" onclick="handleLogin()">SECURE LOGIN</button>
+        <button class="main-btn" onclick="handleLogin()">LOGIN</button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
         <div class="top-bar">
             <div class="profile-trigger" onclick="toggleMenu()">
-               <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
-                <span id="navName">Admin</span>
+                <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
+                <span id="navName">User</span>
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
-                <button class="main-btn" id="adminBtnLink" onclick="navTo('adminPage')">⚙️ Admin Panel</button>
-                <button class="main-btn btn-red" onclick="location.reload()">🚪 Logout</button>
+                <img id="menuPic" src="https://via.placeholder.com/60" style="border-radius:50%; border:2px solid #000"><br>
+                <input type="file" id="picUpload" onchange="uploadImage()" hidden>
+                <label for="picUpload" style="cursor:pointer; color:blue; text-decoration:underline; font-size:12px;">Change Photo</label>
+                <hr>
+                <button class="main-btn" onclick="navTo('adminPage')" id="adminBtn">⚙️ Admin Panel</button>
+                <button class="main-btn btn-red" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
 
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
-            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW STAFF</button>
-            <button class="menu-btn master-btn" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
-            <button class="menu-btn master-btn" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
-            <button class="menu-btn master-btn" onclick="showView('update')">MANAGE EMPLOYEES</button>
+            <button class="menu-btn" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
+            <button class="menu-btn" onclick="navTo('addPage')">ADD NEW EMPLOYEE</button>
+            <button class="menu-btn master-btn" onclick="showView('update')">UPDATE & MANAGE INFO</button>
+            <button class="menu-btn sal-btn" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
+            <button class="menu-btn rep-btn" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
         </div>
     </div>
 
-            <div id="addPage" class="container hidden">
-        <h2>Add New Employee</h2>
-        <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 001)">
-        <input type="text" id="newEmpName" placeholder="Full Name">
-        <input type="text" id="newDesignation" placeholder="Designation (e.g. Driver)">
-        <input type="number" id="newPhone" placeholder="Phone Number (e.g. 03001234567)">
-        <select id="newEmpStatus">
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
+    <div id="listPage" class="container hidden">
+        <h2 id="listTitle">Records</h2>
+        <input type="text" onkeyup="searchTable(this.value)" placeholder="Search...">
+        <table>
+            <thead id="tableHead"></thead>
+            <tbody id="empTableBody"></tbody>
+        </table>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="salaryPage" class="container hidden">
-        <h2>Salary Calculator</h2>
+        <h2>Generate Salary</h2>
         <select id="salEmpList"></select>
-        
-        <div class="type-selector">
-            <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
-            <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
-        </div>
-
-        <label>From:</label><input type="date" id="startDate" onchange="autoCalc()">
-        <label>To:</label><input type="date" id="endDate" onchange="autoCalc()">
-        
-        <div class="calc-info">
-            Days Worked: <span id="displayDays">0</span> 
-            <small id="monthInfo" style="display:block; color:blue;"></small>
-        </div>
-        
-        <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
-        <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
-        
-        <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        <input type="date" id="salDate">
+        <input type="text" id="salDateMan" placeholder="Manual Date (DD-MM-YYYY)">
+        <input type="number" id="salDays" placeholder="Working Days">
+        <input type="number" id="salWages" placeholder="Daily Rate">
+        <button class="main-btn btn-green" onclick="saveSalary()">SAVE SALARY</button>
+        <button class="main-btn btn-red" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <div id="reportPage" class="container hidden">
-        <div id="reportPage" class="container hidden">
         <div class="no-print">
-            <h2>Salary Reports & Search</h2>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-                <input type="month" id="repMonth">
-                <input type="text" id="searchEmpId" placeholder="Enter Employee ID to Search">
-            </div>
-            
-            <div style="display:flex; gap:10px; flex-wrap: wrap;">
-                <button class="main-btn btn-green" style="flex:1" onclick="generateReport('single')">🔍 Search & Single Slip</button>
-                <button class="main-btn" style="flex:1; background:#673ab7;" onclick="generateReport('all')">📋 View Full Month List</button>
-                <button class="main-btn" style="flex:1; background:#f44336;" onclick="window.print()">🖨️ Print Now</button>
-                <button class="main-btn" style="flex:1" onclick="navTo('dashboardPage')">BACK</button>
-            </div>
+            <h2>Reports</h2>
+            <input type="month" id="repMonth">
+            <button class="main-btn btn-green" onclick="generateReport()">VIEW</button>
+            <button class="main-btn" onclick="window.print()">PRINT SLIPS</button>
+            <button class="main-btn btn-red" onclick="navTo('dashboardPage')">BACK</button>
         </div>
-        
         <div id="printArea"></div>
-        </div>
+    </div>
 
-    <div id="listPage" class="container hidden">
-        <h2 id="listTitle">Records</h2>
-        <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
+    <div id="adminPage" class="container hidden">
+        <h2>Admin Panel</h2>
+        <input type="text" id="newPersonName" placeholder="Full Name">
+        <input type="text" id="newLoginName" placeholder="Username">
+        <input type="text" id="newLoginPass" placeholder="Password">
+        <select id="newRole">
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button class="main-btn btn-green" onclick="createNewUser()">CREATE</button>
         <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -164,276 +143,136 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
         let currentUser = null;
-        let calcMode = 'monthly';
-
-        // LOGIN FUNCTION (FIXED CONNECTION)
-            // لاگ ان کرنے کا مین فنکشن
-        async function handleLogin() {
-            const u = document.getElementById("username").value.trim();
-            const p = document.getElementById("password").value.trim();
-
-            if (!u || !p) {
-                alert("براہ کرم یوزر نیم اور پاسورڈ لکھیں");
-               return;
-            }
-               // ماسٹر لاگ ان چیک
-            if (u === "Meskay" && p === "Pakistan786") {
-                currentUser = { name: "Master Admin", role: "admin" };
-                loginOk();
-                return;
-            }
-
-            // فائر بیس سے چیک کریں
-            try {
-                const snap = await db.collection("users")
-                                     .where("loginU", "==", u)
-                                     .where("pass", "==", p)
-                                     .get();
-              
-            try {
-                const snap = await db.collection("users").where("loginU", "==", u).where("pass", "==", p).get();
-                if (!snap.empty) {
-                    currentUser = snap.docs[0].data();
-                    loginOk();
-                } else { alert("Invalid Credentials!"); }
-            } catch (e) { alert("Firebase Connection Error!"); }
-        }
-
-         // کامیاب لاگ ان کے بعد ڈیش بورڈ دکھانے کا فنکشن
-        function loginOk() {
-            document.getElementById("navName").innerText = currentUser.name;
-            // ڈیش بورڈ پر لے جائیں
-            navTo('dashboardPage');
-        }
-
-       // پاسورڈ دکھانے اور چھپانے کا فنکشن
-        function togglePass() {
-            const p = document.getElementById("password");
-            if (p.type === "password") {
-                p.type = "text";
-            } else {
-                p.type = "password";
-            }
-        }
-
-        function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
 
         function navTo(id) {
+            window.location.hash = id;
             document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             if(id === 'dashboardPage') updateCounts();
             if(id === 'salaryPage') loadSalEmps();
         }
 
-        // SMART CALCULATION
-        function setCalcMode(mode) {
-            calcMode = mode;
-            document.getElementById("btnMonthly").classList.toggle("active-type", mode === 'monthly');
-            document.getElementById("btnDaily").classList.toggle("active-type", mode === 'daily');
-            document.getElementById("baseAmount").placeholder = mode === 'monthly' ? "Monthly Fix Salary" : "Daily Wage Rate";
-            autoCalc();
+        function togglePass() {
+            const p = document.getElementById("password");
+            p.type = (p.type === "password") ? "text" : "password";
         }
 
-        function autoCalc() {
-            const sVal = document.getElementById("startDate").value;
-            const eVal = document.getElementById("endDate").value;
-            const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
-
-            if (sVal && eVal) {
-                const s = new Date(sVal);
-                const e = new Date(eVal);
-                const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
-                document.getElementById("displayDays").innerText = days;
-
-                if (calcMode === 'monthly') {
-                    const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
-                    document.getElementById("monthInfo").innerText = `(Dividing by ${daysInMonth} days in this month)`;
-                    document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * days);
-                } else {
-                    document.getElementById("monthInfo").innerText = "";
-                    document.getElementById("displayTotal").innerText = amount * days;
-                }
+        async function handleLogin() {
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
+            if(u === "Meskay" && p === "Pakistan786") {
+                currentUser = { name: "Master Admin", role: "admin", loginU: "Meskay" };
+                loginOk(); return;
             }
+            const snap = await db.collection("users").where("loginU","==",u).where("pass","==",p).get();
+            if(!snap.empty) { currentUser = snap.docs[0].data(); loginOk(); } else alert("Access Denied!");
+        }
+
+        function loginOk() {
+            document.getElementById("navName").innerText = currentUser.name;
+            document.getElementById("adminBtn").style.display = (currentUser.role === 'admin') ? 'block' : 'none';
+            navTo('dashboardPage');
+            loadProfilePic();
         }
 
         async function updateCounts() {
             const snap = await db.collection("employees").get();
-            let all = 0, act = 0;
-            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; });
+            let all = 0, act = 0, inact = 0;
+            snap.forEach(doc => { all++; if(doc.data().status === 'Active') act++; else inact++; });
             document.getElementById("cntAll").innerText = all;
             document.getElementById("cntActive").innerText = act;
+            document.getElementById("cntInactive").innerText = inact;
         }
-
-        async function loadSalEmps() {
-            const sel = document.getElementById("salEmpList"); sel.innerHTML = "";
-            const snap = await db.collection("employees").where("status","==","Active").get();
-            snap.forEach(doc => sel.innerHTML += `<option>${doc.data().name}</option>`);
-        }
-
-                async function saveSalary() {
-            const sel = document.getElementById("salEmpList");
-            const name = sel.options[sel.selectedIndex].text;
-            const empId = sel.value; // یہ ملازم کی آئی ڈی ہونی چاہیے
-
-            await db.collection("salaries").add({
-                empId: empId, 
-                empName: name,
-                // ... باقی ڈیٹا جیسے ڈیزگنیشن اور ٹوٹل وغیرہ
-            });
-        }
-
-            alert("Salary Saved!"); navTo('dashboardPage');
-        }
-
-                async function generateReport(mode) {
-            const month = document.getElementById("repMonth").value;
-            const searchId = document.getElementById("searchEmpId").value.trim();
-            const area = document.getElementById("printArea");
-
-            if (!month) return alert("براہ کرم مہینہ سلیکٹ کریں");
-
-            let q = db.collection("salaries").where("dateKey", "==", month);
-            const snap = await q.get();
-
-                    currentUser = snap.docs[0].data();
-                    loginOk();
-                } else {
-                    alert("غلط یوزر نیم یا پاسورڈ!");
-                }
-            } catch (e) {
-                console.error(e);
-                alert("فائر بیس سے رابطہ نہیں ہو رہا: " + e.message);
-            }
-        }
-
-            area.innerHTML = ""; // پرانا ڈیٹا صاف کریں
-
-            if (mode === 'single') {
-                // ایک ملازم کی سلپ (Search by ID)
-                if (!searchId) return alert("سرچ کرنے کے لیے Employee ID لکھیں");
-                
-                let found = false;
-                snap.forEach(doc => {
-                    const s = doc.data();
-                    // یہاں ہم چیک کر رہے ہیں کہ کیا سیلری ریکارڈ میں موجود نام یا آئی ڈی میچ کرتی ہے
-                    if (s.empId === searchId || s.empName.includes(searchId)) {
-                        found = true;
-                        area.innerHTML = `
-                            <div class="slip-card">
-                                <div class="slip-header">
-                                    <h2>MESKAY & FEMTEE</h2>
-                                    <p>Individual Salary Slip</p>
-                                </div>
-                                <div class="slip-row"><span>Employee ID:</span> <span>${s.empId || 'N/A'}</span></div>
-                                <div class="slip-row"><span>Name:</span> <span>${s.empName}</span></div>
-                                <div class="slip-row"><span>Designation:</span> <span>${s.designation || '-'}</span></div>
-                                <div class="slip-row"><span>Period:</span> <span>${s.startDate} to ${s.endDate}</span></div>
-                                <div class="slip-row"><span>Days Worked:</span> <span>${s.days}</span></div>
-                                <hr>
-                                <div class="slip-row"><h3>NET PAYABLE:</h3> <h3>${s.total} PKR</h3></div>
-                                <div class="sig-container">
-                                    <div class="sig-box">Prepared By</div>
-                                    <div class="sig-box">Receiver's Signature</div>
-                                </div>
-                            </div>`;
-                    }
-                });
-                if (!found) alert("اس آئی ڈی کا کوئی ریکارڈ اس مہینے میں نہیں ملا۔");
-
-            } else {
-                // تمام ملازمین کی ایک ہی لسٹ (Summary Table)
-                let tableHTML = `
-                    <div style="padding:20px;">
-                        <h2>Salary Summary - ${month}</h2>
-                        <table border="2" style="width:100%; border-collapse:collapse;">
-                            <thead style="background:#eee;">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Days</th>
-                                    <th>Total Amount</th>
-                                    <th>Signature</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-                
-                let grandTotal = 0;
-                snap.forEach(doc => {
-                    const s = doc.data();
-                    grandTotal += parseInt(s.total);
-                    tableHTML += `
-                        <tr>
-                            <td>${s.empId || '-'}</td>
-                            <td>${s.empName}</td>
-                            <td>${s.days}</td>
-                            <td>${s.total}</td>
-                            <td style="width:150px;"></td>
-                        </tr>`;
-                });
-
-                tableHTML += `
-                            <tr style="background:#f9f9f9; font-weight:bold;">
-                                <td colspan="3" style="text-align:right">Grand Total:</td>
-                                <td>${grandTotal} PKR</td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>`;
-                area.innerHTML = tableHTML;
-            }
-        }
-
 
         async function showView(mode) {
             navTo('listPage');
-            const b = document.getElementById("empTableBody"); b.innerHTML = "";
-            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
-            const snap = await db.collection("employees").get();
+            const head = document.getElementById("tableHead");
+            const body = document.getElementById("empTableBody");
+            body.innerHTML = "Loading...";
+
+            // اگر اپڈیٹ موڈ ہے تو ایکشن کالم دکھائیں، ورنہ نہیں
+            head.innerHTML = `<tr><th>ID</th><th>Name</th><th>Status</th>${mode==='update'?'<th>Action</th>':''}</tr>`;
+            
+            let query = db.collection("employees");
+            if(mode === 'Active' || mode === 'Inactive') query = query.where("status","==",mode);
+            
+            const snap = await query.get();
+            body.innerHTML = "";
             snap.forEach(doc => {
                 const e = doc.data();
-                if(mode === 'all' || e.status === mode || mode === 'update') {
-                    const btn = mode === 'update' ? `<td><button onclick="delEmp('${doc.id}')">Delete</button></td>` : "";
-                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.status}</td>${btn}</tr>`;
+                const actionCell = (mode === 'update') ? 
+                    `<td>
+                        <button class="btn-green" onclick="toggleStatus('${doc.id}','${e.status}')">Status</button>
+                        <button class="btn-red" onclick="delEmp('${doc.id}')">Delete</button>
+                    </td>` : '';
+
+                body.innerHTML += `<tr class="${e.status==='Active'?'active-row':'inactive-row'}">
+                    <td>${e.id}</td><td>${e.name}</td>
+                    <td style="color:${e.status==='Active'?'green':'red'}; font-weight:bold">${e.status}</td>
+                    ${actionCell}
+                </tr>`;
+            });
+        }
+
+        async function toggleStatus(id, s) {
+            await db.collection("employees").doc(id).update({ status: s==='Active'?'Inactive':'Active' });
+            showView('update');
+        }
+
+        async function delEmp(id) {
+            if(confirm("Delete Employee?")) { await db.collection("employees").doc(id).delete(); showView('update'); }
+        }
+
+        async function loadSalEmps() {
+            const sel = document.getElementById("salEmpList");
+            sel.innerHTML = "";
+            const snap = await db.collection("employees").where("status","==","Active").get();
+            snap.forEach(doc => sel.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`);
+        }
+
+        async function saveSalary() {
+            const d = document.getElementById("salDays").value;
+            const r = document.getElementById("salWages").value;
+            const dt = document.getElementById("salDate").value || document.getElementById("salDateMan").value;
+            await db.collection("salaries").add({
+                empName: document.getElementById("salEmpList").options[document.getElementById("salEmpList").selectedIndex].text,
+                date: dt, total: d * r, days: d, rate: r
+            });
+            alert("Salary Saved!"); navTo('dashboardPage');
+        }
+
+        async function generateReport() {
+            const month = document.getElementById("repMonth").value;
+            const area = document.getElementById("printArea");
+            const snap = await db.collection("salaries").get();
+            area.innerHTML = "";
+            snap.forEach(doc => {
+                const s = doc.data();
+                if(s.date.includes(month)) {
+                    area.innerHTML += `<div class="slip-card"><h2>SALARY SLIP</h2><p>Name: ${s.empName}</p><p>Date: ${s.date}</p><hr><p>Days: ${s.days} x Rate: ${s.rate}</p><h3>TOTAL: ${s.total}</h3></div>`;
                 }
             });
         }
-        async function delEmp(id) { if(confirm("Delete?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
-                      async function saveNewEmployee() {
-            const id = document.getElementById("newEmpId").value;
-            const name = document.getElementById("newEmpName").value;
-            const desig = document.getElementById("newDesignation").value;
-            const phone = document.getElementById("newPhone").value;
-            const status = document.getElementById("newEmpStatus").value;
 
-            if(!id || !name || !desig || !phone) {
-                return alert("براہ کرم تمام خانے پُر کریں (ID, Name, Designation, Phone)");
-            }
-
-            try {
-                await db.collection("employees").add({ 
-                    id: id, 
-                    name: name, 
-                    designation: desig, 
-                    phone: phone,
-                    status: status 
-                });
-                alert("Employee Added Successfully!");
-                
-                // فارم صاف کرنے کے لیے
-                document.getElementById("newEmpId").value = "";
-                document.getElementById("newEmpName").value = "";
-                document.getElementById("newDesignation").value = "";
-                document.getElementById("newPhone").value = "";
-                
-                navTo('dashboardPage');
-            } catch (e) {
-                alert("Error: " + e);
-            }
+        async function uploadImage() {
+            const file = document.getElementById("picUpload").files[0];
+            await storage.ref('profiles/' + currentUser.loginU).put(file);
+            loadProfilePic();
         }
-  
+
+        async function loadProfilePic() {
+            try {
+                const url = await storage.ref('profiles/' + currentUser.loginU).getDownloadURL();
+                document.getElementById("navPic").src = url;
+                document.getElementById("menuPic").src = url;
+            } catch(e) {}
+        }
+
+        function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
+        function logout() { location.reload(); }
     </script>
 </body>
 </html>
