@@ -75,6 +75,7 @@
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
                 <button class="main-btn btn-red" onclick="location.reload()">🚪 Logout</button>
+                <button class="menu-btn master-btn hidden" id="adminOnlyBtn" onclick="navTo('userAdminPage')" style="background:#d84315">ADMIN</button>
             </div>
         </div>
 
@@ -86,7 +87,6 @@
             <button class="menu-btn master-btn" data-access="salary" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
             <button class="menu-btn master-btn" data-access="reports" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
             <button class="menu-btn master-btn" data-access="edit" onclick="showView('update')">MANAGE STAFF</button>
-            <button class="menu-btn master-btn hidden" id="adminOnlyBtn" onclick="navTo('userAdminPage')" style="background:#d84315">USER MANAGEMENT (ADMIN)</button>
         </div>
     </div>
 
