@@ -74,6 +74,13 @@
                 <span id="navName">Admin</span>
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
+                <input type="password" id="oldPass" placeholder="پرانا پاسورڈ">
+    <input type="text" id="newUsername" placeholder="نیا یوزر نیم">
+    <input type="password" id="newPass" placeholder="نیا پاسورڈ">
+    <button onclick="updateCredentials()" style="background-color: #e67e22; color: white;">تبدیل کریں</button>
+</div>
+
+<button onclick="document.getElementById('settingsSection').style.display='block'">اکاؤنٹ سیٹنگز</button>
                 <button class="main-btn btn-red" onclick="location.reload()">🚪 Logout</button>
             </div>
         </div>
