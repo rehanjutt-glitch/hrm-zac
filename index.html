@@ -485,47 +485,6 @@ if (!localStorage.getItem('username')) {
     localStorage.setItem('username', 'admin'); // ڈیفالٹ یوزر نیم
     localStorage.setItem('password', '1234');  // ڈیفالٹ پاسورڈ
 }
-
-function updateCredentials() {
-    let oldPassInput = document.getElementById('oldPass').value;
-    let newUsernameInput = document.getElementById('newUsername').value;
-    let newPassInput = document.getElementById('newPass').value;
-
-    let storedPass = localStorage.getItem('password');
-
-    // کنڈیشن: پہلے پرانا پاسورڈ چیک کرو
-    if (oldPassInput === storedPass) {
-        if (newUsernameInput !== "" && newPassInput !== "") {
-            // نیا یوزر نیم اور پاسورڈ محفوظ کرنا
-            localStorage.setItem('username', newUsernameInput);
-            localStorage.setItem('password', newPassInput);
-            
-            alert("یوزر نیم اور پاسورڈ کامیابی سے تبدیل ہو گئے ہیں!");
-            
-            // فارم خالی کرنا اور چھپانا
-            document.getElementById('oldPass').value = "";
-            document.getElementById('newUsername').value = "";
-            document.getElementById('newPass').value = "";
-            document.getElementById('settingsSection').style.display = 'none';
-        } else {
-            alert("براہ کرم نیا یوزر نیم اور پاسورڈ درج کریں");
-        }
-    } else {
-        alert("پرانا پاسورڈ غلط ہے! تبدیلی ممکن نہیں");
-    }
-}
-        function login() {
-    let user = document.getElementById('loginUser').value;
-    let pass = document.getElementById('loginPass').value;
-
-    // اب یہ localStorage سے ڈیٹا چیک کرے گا
-    if (user === localStorage.getItem('username') && pass === localStorage.getItem('password')) {
-        alert("خوش آمدید " + user);
-        // یہاں وہ کوڈ لکھیں جو لاگ ان کے بعد مینو دکھاتا ہے
-    } else {
-        alert("یوزر نیم یا پاسورڈ غلط ہے");
-    }
-}
     </script>
     
 </body>
