@@ -58,13 +58,13 @@
 
     <div id="loginPage" class="container">
         <h1>HRM CLOUD</h1>
-        <p>Enter credentials to access system</p>
+        <p>Please Login To Access Our Dasboard</p>
         <input type="text" id="username" placeholder="Username / Login ID">
         <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
             <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
         </div>
-        <button class="main-btn" onclick="handleLogin()">SECURE LOGIN</button>
+        <button class="main-btn" onclick="handleLogin()">LOGIN CLICK TO LOGIN </button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
@@ -215,7 +215,7 @@
 
             // Master Admin Check
             if (u === "Meskay" && p === "Pakistan786") {
-                currentUser = { name: "Master Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
+                currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
                 return loginOk();
             }
 
