@@ -73,7 +73,22 @@
                 <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
                 <span id="navName">Admin</span>
             </div>
+            <div id="passwordModal" class="container hidden" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 320px; border: 4px solid #000;">
+    <h2 style="margin-top:0;">Security Update</h2>
+    <input type="password" id="oldPassInput" placeholder="Old Password">
+    <input type="text" id="newUsernameInput" placeholder="New Username">
+    <input type="password" id="newPasswordInput" placeholder="New Password">
+    <button class="main-btn btn-green" onclick="processPasswordChange()">UPDATE NOW</button>
+    <button class="main-btn btn-red" onclick="closePassModal()">CANCEL</button>
+</div>
             <div id="profileMenu" class="dropdown-menu hidden">
+                <div id="profileMenu" class="dropdown-menu hidden">
+    <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
+    
+    <button class="main-btn" style="background: #1a237e;" onclick="openPassModal()">CHANGE PASSWORD</button>
+    
+    <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
+</div>
                 <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
                 <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
             </div>
@@ -479,6 +494,43 @@
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
+        function openPassModal() {
+    toggleMenu(); 
+    document.getElementById("passwordModal").classList.remove("hidden");
+}
+
+function closePassModal() {
+    document.getElementById("passwordModal").classList.add("hidden");
+}
+
+async function processPasswordChange() {
+    const oldP = document.getElementById("oldPassInput").value.trim();
+    const newU = document.getElementById("newUsernameInput").value.trim();
+    const newP = document.getElementById("newPasswordInput").value.trim();
+
+    if(!oldP || !newU || !newP) return alert("All fields are required!");
+
+    if (currentUser.name === "Admin") {
+        alert("Master Admin password cannot be changed from here.");
+        return closePassModal();
+    }
+
+    const userSnap = await db.collection("users")
+        .where("fullName", "==", currentUser.name)
+        .where("password", "==", oldP).get();
+
+    if (userSnap.empty) {
+        alert("Incorrect Old Password!");
+    } else {
+        const docId = userSnap.docs[0].id;
+        await db.collection("users").doc(docId).update({
+            username: newU,
+            password: newP
+        });
+        alert("Success! Password Updated. Please Login Again.");
+        location.reload();
+    }
+}
     </script>
 </body>
 </html>
