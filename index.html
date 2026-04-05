@@ -78,7 +78,14 @@
                 <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')" style="background:#000000">ADMIN</button>
             </div>
         </div>
-
+<div id="settingsSection" class="container" style="margin-top: 20px; display: none;">
+    <h3>پاسورڈ تبدیل کریں</h3>
+    <input type="password" id="oldPass" placeholder="پرانا پاسورڈ">
+    <input type="text" id="newUsername" placeholder="نیا یوزر نیم">
+    <input type="password" id="newPass" placeholder="نیا پاسورڈ">
+    <button onclick="updateCredentials()" style="background-color: #e67e22; color: white;">تبدیل کریں</button>
+</div>
+<button onclick="document.getElementById('settingsSection').style.display='block'">اکاؤنٹ سیٹنگز</button>
         <div class="menu-grid" id="mainMenuGrid">
             <button class="menu-btn" data-access="view" onclick="showView('all')">TOTAL STAFF <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" data-access="view" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
@@ -479,6 +486,53 @@
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
+        // شروع میں ایک ڈیفالٹ یوزر نیم اور پاسورڈ سیٹ کرنا (اگر پہلے سے موجود نہ ہو)
+if (!localStorage.getItem('username')) {
+    localStorage.setItem('username', 'admin'); // ڈیفالٹ یوزر نیم
+    localStorage.setItem('password', '1234');  // ڈیفالٹ پاسورڈ
+}
+
+function updateCredentials() {
+    let oldPassInput = document.getElementById('oldPass').value;
+    let newUsernameInput = document.getElementById('newUsername').value;
+    let newPassInput = document.getElementById('newPass').value;
+
+    let storedPass = localStorage.getItem('password');
+
+    // کنڈیشن: پہلے پرانا پاسورڈ چیک کرو
+    if (oldPassInput === storedPass) {
+        if (newUsernameInput !== "" && newPassInput !== "") {
+            // نیا یوزر نیم اور پاسورڈ محفوظ کرنا
+            localStorage.setItem('username', newUsernameInput);
+            localStorage.setItem('password', newPassInput);
+            
+            alert("یوزر نیم اور پاسورڈ کامیابی سے تبدیل ہو گئے ہیں!");
+            
+            // فارم خالی کرنا اور چھپانا
+            document.getElementById('oldPass').value = "";
+            document.getElementById('newUsername').value = "";
+            document.getElementById('newPass').value = "";
+            document.getElementById('settingsSection').style.display = 'none';
+        } else {
+            alert("براہ کرم نیا یوزر نیم اور پاسورڈ درج کریں");
+        }
+    } else {
+        alert("پرانا پاسورڈ غلط ہے! تبدیلی ممکن نہیں");
+    }
+}
+        function login() {
+    let user = document.getElementById('loginUser').value;
+    let pass = document.getElementById('loginPass').value;
+
+    // اب یہ localStorage سے ڈیٹا چیک کرے گا
+    if (user === localStorage.getItem('username') && pass === localStorage.getItem('password')) {
+        alert("خوش آمدید " + user);
+        // یہاں وہ کوڈ لکھیں جو لاگ ان کے بعد مینو دکھاتا ہے
+    } else {
+        alert("یوزر نیم یا پاسورڈ غلط ہے");
+    }
+}
     </script>
+    
 </body>
 </html>
