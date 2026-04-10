@@ -47,39 +47,50 @@
         .access-box label { display: block; margin: 5px 0; cursor: pointer; }
 
         @media print {
+    /* زبردستی پورٹریٹ موڈ لاگو کرنے کے لیے */
     @page {
         size: portrait !important;
-        margin: 0.5cm;
-    }
-    
-    .no-print { display: none !important; }
-    
-    body { 
-        background: white; 
-        width: 100%; 
+        margin: 10mm !important;
     }
 
-    .container { 
-        border: none !important; 
-        box-shadow: none !important; 
-        width: 100% !important;
+    /* غیر ضروری چیزیں چھپانے کے لیے */
+    .no-print, .top-bar, .menu-grid, button {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
         margin: 0 !important;
         padding: 0 !important;
     }
 
-    .slip-card { 
-        width: 90% !important; /* چوڑائی کم کی تاکہ پورٹریٹ میں فٹ ہو */
-        max-width: 600px; /* چوڑائی کو محدود کیا */
-        margin: 20px auto !important; 
-        page-break-after: always; 
-        border: 2px solid #000 !important;
-        display: block !important;
+    /* کنٹینر کی سیٹنگ */
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* ٹیبل کو چھوٹا کرنے کے لیے */
-    table {
-        width: 100% !important;
-        font-size: 12px; /* فونٹ سائز تھوڑا کم کیا */
+    /* سلپ کارڈ کو پورٹریٹ میں فٹ کرنے کے لیے اہم تبدیلیاں */
+    .slip-card {
+        width: 95% !important; /* چوڑائی کو تھوڑا کم کیا تاکہ سائیڈ سے نہ کٹے */
+        max-width: 17cm !important; /* اے فور پیج کے پورٹریٹ سائز کے مطابق */
+        margin: 0 auto !important;
+        padding: 20px !important;
+        border: 2px solid #000 !important;
+        page-break-after: always;
+        box-sizing: border-box !important;
+    }
+
+    /* فونٹس کو تھوڑا چھوٹا کریں تاکہ جگہ بچ سکے */
+    h2 { font-size: 20px !important; }
+    p { font-size: 14px !important; }
+    
+    .sig-container {
+        margin-top: 40px !important;
     }
 }
     </style>
