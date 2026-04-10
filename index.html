@@ -47,10 +47,19 @@
         .access-box label { display: block; margin: 5px 0; cursor: pointer; }
 
         @media print {
-            .no-print { display: none; }
-            body { background: white; }
-            .slip-card { page-break-after: auto; width: 100%; margin: 0; border: 1px solid #000; }
-        }
+    @page {
+        size: portrait; /* یہ لائن پیج کو پورٹریٹ پر مجبور کرے گی */
+        margin: 10mm;   /* پرنٹ کے کناروں کا فاصلہ */
+    }
+    .no-print { display: none; }
+    body { background: white; }
+    .slip-card { 
+        page-break-after: always; /* ہر سلپ نئے صفحے سے شروع ہوگی */
+        width: 100%; 
+        margin: 0 auto; 
+        border: 2px solid #000; 
+    }
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
