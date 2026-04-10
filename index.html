@@ -48,16 +48,38 @@
 
         @media print {
     @page {
-        size: portrait; /* یہ لائن پیج کو پورٹریٹ پر مجبور کرے گی */
-        margin: 10mm;   /* پرنٹ کے کناروں کا فاصلہ */
+        size: portrait !important;
+        margin: 0.5cm;
     }
-    .no-print { display: none; }
-    body { background: white; }
-    .slip-card { 
-        page-break-after: always; /* ہر سلپ نئے صفحے سے شروع ہوگی */
+    
+    .no-print { display: none !important; }
+    
+    body { 
+        background: white; 
         width: 100%; 
-        margin: 0 auto; 
-        border: 2px solid #000; 
+    }
+
+    .container { 
+        border: none !important; 
+        box-shadow: none !important; 
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .slip-card { 
+        width: 90% !important; /* چوڑائی کم کی تاکہ پورٹریٹ میں فٹ ہو */
+        max-width: 600px; /* چوڑائی کو محدود کیا */
+        margin: 20px auto !important; 
+        page-break-after: always; 
+        border: 2px solid #000 !important;
+        display: block !important;
+    }
+
+    /* ٹیبل کو چھوٹا کرنے کے لیے */
+    table {
+        width: 100% !important;
+        font-size: 12px; /* فونٹ سائز تھوڑا کم کیا */
     }
 }
     </style>
