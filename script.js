@@ -194,22 +194,33 @@ function autoCalc() {
     const sVal = document.getElementById("startDate").value;
     const eVal = document.getElementById("endDate").value;
     const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
+    const absents = parseInt(document.getElementById("absentDays").value) || 0; // چھٹیاں گیٹ کرنا
+
     if (sVal && eVal) {
         const s = new Date(sVal);
         const e = new Date(eVal);
-        const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
-        document.getElementById("displayDays").innerText = days;
+        
+        // کل دن نکالنا (تاریخوں کے درمیان)
+        let totalDays = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
+        
+        // کل دنوں میں سے چھٹیاں مائنس کرنا
+        let netDays = totalDays - absents;
+        if (netDays < 0) netDays = 0; // دن مائنس میں نہ جائیں
+
+        document.getElementById("displayDays").innerText = netDays;
+
         if (calcMode === 'monthly') {
             const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
-            document.getElementById("monthInfo").innerText = `(Dividing by ${daysInMonth} days)`;
-            document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * days);
+            document.getElementById("monthInfo").innerText = `(Total Days: ${totalDays} | Absents: ${absents} | Dividing by ${daysInMonth} days)`;
+            // کٹوتی کے بعد سیلری کی کیلکولیشن
+            document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * netDays);
         } else {
-            document.getElementById("monthInfo").innerText = "";
-            document.getElementById("displayTotal").innerText = amount * days;
+            document.getElementById("monthInfo").innerText = `(Total Days: ${totalDays} | Absents: ${absents})`;
+            // ڈیلی ویجز میں بھی کٹوتی کے بعد کے دن ملٹی پلائی ہوں گے
+            document.getElementById("displayTotal").innerText = amount * netDays;
         }
     }
 }
-
 async function saveSalary() {
     const empRefId = document.getElementById("salEmpList").value;
     const empSnap = await db.collection("employees").doc(empRefId).get();
