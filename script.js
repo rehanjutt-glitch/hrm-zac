@@ -15,28 +15,44 @@ const db = firebase.firestore();
 let currentUser = null;
 let calcMode = 'monthly';
 
-// --- Page Load / Refresh Handler ---
-// یہ فنکشن پیج ریفریش ہونے پر چیک کرے گا کہ یوزر پہلے سے لاگ ان ہے یا نہیں اور کس پیج پر تھا
-window.addEventListener('load', () => {
+// --- Page Routing (Refresh & Back Button Handler) ---
+// یہ فنکشن پیج لوڈ، ریفریش اور براؤزر کے بیک/فارورڈ بٹن کو سنبھالتا ہے
+function handleRouting() {
     const savedUser = sessionStorage.getItem("hrm_user");
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
         document.getElementById("navName").innerText = currentUser.name;
         applyPermissions();
         
-        // ہیش چیک کریں، اگر ہیش موجود ہے تو اسی پیج پر لے جائے، ورنہ ڈیش بورڈ پر
+        // یو آر ایل سے ہیش نکالیں
         const currentHash = window.location.hash.replace('#', '');
+        
+        // اگر ہیش موجود ہے تو وہاں لے جائے، ورنہ ڈیش بورڈ پر
         if (currentHash && document.getElementById(currentHash)) {
-            navTo(currentHash);
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(currentHash).classList.remove('hidden');
+            
+            // پیج کے حساب سے ڈیٹا لوڈ کرنا
+            if(currentHash === 'dashboardPage') updateCounts();
+            if(currentHash === 'salaryPage' || currentHash === 'reportPage') loadEmpDropdowns();
+            if(currentHash === 'userAdminPage') loadUsers();
         } else {
             navTo('dashboardPage');
         }
     } else {
-        // اگر لاگ ان نہیں ہے تو صرف لاگ ان پیج دکھائے اور ہیش صاف کر دے
+        // اگر لاگ ان نہیں ہے تو ہمیشہ لاگ ان پیج پر رکھے
         window.location.hash = '';
-        navTo('loginPage');
+        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+        document.getElementById('loginPage').classList.remove('hidden');
     }
-});
+}
+
+// 1. جب پہلی بار پیج لوڈ یا ریفریش ہو
+window.addEventListener('load', handleRouting);
+
+// 2. جب براؤزر کا بیک (Back) یا فارورڈ (Forward) بٹن کلک ہو
+window.addEventListener('popstate', handleRouting);
+
 
 // --- Auth & Login ---
 async function handleLogin() {
@@ -63,7 +79,7 @@ async function handleLogin() {
 function loginOk() {
     document.getElementById("navName").innerText = currentUser.name;
     
-    // یوزر کا ڈیٹا سیشن میں سیو کریں تاکہ ریفریش پر لاگ آؤٹ نہ ہو
+    // سیشن سٹوریج میں ڈیٹا سیو کرنا تاکہ ریفریش پر لاگ آؤٹ نہ ہو
     sessionStorage.setItem("hrm_user", JSON.stringify(currentUser));
     
     applyPermissions();
@@ -71,7 +87,6 @@ function loginOk() {
 }
 
 function handleLogout() {
-    // سیشن صاف کریں اور لاگ آؤٹ کر دیں
     sessionStorage.removeItem("hrm_user");
     window.location.hash = '';
     location.reload();
@@ -88,7 +103,6 @@ function applyPermissions() {
         }
     });
 
-    // Admin only button visibility
     if (currentUser.role === 'admin') {
         document.getElementById("adminOnlyBtn").classList.remove('hidden');
     } else {
@@ -96,9 +110,8 @@ function applyPermissions() {
     }
 }
 
-// --- Navigation with URL Hash ---
+// --- Navigation ---
 function navTo(id) {
-    // لاگ ان کے بغیر کسی پیج پر جانے کی کوشش کو روکنے کے لیے
     if (!currentUser && id !== 'loginPage') {
         id = 'loginPage';
     }
@@ -106,7 +119,7 @@ function navTo(id) {
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
     
-    // یو ار ایل میں ہیش (#) سیٹ کرنا
+    // یو ار ایل میں ہیش سیٹ کرنا
     if (id !== 'loginPage') {
         window.location.hash = id;
     }
