@@ -122,7 +122,12 @@
         </div>
         <label>From:</label><input type="date" id="startDate" onchange="autoCalc()">
         <label>To:</label><input type="date" id="endDate" onchange="autoCalc()">
-        <div class="calc-info">Days Worked: <span id="displayDays">0</span> <small id="monthInfo" style="display:block; color:blue;"></small></div>
+        
+        <!-- نیا فیلڈ: چھٹیوں کے دن -->
+        <label>Absent Days (چھٹیاں):</label>
+        <input type="number" id="absentDays" placeholder="Enter absent days (e.g. 2)" value="0" onkeyup="autoCalc()" onchange="autoCalc()">
+
+        <div class="calc-info">Net Days Worked: <span id="displayDays">0</span> <small id="monthInfo" style="display:block; color:blue;"></small></div>
         <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
         <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
         <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
