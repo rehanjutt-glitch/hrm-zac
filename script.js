@@ -15,6 +15,29 @@ const db = firebase.firestore();
 let currentUser = null;
 let calcMode = 'monthly';
 
+// --- Page Load / Refresh Handler ---
+// یہ فنکشن پیج ریفریش ہونے پر چیک کرے گا کہ یوزر پہلے سے لاگ ان ہے یا نہیں اور کس پیج پر تھا
+window.addEventListener('load', () => {
+    const savedUser = sessionStorage.getItem("hrm_user");
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById("navName").innerText = currentUser.name;
+        applyPermissions();
+        
+        // ہیش چیک کریں، اگر ہیش موجود ہے تو اسی پیج پر لے جائے، ورنہ ڈیش بورڈ پر
+        const currentHash = window.location.hash.replace('#', '');
+        if (currentHash && document.getElementById(currentHash)) {
+            navTo(currentHash);
+        } else {
+            navTo('dashboardPage');
+        }
+    } else {
+        // اگر لاگ ان نہیں ہے تو صرف لاگ ان پیج دکھائے اور ہیش صاف کر دے
+        window.location.hash = '';
+        navTo('loginPage');
+    }
+});
+
 // --- Auth & Login ---
 async function handleLogin() {
     const u = document.getElementById("username").value.trim();
@@ -39,8 +62,19 @@ async function handleLogin() {
 
 function loginOk() {
     document.getElementById("navName").innerText = currentUser.name;
+    
+    // یوزر کا ڈیٹا سیشن میں سیو کریں تاکہ ریفریش پر لاگ آؤٹ نہ ہو
+    sessionStorage.setItem("hrm_user", JSON.stringify(currentUser));
+    
     applyPermissions();
     navTo('dashboardPage');
+}
+
+function handleLogout() {
+    // سیشن صاف کریں اور لاگ آؤٹ کر دیں
+    sessionStorage.removeItem("hrm_user");
+    window.location.hash = '';
+    location.reload();
 }
 
 function applyPermissions() {
@@ -62,10 +96,21 @@ function applyPermissions() {
     }
 }
 
-// --- Navigation ---
+// --- Navigation with URL Hash ---
 function navTo(id) {
+    // لاگ ان کے بغیر کسی پیج پر جانے کی کوشش کو روکنے کے لیے
+    if (!currentUser && id !== 'loginPage') {
+        id = 'loginPage';
+    }
+
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
+    
+    // یو ار ایل میں ہیش (#) سیٹ کرنا
+    if (id !== 'loginPage') {
+        window.location.hash = id;
+    }
+
     if(id === 'dashboardPage') updateCounts();
     if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
     if(id === 'userAdminPage') loadUsers();
