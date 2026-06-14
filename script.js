@@ -97,7 +97,7 @@ window.handleLogin = async function() {
     }
 
     // 🌟 Temporary Admin Access (No '@' or email validation required)
-    if (userNm === "admin" && pass === "admin123") {
+    if (userNm === "admin@zac" && pass === "admin123") {
         currentUser = {
             fullName: "Zulfiqar Ali",
             username: "admin",
