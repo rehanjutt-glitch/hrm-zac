@@ -1,121 +1,149 @@
-<!DOCTYPE html>
+Q<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Management System</title>
+    <title>HRM USER CONTROL</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- 1. LOGIN SECTION -->
-    <div id="login-container" class="auth-box">
-        <h2>Login System</h2>
-        <form id="login-form">
-            <div class="input-group">
-                <label>Email / Username</label>
-                <input type="email" id="login-email" required placeholder="Enter your email">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="login-password" required placeholder="Enter your password">
-            </div>
-            <button type="submit" class="btn">Login</button>
-        </form>
+    <div id="loginPage" class="container">
+        <h1>HRM CLOUD</h1>
+        <p>Please Login To Access Our Dashboard</p>
+        <input type="text" id="username" placeholder="Username / Login ID">
+        <div class="pass-box">
+            <input type="password" id="password" placeholder="Password">
+            <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
+        </div>
+        <button class="main-btn" onclick="handleLogin()">CLICK HERE TO LOGIN </button>
     </div>
 
-    <!-- 2. MAIN ADMIN DASHBOARD (Hidden initially) -->
-    <div id="dashboard-container" class="dashboard" style="display: none;">
-        
-        <!-- Top Header Bar -->
-        <header class="top-bar">
-            <h1>EMS Dashboard</h1>
-            
-            <div class="user-profile">
-                <span id="user-role-badge" class="badge">Admin</span>
-                <div class="profile-avatar">
-                    <img id="profile-img" src="https://via.placeholder.com/150" alt="Profile">
-                    <input type="file" id="upload-avatar" accept="image/*" style="display:none;">
-                    <label for="upload-avatar" class="upload-btn">📸</label>
-                </div>
-                <button id="logout-btn" class="btn btn-danger">Logout</button>
+    <div id="dashboardPage" class="container hidden">
+        <div class="top-bar">
+            <div class="profile-trigger" onclick="toggleMenu()">
+                <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
+                <span id="navName">Admin</span>
             </div>
-        </header>
+            <div id="profileMenu" class="dropdown-menu hidden">
+                <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
+                <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
+            </div>
+        </div>
 
-        <!-- Main Layout with Sidebar & Content -->
-        <div class="main-layout">
-            
-            <!-- Sidebar Navigation -->
-            <nav class="sidebar">
-                <ul>
-                    <li><a href="#summary" class="sidebar-link active">Overview</a></li>
-                    <li><a href="#salary-calc" class="sidebar-link">Salary Calculator</a></li>
-                    <li id="admin-only-link"><a href="#user-management" class="sidebar-link">User Management (Admin)</a></li>
-                </ul>
-            </nav>
-
-            <!-- Content Workspace -->
-            <main class="content-area">
-                
-                <!-- Status Cards Grid -->
-                <section id="summary" class="stats-grid dashboard-section">
-                    <div class="card blue">
-                        <h3>Total Employees</h3>
-                        <p id="total-employees">0</p>
-                    </div>
-                    <div class="card green">
-                        <h3>Active</h3>
-                        <p id="active-employees">0</p>
-                    </div>
-                    <div class="card red">
-                        <h3>Inactive</h3>
-                        <p id="inactive-employees">0</p>
-                    </div>
-                </section>
-
-                <!-- Salary & Attendance Config -->
-                <section id="salary-calc" class="management-section dashboard-section" style="display: none;">
-                    <h2>Payroll & Salary Calculator</h2>
-                    <form id="salary-form">
-                        <div class="form-row">
-                            <input type="text" id="emp-name" placeholder="Employee Name" required>
-                            <select id="emp-type">
-                                <option value="monthly">Monthly Fixed</option>
-                                <option value="daily">Daily Wager</option>
-                            </select>
-                            <input type="number" id="base-salary" placeholder="Base Salary / Daily Rate" required>
-                            <input type="number" id="leaves-days" placeholder="Leaves Taken (Days)" value="0">
-                        </div>
-                        <button type="button" id="calc-salary-btn" class="btn">Calculate Payroll</button>
-                    </form>
-                    <div class="salary-result">
-                        <h3>Net Payable Amount: <span id="final-salary">0</span> PKR</h3>
-                    </div>
-                </section>
-
-                <!-- User Account Creation (Access Control) -->
-                <section id="user-management" class="management-section dashboard-section" style="display: none;">
-                    <h2>Create User Account & Access Control</h2>
-                    <form id="create-user-form">
-                        <div class="form-row">
-                            <input type="text" id="new-username" placeholder="Username" required>
-                            <input type="email" id="new-user-email" placeholder="Email Address" required>
-                            <input type="password" id="new-user-password" placeholder="Password" required>
-                            <select id="new-user-role">
-                                <option value="staff">Staff</option>
-                                <option value="manager">Manager</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn">Add System User</button>
-                    </form>
-                </section>
-
-            </main>
+        <div class="menu-grid" id="mainMenuGrid">
+            <button class="menu-btn" data-access="view" onclick="showView('all')">TOTAL STAFF <span class="badge" id="cntAll">0</span></button>
+            <button class="menu-btn" data-access="view" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
+            <button class="menu-btn" data-access="view" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
+            <button class="menu-btn" data-access="add" onclick="navTo('addPage')">ADD NEW STAFF</button>
+            <button class="menu-btn" data-access="salary" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
+            <button class="menu-btn" data-access="reports" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
+            <button class="menu-btn" data-access="edit" onclick="showView('update')">MANAGE STAFF</button>
         </div>
     </div>
 
-    <!-- Script connection at bottom -->
+    <div id="userAdminPage" class="container hidden">
+        <h2>Admin Panel: Manage Users</h2>
+        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
+            <h3>Create New User / Manager</h3>
+            <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
+            <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+            <input type="password" id="newUserPs" placeholder="Password">
+            
+            <div class="access-box">
+                <strong>Set Access Permissions:</strong>
+                <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
+                <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
+                <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
+                <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
+                <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
+            </div>
+            
+            <button class="main-btn btn-green" onclick="createNewUser()">CREATE USER</button>
+        </div>
+        
+        <div style="overflow-x:auto;">
+            <table id="userTable">
+                <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Action</th></tr></thead>
+                <tbody id="userListBody"></tbody>
+            </table>
+        </div>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="editPage" class="container hidden">
+        <h2>Edit Employee Details</h2>
+        <input type="hidden" id="editDocId">
+        <label>Employee ID:</label>
+        <input type="text" id="editEmpId">
+        <label>Full Name:</label>
+        <input type="text" id="editEmpName">
+        <label>Phone Number:</label>
+        <input type="text" id="editEmpPhone">
+        <label>Bank Name:</label>
+        <input type="text" id="editEmpBank">
+        <label>Account / IBAN:</label>
+        <input type="text" id="editEmpAcc">
+        <label>Status:</label>
+        <select id="editEmpStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <button class="main-btn btn-green" onclick="updateEmployeeData()">UPDATE DETAILS</button>
+        <button class="main-btn" onclick="showView('update')">CANCEL</button>
+    </div>
+
+    <div id="addPage" class="container hidden">
+        <h2>Add New Employee</h2>
+        <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 101)">
+        <input type="text" id="newEmpName" placeholder="Full Name">
+        <input type="text" id="newEmpPhone" placeholder="Phone Number">
+        <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
+        <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN (Optional)">
+        <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="salaryPage" class="container hidden">
+        <h2>Salary Calculator</h2>
+        <select id="salEmpList"></select>
+        <div class="type-selector">
+            <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
+            <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
+        </div>
+        <label>From:</label><input type="date" id="startDate" onchange="autoCalc()">
+        <label>To:</label><input type="date" id="endDate" onchange="autoCalc()">
+        <div class="calc-info">Days Worked: <span id="displayDays">0</span> <small id="monthInfo" style="display:block; color:blue;"></small></div>
+        <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
+        <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
+        <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
+    <div id="reportPage" class="container hidden">
+        <div class="no-print">
+            <h2>Reports & Slips</h2>
+            <div style="display: flex; gap: 10px;">
+                <input type="month" id="repMonth">
+                <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
+            </div>
+            <button class="main-btn btn-green" onclick="generateReport()">GENERATE REPORT</button>
+            <button class="main-btn" onclick="window.print()">PRINT SLIPS</button>
+            <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        </div>
+        <div id="printArea"></div>
+    </div>
+
+    <div id="listPage" class="container hidden">
+        <h2 id="listTitle">Employee Records</h2>
+        <div style="overflow-x:auto;">
+            <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
+        </div>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
