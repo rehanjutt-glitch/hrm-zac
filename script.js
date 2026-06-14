@@ -1,8 +1,8 @@
-// 1. FIREBASE SDK IMPORTS (جاوا اسکرپٹ کے لنکس)
+// 1. FIREBASE MODULE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// अपनी فائر بیس کی کریڈینشلز (Credentials) یہاں ڈالیں
+// Put your Firebase Config here when ready
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_AUTH_DOMAIN",
@@ -12,22 +12,22 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID"
 };
 
-// Initialize Firebase & Firestore
+// Initialize Connection
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ग्लोबल वेरिएबल्स
+// Global Application States
 let currentUser = null;
 let currentCalcMode = 'monthly'; 
-let localUsersList = []; // लोकल टेस्टिंग के लिए यूज़र्स स्टोर करने के लिए
+let localUsersList = []; 
 
 // ==========================================
-// 2. NAVIGATION & URL HASH HANDLING
+// 2. ROUTING AND URL HASH MANAGEMENT
 // ==========================================
 window.addEventListener('hashchange', handleRouting);
 window.addEventListener('load', () => {
     handleRouting();
-    setupProfilePictureListener(); // प्रोफाइल पिक्चर अपलोड चालू करने के लिए
+    setupProfilePictureListener(); 
 });
 
 function handleRouting() {
@@ -63,7 +63,7 @@ window.navTo = function(pageId) {
 };
 
 // ==========================================
-// 3. AUTHENTICATION & TEMPORARY LOGIN
+// 3. AUTHENTICATION (TEMPORARY & DATABASE)
 // ==========================================
 window.togglePass = function() {
     const passInput = document.getElementById('password');
@@ -86,7 +86,7 @@ window.handleLogin = async function() {
         return;
     }
 
-    // 🌟 आरज़ी (Temporary) लॉगिन सिस्टम - जो आपने मांगा था
+    // 🌟 Temporary Access Configuration (No '@' or Email needed)
     if (userNm === "admin" && pass === "admin123") {
         currentUser = {
             fullName: "Zulfiqar Ali",
@@ -98,7 +98,6 @@ window.handleLogin = async function() {
         return; 
     }
 
-    // लोकल क्रिएट किए गए यूज़र्स के लिए चेक
     const localUser = localUsersList.find(u => u.username === userNm && u.password === pass);
     if (localUser) {
         currentUser = localUser;
@@ -106,7 +105,6 @@ window.handleLogin = async function() {
         return;
     }
 
-    // अगर ऊपर कुछ मैच नहीं हुआ, तो फ़ायरबेस डेटाबेस चेक करेगा
     try {
         const userRef = doc(db, "system_users", userNm);
         const userSnap = await getDoc(userRef);
@@ -119,7 +117,7 @@ window.handleLogin = async function() {
         }
     } catch (error) {
         console.error("Login Error: ", error);
-        alert("Database connection error. (You can still use temporary admin login)");
+        alert("Database error. (You can still use temporary admin account)");
     }
 };
 
@@ -152,28 +150,40 @@ window.toggleMenu = function() {
 };
 
 // ==========================================
-// 4. PROFILE PICTURE LOGIC (प्रोफाइल पिक्चर अपलोड)
+// 4. LOCAL PROFILE IMAGE UPLOADER
 // ==========================================
 function setupProfilePictureListener() {
     const uploadInput = document.getElementById('upload-avatar');
-    if (uploadInput) {
-        uploadInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    // स्क्रीन पर दिखने वाली इमेज को यूजर की फोटो से बदल देगा
-                    document.getElementById('navPic').src = event.target.result;
-                    alert("Profile picture updated locally!");
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+    // dynamically inject file element helper if not explicitly in custom structure
+    const navPic = document.getElementById('navPic');
+    
+    if (navPic) {
+        navPic.style.cursor = 'pointer';
+        navPic.title = 'Click to change profile picture';
+        
+        // Creating a virtual file clicker for profile picture slot
+        navPic.onclick = function() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        navPic.src = event.target.result;
+                        alert("Profile picture changed successfully!");
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            fileInput.click();
+        };
     }
 }
 
 // ==========================================
-// 5. ADMIN PANEL: CREATE NEW USERS
+// 5. USER ACCOUNTS MANAGEMENT (ADMIN PANEL)
 // ==========================================
 window.createNewUser = async function() {
     const fullName = document.getElementById('newFullNm').value.trim();
@@ -196,31 +206,27 @@ window.createNewUser = async function() {
         access: permissions
     };
 
-    // 1. टेस्टिंग के लिए लोकल एरे (Array) में सेव करना ताकि तुरंत बिना इंटरनेट दिखे
     localUsersList.push(newUserData);
 
-    // 2. फ़ायरबेस क्लाउड डेटाबेस में सेव करना
     try {
         await setDoc(doc(db, "system_users", username), newUserData);
     } catch (error) {
-        console.log("Firebase save skipped or errored, user saved locally.");
+        console.log("Cloud backup skipped.");
     }
 
-    alert(`User "${fullName}" Created Successfully! You can now login with ID: ${username}`);
+    alert(`User Account "${fullName}" Created! ID: ${username}`);
     
-    // फॉर्म को खाली करना
     document.getElementById('newFullNm').value = "";
     document.getElementById('newUserNm').value = "";
     document.getElementById('newUserPs').value = "";
 
-    loadUserList(); // नीचे बनी टेबल को रिफ्रेश करना
+    loadUserList(); 
 };
 
 function loadUserList() {
     const tbody = document.getElementById('userListBody');
     tbody.innerHTML = "";
     
-    // पहले से बने आरज़ी एडमिन को टेबल में दिखाना
     tbody.innerHTML += `
         <tr>
             <td>Zulfiqar Ali (Default)</td>
@@ -229,7 +235,6 @@ function loadUserList() {
             <td><span style="color: gray">System Default</span></td>
         </tr>`;
 
-    // आपके द्वारा क्रिएट किए गए नए यूज़र्स को टेबल में दिखाना
     localUsersList.forEach((user, index) => {
         tbody.innerHTML += `
             <tr>
