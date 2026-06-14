@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// Put your Firebase Config here when ready
+// जब आप तैयार हों, यहाँ अपनी Firebase क्रेडेंशियल्स डालें
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_AUTH_DOMAIN",
@@ -26,6 +26,16 @@ let localUsersList = [];
 // ==========================================
 window.addEventListener('hashchange', handleRouting);
 window.addEventListener('load', () => {
+    // ब्राउज़र में चेक करें कि क्या पहले से लॉगिन है?
+    const savedUser = localStorage.getItem('hrm_user');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('navName').innerText = currentUser.fullName;
+        applyAccessControl();
+        if (window.location.hash === '#loginPage' || !window.location.hash) {
+            navTo('dashboardPage');
+        }
+    }
     handleRouting();
     setupProfilePictureListener(); 
 });
@@ -63,7 +73,7 @@ window.navTo = function(pageId) {
 };
 
 // ==========================================
-// 3. AUTHENTICATION (TEMPORARY & DATABASE)
+// 3. AUTHENTICATION (TEMPORARY & LOGOUT)
 // ==========================================
 window.togglePass = function() {
     const passInput = document.getElementById('password');
@@ -86,7 +96,7 @@ window.handleLogin = async function() {
         return;
     }
 
-    // 🌟 Temporary Access Configuration (No '@' or Email needed)
+    // 🌟 Temporary Admin Access (No '@' or email validation required)
     if (userNm === "admin" && pass === "admin123") {
         currentUser = {
             fullName: "Zulfiqar Ali",
@@ -122,6 +132,7 @@ window.handleLogin = async function() {
 };
 
 function loginSuccessAction() {
+    localStorage.setItem('hrm_user', JSON.stringify(currentUser));
     document.getElementById('navName').innerText = currentUser.fullName;
     
     if (currentUser.role === 'admin' || currentUser.access.includes('admin')) {
@@ -133,6 +144,11 @@ function loginSuccessAction() {
     applyAccessControl();
     navTo('dashboardPage');
 }
+
+window.logout = function() {
+    localStorage.removeItem('hrm_user');
+    location.reload();
+};
 
 function applyAccessControl() {
     document.querySelectorAll('#mainMenuGrid .menu-btn').forEach(btn => {
@@ -150,18 +166,14 @@ window.toggleMenu = function() {
 };
 
 // ==========================================
-// 4. LOCAL PROFILE IMAGE UPLOADER
+// 4. PROFILE IMAGE UPLOADER
 // ==========================================
 function setupProfilePictureListener() {
-    const uploadInput = document.getElementById('upload-avatar');
-    // dynamically inject file element helper if not explicitly in custom structure
     const navPic = document.getElementById('navPic');
-    
     if (navPic) {
         navPic.style.cursor = 'pointer';
         navPic.title = 'Click to change profile picture';
         
-        // Creating a virtual file clicker for profile picture slot
         navPic.onclick = function() {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -250,3 +262,20 @@ window.deleteLocalUser = function(index) {
     localUsersList.splice(index, 1);
     loadUserList();
 };
+
+// ==========================================
+// 6. PLACEHOLDER FUNCTIONS (HTML एरर रोकने के लिए)
+// ==========================================
+window.showView = function(viewType) {
+    console.log("Showing view: " + viewType);
+    // स्टाफ लिस्ट देखने का लॉजिक यहाँ आएगा
+    navTo('listPage');
+    document.getElementById('listTitle').innerText = viewType.toUpperCase() + " STAFF RECORDS";
+};
+
+window.saveNewEmployee = function() { alert("Employee data save clicked."); };
+window.updateEmployeeData = function() { alert("Update details clicked."); };
+window.setCalcMode = function(mode) { console.log("Mode set to: " + mode); };
+window.autoCalc = function() { console.log("Calculating..."); };
+window.saveSalary = function() { alert("Salary saved."); };
+window.generateReport = function() { alert("Report generated."); };
