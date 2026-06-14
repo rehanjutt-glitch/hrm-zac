@@ -1,115 +1,113 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ایمپلائی مینجمنٹ سسٹم</title>
+    <title>Employee Management System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. لاگ ان سیکشن -->
+    <!-- 1. LOGIN SECTION -->
     <div id="login-container" class="auth-box">
-        <h2>لاگ ان سسٹم</h2>
+        <h2>Login System</h2>
         <form id="login-form">
             <div class="input-group">
-                <label>ای میل / یوزر نیم</label>
-                <input type="email" id="login-email" required placeholder="اپنی ای میل درج کریں">
+                <label>Email / Username</label>
+                <input type="email" id="login-email" required placeholder="Enter your email">
             </div>
             <div class="input-group">
-                <label>پاس ورڈ</label>
-                <input type="password" id="login-password" required placeholder="پاس ورڈ درج کریں">
+                <label>Password</label>
+                <input type="password" id="login-password" required placeholder="Enter your password">
             </div>
-            <button type="submit" class="btn">لاگ ان کریں</button>
+            <button type="submit" class="btn">Login</button>
         </form>
     </div>
 
-    <!-- 2. مین ایڈمن ڈیش بورڈ (شروع میں چھپا ہوا ہوگا) -->
+    <!-- 2. MAIN ADMIN DASHBOARD (Hidden initially) -->
     <div id="dashboard-container" class="dashboard" style="display: none;">
         
-        <!-- ٹاپ بار اور پروفائل -->
+        <!-- Top Header Bar -->
         <header class="top-bar">
+            <h1>EMS Dashboard</h1>
+            
             <div class="user-profile">
-                <span id="user-role-badge" class="badge">ایڈمن</span>
+                <span id="user-role-badge" class="badge">Admin</span>
                 <div class="profile-avatar">
                     <img id="profile-img" src="https://via.placeholder.com/150" alt="Profile">
                     <input type="file" id="upload-avatar" accept="image/*" style="display:none;">
                     <label for="upload-avatar" class="upload-btn">📸</label>
                 </div>
+                <button id="logout-btn" class="btn btn-danger">Logout</button>
             </div>
-            <h1>ایڈمن پینل - ملازمین کا ریکارڈ</h1>
-            <button id="logout-btn" class="btn btn-danger">لاگ آؤٹ</button>
         </header>
 
-        <!-- مینیو اور مین کنٹینٹ -->
+        <!-- Main Layout with Sidebar & Content -->
         <div class="main-layout">
             
-            <!-- سائیڈ بار (ایکسیس کنٹرول کے لیے) -->
+            <!-- Sidebar Navigation -->
             <nav class="sidebar">
                 <ul>
-                    <li><a href="#summary" class="active">خلاصہ (Summary)</a></li>
-                    <li><a href="#salary-calc">سیلری کیلکولیٹر</a></li>
-                    <li id="admin-only-link"><a href="#user-management">صارفین کی مینجمنٹ (Admin)</a></li>
+                    <li><a href="#summary" class="sidebar-link active">Overview</a></li>
+                    <li><a href="#salary-calc" class="sidebar-link">Salary Calculator</a></li>
+                    <li id="admin-only-link"><a href="#user-management" class="sidebar-link">User Management (Admin)</a></li>
                 </ul>
             </nav>
 
-            <!-- مین کنٹینٹ ایریا -->
+            <!-- Content Workspace -->
             <main class="content-area">
                 
-                <!-- کارڈز: ملازمین کی تعداد -->
-                <section id="summary" class="stats-grid">
+                <!-- Status Cards Grid -->
+                <section id="summary" class="stats-grid dashboard-section">
                     <div class="card blue">
-                        <h3>کل ملازمین</h3>
+                        <h3>Total Employees</h3>
                         <p id="total-employees">0</p>
                     </div>
                     <div class="card green">
-                        <h3>ایکٹو (Active)</h3>
+                        <h3>Active</h3>
                         <p id="active-employees">0</p>
                     </div>
                     <div class="card red">
-                        <h3>ان ایکٹو (Inactive)</h3>
+                        <h3>Inactive</h3>
                         <p id="inactive-employees">0</p>
                     </div>
                 </section>
 
-                <hr>
-
-                <!-- سیلری اور اٹینڈنس سیکشن -->
-                <section id="salary-calc" class="management-section">
-                    <h2>ماہانہ و ڈیلی ویجز سیلری کیلکولیٹر</h2>
+                <!-- Salary & Attendance Config -->
+                <section id="salary-calc" class="management-section dashboard-section" style="display: none;">
+                    <h2>Payroll & Salary Calculator</h2>
                     <form id="salary-form">
                         <div class="form-row">
-                            <input type="text" id="emp-name" placeholder="ملازم کا نام" required>
+                            <input type="text" id="emp-name" placeholder="Employee Name" required>
                             <select id="emp-type">
-                                <option value="monthly">ماہانہ (Monthly)</option>
-                                <option value="daily">ڈیلی ویجر (Daily Wager)</option>
+                                <option value="monthly">Monthly Fixed</option>
+                                <option value="daily">Daily Wager</option>
                             </select>
-                            <input type="number" id="base-salary" placeholder="بنیادی تنخواہ / روزانہ کی اجرت" required>
-                            <input type="number" id="leaves-days" placeholder="چھٹیاں (Days)">
+                            <input type="number" id="base-salary" placeholder="Base Salary / Daily Rate" required>
+                            <input type="number" id="leaves-days" placeholder="Leaves Taken (Days)" value="0">
                         </div>
-                        <button type="button" onclick="calculateSalary()" class="btn">تنخواہ معلوم کریں</button>
+                        <button type="button" id="calc-salary-btn" class="btn">Calculate Payroll</button>
                     </form>
                     <div class="salary-result">
-                        <h3>کل قابل ادائیگی تنخواہ: <span id="final-salary">0</span> PKR</h3>
+                        <h3>Net Payable Amount: <span id="final-salary">0</span> PKR</h3>
                     </div>
                 </section>
 
-                <hr>
-
-                <!-- یوزر کریٹ اور ایکسیس کنٹرول (صرف ایڈمن کے لیے) -->
-                <section id="user-management" class="management-section">
-                    <h2>نیا یوزر بنائیں اور ایکسیس دیں</h2>
+                <!-- User Account Creation (Access Control) -->
+                <section id="user-management" class="management-section dashboard-section" style="display: none;">
+                    <h2>Create User Account & Access Control</h2>
                     <form id="create-user-form">
                         <div class="form-row">
-                            <input type="text" id="new-username" placeholder="یوزر نیم" required>
-                            <input type="email" id="new-user-email" placeholder="ای میل" required>
+                            <input type="text" id="new-username" placeholder="Username" required>
+                            <input type="email" id="new-user-email" placeholder="Email Address" required>
+                            <input type="password" id="new-user-password" placeholder="Password" required>
                             <select id="new-user-role">
-                                <option value="staff">عام اسٹاف (Staff)</option>
-                                <option value="manager">مینیجر (Manager)</option>
-                                <option value="admin">ایڈمن (Admin)</option>
+                                <option value="staff">Staff</option>
+                                <option value="manager">Manager</option>
+                                <option value="admin">Admin</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn">یوزر شامل کریں</button>
+                        <button type="submit" class="btn">Add System User</button>
                     </form>
                 </section>
 
@@ -117,7 +115,7 @@
         </div>
     </div>
 
-    <!-- یہاں جاوا اسکرپٹ فائل لنک ہوگی -->
+    <!-- Script connection at bottom -->
     <script src="script.js"></script>
 </body>
 </html>
