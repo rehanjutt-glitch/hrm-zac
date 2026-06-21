@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// !!! APNA REAL FIREBASE CONFIG DATA YAHA ZAROOR PASTE KAREIN !!!
+// !!! AGAR AAPKE PAAS FIREBASE DATA HAI TO YAHA DAALEIN, WARNA ISKO AISE HI CHHOD DEIN !!!
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY_HERE",
     authDomain: "YOUR_AUTH_DOMAIN_HERE",
@@ -11,9 +11,19 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID_HERE"
 };
 
-// Initialize Firebase safely
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Safe Firebase Initialization (Agar config nahi bhi hogi, to code crash nahi hoga)
+let app, db;
+try {
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        console.log("Firebase Connected Successfully.");
+    } else {
+        console.warn("Firebase config not set. Running in Local-Only Mode.");
+    }
+} catch (e) {
+    console.error("Firebase Init Failed:", e);
+}
 
 // Permanent Login Settings
 let systemAdminUser = {
@@ -27,7 +37,6 @@ let systemAdminUser = {
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Eye button controls initialization
     setupPasswordToggle('toggleLoginPassword', 'password');
     setupPasswordToggle('toggleProfilePassword', 'profileNewPassword');
 
@@ -39,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initLogin();
 });
 
-// Eye Toggle Handler Logic
 function setupPasswordToggle(iconId, inputId) {
     const icon = document.getElementById(iconId);
     const input = document.getElementById(inputId);
@@ -59,7 +67,7 @@ function setupPasswordToggle(iconId, inputId) {
 }
 
 function showLogin() {
-    document.getElementById('loginScreen').style.display = 'flex'; // FIXED: removed extra .style
+    document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboardScreen').style.display = 'none';
 }
 
@@ -70,7 +78,7 @@ function showDashboard() {
 }
 
 /* ==========================================================================
-   1. AUTH MODULE (Permanent Account + Live Firebase Combo)
+   1. AUTH MODULE (Local Bypass First - 100% Works)
    ========================================================================== */
 function initLogin() {
     const loginForm = document.getElementById('loginForm');
@@ -81,7 +89,7 @@ function initLogin() {
         const userVal = document.getElementById('username').value.trim();
         const passVal = document.getElementById('password').value;
 
-        // 🌟 PERMANENT LOCAL ADMIN LOGIN BYPASS
+        // 🌟 1. SABSE PEHLE LOCAL BYPASS CHECK (No Firebase Required)
         if (userVal === systemAdminUser.username && passVal === systemAdminUser.password) {
             currentUser = {
                 username: systemAdminUser.username,
@@ -93,26 +101,30 @@ function initLogin() {
             return;
         }
 
-        // Firebase Firestore Search for other users
-        try {
-            const userRef = doc(db, "users", userVal);
-            const userSnap = await getDoc(userRef);
+        // 2. AGAR KOI AUR USER HAI TO FIREBASE SE CHECK KAREIN
+        if (db) {
+            try {
+                const userRef = doc(db, "users", userVal);
+                const userSnap = await getDoc(userRef);
 
-            if (userSnap.exists() && userSnap.data().password === passVal) {
-                const uData = userSnap.data();
-                currentUser = {
-                    username: uData.username,
-                    realName: uData.realName,
-                    role: uData.role
-                };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showDashboard();
-            } else {
-                alert("Incorrect Username or Password.");
+                if (userSnap.exists() && userSnap.data().password === passVal) {
+                    const uData = userSnap.data();
+                    currentUser = {
+                        username: uData.username,
+                        realName: uData.realName,
+                        role: uData.role
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showDashboard();
+                } else {
+                    alert("Incorrect Username or Password.");
+                }
+            } catch (err) {
+                console.error("Firebase Query Error:", err);
+                alert("Database Error. Try logging in with 'admin' and '12345'.");
             }
-        } catch (err) {
-            console.error("Firebase Error:", err);
-            alert("Database Error. Submitting locally instead.");
+        } else {
+            alert("Database not connected. Use 'admin' and '12345' to login locally.");
         }
     });
 }
@@ -162,7 +174,7 @@ async function renderHeaderProfile() {
         document.getElementById('headerRealName').innerText = systemAdminUser.realName;
         document.getElementById('headerRole').innerText = systemAdminUser.role;
         document.getElementById('headerProfilePic').src = systemAdminUser.profilePicture;
-    } else {
+    } else if (db) {
         try {
             const snap = await getDoc(doc(db, "users", currentUser.username));
             if (snap.exists()) {
@@ -185,7 +197,7 @@ async function initProfileTab() {
         document.getElementById('profileRealName').value = systemAdminUser.realName;
         document.getElementById('profilePreview').src = systemAdminUser.profilePicture;
         document.getElementById('profilePicUrl').value = systemAdminUser.profilePicture;
-    } else {
+    } else if (db) {
         try {
             const snap = await getDoc(doc(db, "users", currentUser.username));
             if (snap.exists()) {
@@ -199,7 +211,7 @@ async function initProfileTab() {
         } catch(e) { console.log(e); }
     }
 
-    // URL Preview Listener
+    // Dynamic URL Box Preview
     document.getElementById('profilePicUrl').addEventListener('input', (e) => {
         if(e.target.value.trim() !== "") {
             document.getElementById('profilePreview').src = e.target.value;
@@ -214,7 +226,7 @@ async function initProfileTab() {
             if(newPass) systemAdminUser.password = newPass;
             systemAdminUser.profilePicture = picUrl;
             alert("Local Admin changes saved successfully!");
-        } else {
+        } else if (db) {
             const payload = { profilePicture: picUrl };
             if (newPass) payload.password = newPass;
             await setDoc(doc(db, "users", currentUser.username), payload, { merge: true });
@@ -233,6 +245,7 @@ function initAttendanceTab() {
     if(dateTxt) dateTxt.innerText = today;
 
     document.getElementById('markAttendanceBtn').onclick = async () => {
+        if (!db) { alert("Local mode active: Attendance cannot be saved without Firebase configuration."); return; }
         try {
             const docId = `${currentUser.username}_${today}`;
             await setDoc(doc(db, "attendance", docId), {
@@ -253,6 +266,7 @@ async function initLeaveTab() {
     
     document.getElementById('leaveRequestForm').onsubmit = async (e) => {
         e.preventDefault();
+        if (!db) { alert("Local mode active: Leave request requires active Firebase configurations."); return; }
         const sDate = document.getElementById('leaveStartDate').value;
         const rDays = parseInt(document.getElementById('leaveDays').value);
 
@@ -274,6 +288,7 @@ async function initLeaveTab() {
 }
 
 async function loadMyLeaves() {
+    if (!db) return;
     try {
         const qSnap = await getDocs(collection(db, "leaveRequests"));
         const tbody = document.getElementById('myLeavesTable');
@@ -294,6 +309,7 @@ async function loadMyLeaves() {
 }
 
 async function loadAllTeamLeaveRequests() {
+    if (!db) return;
     try {
         const qSnap = await getDocs(collection(db, "leaveRequests"));
         const tbody = document.getElementById('teamLeavesTable');
@@ -318,6 +334,7 @@ async function loadAllTeamLeaveRequests() {
 }
 
 window.reviewLeave = async function(id, status) {
+    if (!db) return;
     const approvedCount = parseInt(document.getElementById(`appDays_${id}`).value);
     await updateDoc(doc(db, "leaveRequests", id), {
         status: status,
@@ -333,6 +350,7 @@ window.reviewLeave = async function(id, status) {
 function initAdminUsersTab() {
     document.getElementById('userAccountForm').onsubmit = async (e) => {
         e.preventDefault();
+        if (!db) { alert("Firebase configuration missing. Cannot save custom user accounts to cloud database."); return; }
         const user = document.getElementById('adminUsername').value.trim();
         const pass = document.getElementById('adminPassword').value;
         const rName = document.getElementById('adminRealName').value;
@@ -357,6 +375,7 @@ function initAdminUsersTab() {
 }
 
 async function loadAdminUsersTable() {
+    if (!db) return;
     try {
         const qSnap = await getDocs(collection(db, "users"));
         const tbody = document.getElementById('adminUsersTable');
@@ -379,6 +398,7 @@ async function loadAdminUsersTable() {
 }
 
 window.editUser = async function(username) {
+    if (!db) return;
     const snap = await getDoc(doc(db, "users", username));
     if (snap.exists()) {
         const u = snap.data();
@@ -392,6 +412,7 @@ window.editUser = async function(username) {
 };
 
 window.deleteUser = async function(username) {
+    if (!db) return;
     if (confirm(`Delete account ${username}?`)) {
         await deleteDoc(doc(db, "users", username));
         loadAdminUsersTable();
@@ -406,6 +427,7 @@ function initPayrollTab() {
     if(!loadBtn) return;
     
     loadBtn.onclick = async () => {
+        if (!db) { alert("Firebase configuration required to parse collective user sheets."); return; }
         const targetMonth = document.getElementById('payrollMonth').value; 
         const userSnap = await getDocs(collection(db, "users"));
         const attSnap = await getDocs(collection(db, "attendance"));
