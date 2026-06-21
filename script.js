@@ -1,281 +1,360 @@
-// 1. FIREBASE MODULE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// जब आप तैयार हों, यहाँ अपनी Firebase क्रेडेंशियल्स डालें
+// PLACE YOUR EXACT FIREBASE CREDENTIALS INSIDE THIS OBJECT:
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "YOUR_API_KEY_HERE",
+    authDomain: "YOUR_AUTH_DOMAIN_HERE",
+    projectId: "YOUR_PROJECT_ID_HERE",
+    storageBucket: "YOUR_STORAGE_BUCKET_HERE",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID_HERE",
+    appId: "YOUR_APP_ID_HERE"
 };
 
-// Initialize Connection
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Global Application States
-let currentUser = null;
-let currentCalcMode = 'monthly'; 
-let localUsersList = []; 
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-// ==========================================
-// 2. ROUTING AND URL HASH MANAGEMENT
-// ==========================================
-window.addEventListener('hashchange', handleRouting);
-window.addEventListener('load', () => {
-    // ब्राउज़र में चेक करें कि क्या पहले से लॉगिन है?
-    const savedUser = localStorage.getItem('hrm_user');
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        document.getElementById('navName').innerText = currentUser.fullName;
-        applyAccessControl();
-        if (window.location.hash === '#loginPage' || !window.location.hash) {
-            navTo('dashboardPage');
-        }
-    }
-    handleRouting();
-    setupProfilePictureListener(); 
+document.addEventListener("DOMContentLoaded", () => {
+    initAppRouting();
+    if (document.getElementById('loginForm')) initLogin();
+    if (document.getElementById('logoutBtn')) initDashboard();
 });
 
-function handleRouting() {
-    const hash = window.location.hash || '#loginPage';
-    
-    if (!currentUser && hash !== '#loginPage') {
-        window.location.hash = '#loginPage';
-        return;
-    }
-
-    document.querySelectorAll('.container').forEach(div => div.classList.add('hidden'));
-
-    if (hash === '#loginPage' && !currentUser) {
-        document.getElementById('loginPage').classList.remove('hidden');
-    } else if (hash === '#dashboardPage') {
-        document.getElementById('dashboardPage').classList.remove('hidden');
-    } else if (hash === '#userAdminPage' && currentUser?.access?.includes('admin')) {
-        document.getElementById('userAdminPage').classList.remove('hidden');
-        loadUserList();
-    } else if (hash === '#addPage' && currentUser?.access?.includes('add')) {
-        document.getElementById('addPage').classList.remove('hidden');
-    } else if (hash === '#salaryPage' && currentUser?.access?.includes('salary')) {
-        document.getElementById('salaryPage').classList.remove('hidden');
-    } else if (hash === '#reportPage' && currentUser?.access?.includes('reports')) {
-        document.getElementById('reportPage').classList.remove('hidden');
-    } else {
-        window.location.hash = '#dashboardPage';
+function initAppRouting() {
+    const isLoginPage = window.location.pathname.includes('login.html') || window.location.pathname === '/' || !window.location.pathname.includes('.html');
+    if (!currentUser && !isLoginPage) {
+        window.location.href = 'login.html';
+    } else if (currentUser && isLoginPage) {
+        window.location.href = 'dashboard.html';
     }
 }
 
-window.navTo = function(pageId) {
-    window.location.hash = '#' + pageId;
-};
+/* ==========================================================================
+   1. AUTHENTICATION MODULE (Username Engine)
+   ========================================================================== */
+function initLogin() {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userVal = document.getElementById('username').value.trim();
+        const passVal = document.getElementById('password').value;
 
-// ==========================================
-// 3. AUTHENTICATION (TEMPORARY & LOGOUT)
-// ==========================================
-window.togglePass = function() {
-    const passInput = document.getElementById('password');
-    const eyeIcon = document.querySelector('.eye-icon');
-    if (passInput.type === "password") {
-        passInput.type = "text";
-        eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        passInput.type = "password";
-        eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-};
+        try {
+            const userRef = doc(db, "users", userVal);
+            const userSnap = await getDoc(userRef);
 
-window.handleLogin = async function() {
-    const userNm = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value;
-
-    if (!userNm || !pass) {
-        alert("Please enter both Username and Password.");
-        return;
-    }
-
-    // 🌟 Temporary Admin Access (No '@' or email validation required)
-    if (userNm === "admin@zac" && pass === "admin123") {
-        currentUser = {
-            fullName: "Zulfiqar Ali",
-            username: "admin",
-            role: "admin",
-            access: ['view', 'add', 'edit', 'salary', 'reports', 'admin']
-        };
-        loginSuccessAction();
-        return; 
-    }
-
-    const localUser = localUsersList.find(u => u.username === userNm && u.password === pass);
-    if (localUser) {
-        currentUser = localUser;
-        loginSuccessAction();
-        return;
-    }
-
-    try {
-        const userRef = doc(db, "system_users", userNm);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists() && userSnap.data().password === pass) {
-            currentUser = userSnap.data();
-            loginSuccessAction();
-        } else {
-            alert("Invalid Username or Password!");
-        }
-    } catch (error) {
-        console.error("Login Error: ", error);
-        alert("Database error. (You can still use temporary admin account)");
-    }
-};
-
-function loginSuccessAction() {
-    localStorage.setItem('hrm_user', JSON.stringify(currentUser));
-    document.getElementById('navName').innerText = currentUser.fullName;
-    
-    if (currentUser.role === 'admin' || currentUser.access.includes('admin')) {
-        document.getElementById('adminOnlyBtn').style.display = 'block';
-    } else {
-        document.getElementById('adminOnlyBtn').style.display = 'none';
-    }
-
-    applyAccessControl();
-    navTo('dashboardPage');
-}
-
-window.logout = function() {
-    localStorage.removeItem('hrm_user');
-    location.reload();
-};
-
-function applyAccessControl() {
-    document.querySelectorAll('#mainMenuGrid .menu-btn').forEach(btn => {
-        const requiredAccess = btn.getAttribute('data-access');
-        if (requiredAccess && !currentUser.access.includes(requiredAccess)) {
-            btn.style.display = 'none'; 
-        } else {
-            btn.style.display = 'block';
+            if (userSnap.exists() && userSnap.data().password === passVal) {
+                const uData = userSnap.data();
+                localStorage.setItem('currentUser', JSON.stringify({
+                    username: uData.username,
+                    realName: uData.realName,
+                    role: uData.role
+                }));
+                window.location.href = 'dashboard.html';
+            } else {
+                alert("Invalid Username or Password.");
+            }
+        } catch (err) {
+            console.error(err);
         }
     });
 }
 
-window.toggleMenu = function() {
-    document.getElementById('profileMenu').classList.toggle('hidden');
-};
+/* ==========================================================================
+   2. DASHBOARD FRAMEWORK
+   ========================================================================== */
+function initDashboard() {
+    renderHeaderProfile();
 
-// ==========================================
-// 4. PROFILE IMAGE UPLOADER
-// ==========================================
-function setupProfilePictureListener() {
-    const navPic = document.getElementById('navPic');
-    if (navPic) {
-        navPic.style.cursor = 'pointer';
-        navPic.title = 'Click to change profile picture';
-        
-        navPic.onclick = function() {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*';
-            fileInput.onchange = function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        navPic.src = event.target.result;
-                        alert("Profile picture changed successfully!");
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-            fileInput.click();
-        };
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    });
+
+    document.querySelectorAll('.nav-link').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            
+            e.target.classList.add('active');
+            document.getElementById(e.target.dataset.target).classList.add('active');
+        });
+    });
+
+    if (currentUser.role === 'Admin') {
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'block');
+        loadAdminUsersTable();
+        loadAllTeamLeaveRequests();
+    } else if (currentUser.role === 'Manager') {
+        document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'block');
+        loadAllTeamLeaveRequests();
+    }
+
+    initProfileTab();
+    initAttendanceTab();
+    initLeaveTab();
+    if (currentUser.role === 'Admin') {
+        initAdminUsersTab();
+        initPayrollTab();
     }
 }
 
-// ==========================================
-// 5. USER ACCOUNTS MANAGEMENT (ADMIN PANEL)
-// ==========================================
-window.createNewUser = async function() {
-    const fullName = document.getElementById('newFullNm').value.trim();
-    const username = document.getElementById('newUserNm').value.trim();
-    const password = document.getElementById('newUserPs').value;
-    
-    const permissions = [];
-    document.querySelectorAll('.acc-check:checked').forEach(cb => permissions.push(cb.value));
+async function renderHeaderProfile() {
+    const snap = await getDoc(doc(db, "users", currentUser.username));
+    if (snap.exists()) {
+        const d = snap.data();
+        document.getElementById('headerRealName').innerText = d.realName;
+        document.getElementById('headerRole').innerText = d.role;
+        if(d.profilePicture) {
+            document.getElementById('headerProfilePic').src = d.profilePicture;
+        }
+    }
+}
 
-    if (!fullName || !username || !password) {
-        alert("All fields are required!");
-        return;
+/* ==========================================================================
+   3. PROFILE MANAGEMENT (Real name display & Picture url / pass settings)
+   ========================================================================== */
+async function initProfileTab() {
+    const snap = await getDoc(doc(db, "users", currentUser.username));
+    if (snap.exists()) {
+        const d = snap.data();
+        document.getElementById('profileUsername').value = d.username;
+        document.getElementById('profileRealName').value = d.realName;
+        if(d.profilePicture) {
+            document.getElementById('profilePreview').src = d.profilePicture;
+            document.getElementById('profilePicUrl').value = d.profilePicture;
+        }
     }
 
-    const newUserData = {
-        fullName: fullName,
-        username: username,
-        password: password,
-        role: permissions.includes('admin') ? 'admin' : 'staff',
-        access: permissions
-    };
+    document.getElementById('updateProfileBtn').addEventListener('click', async () => {
+        const newPass = document.getElementById('profileNewPassword').value;
+        const picUrl = document.getElementById('profilePicUrl').value;
+        const payload = { profilePicture: picUrl };
+        if (newPass) payload.password = newPass;
 
-    localUsersList.push(newUserData);
+        await updateDoc(doc(db, "users", currentUser.username), payload);
+        alert("Profile updated successfully!");
+        renderHeaderProfile();
+    });
+}
 
-    try {
-        await setDoc(doc(db, "system_users", username), newUserData);
-    } catch (error) {
-        console.log("Cloud backup skipped.");
-    }
+/* ==========================================================================
+   4. ATTENDANCE JOURNAL
+   ========================================================================== */
+function initAttendanceTab() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('currentDateText').innerText = today;
 
-    alert(`User Account "${fullName}" Created! ID: ${username}`);
+    document.getElementById('markAttendanceBtn').addEventListener('click', async () => {
+        const docId = `${currentUser.username}_${today}`;
+        await setDoc(doc(db, "attendance", docId), {
+            username: currentUser.username,
+            date: today,
+            status: "Present"
+        });
+        document.getElementById('attendanceStatus').style.display = 'block';
+    });
+}
+
+/* ==========================================================================
+   5. LEAVE REQUEST ENGINE (Supports custom approval counts)
+   ========================================================================== */
+async function initLeaveTab() {
+    loadMyLeaves();
     
-    document.getElementById('newFullNm').value = "";
-    document.getElementById('newUserNm').value = "";
-    document.getElementById('newUserPs').value = "";
+    document.getElementById('leaveRequestForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const sDate = document.getElementById('leaveStartDate').value;
+        const rDays = parseInt(document.getElementById('leaveDays').value);
 
-    loadUserList(); 
-};
+        const newLeaveRef = doc(collection(db, "leaveRequests"));
+        await setDoc(newLeaveRef, {
+            id: newLeaveRef.id,
+            username: currentUser.username,
+            realName: currentUser.realName,
+            startDate: sDate,
+            requestedDays: rDays,
+            approvedDays: rDays, 
+            status: "Pending"
+        });
 
-function loadUserList() {
-    const tbody = document.getElementById('userListBody');
+        alert("Leave request sent.");
+        loadMyLeaves();
+    });
+}
+
+async function loadMyLeaves() {
+    const qSnap = await getDocs(collection(db, "leaveRequests"));
+    const tbody = document.getElementById('myLeavesTable');
     tbody.innerHTML = "";
-    
-    tbody.innerHTML += `
-        <tr>
-            <td>Zulfiqar Ali (Default)</td>
-            <td>admin</td>
-            <td>Full Access (Admin)</td>
-            <td><span style="color: gray">System Default</span></td>
-        </tr>`;
-
-    localUsersList.forEach((user, index) => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${user.fullName}</td>
-                <td>${user.username}</td>
-                <td>${user.access.join(', ')}</td>
-                <td><button class='main-btn btn-red' style='padding:5px 10px; font-size:12px;' onclick="window.deleteLocalUser(${index})">Remove</button></td>
+    qSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.username === currentUser.username) {
+            tbody.innerHTML += `<tr>
+                <td>${data.startDate}</td>
+                <td>${data.requestedDays}</td>
+                <td>${data.status === 'Pending' ? '-' : data.approvedDays}</td>
+                <td><span class="badge">${data.status}</span></td>
             </tr>`;
+        }
     });
 }
 
-window.deleteLocalUser = function(index) {
-    localUsersList.splice(index, 1);
-    loadUserList();
+async function loadAllTeamLeaveRequests() {
+    const qSnap = await getDocs(collection(db, "leaveRequests"));
+    const tbody = document.getElementById('teamLeavesTable');
+    tbody.innerHTML = "";
+    qSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.status === "Pending") {
+            tbody.innerHTML += `<tr>
+                <td>${data.realName}</td>
+                <td>${data.startDate}</td>
+                <td>${data.requestedDays} Days</td>
+                <td><input type="number" id="appDays_${data.id}" value="${data.requestedDays}" style="width:60px;" class="form-control"></td>
+                <td>
+                    <button onclick="reviewLeave('${data.id}', 'Approved')" class="btn btn-sm btn-success">Approve</button>
+                    <button onclick="reviewLeave('${data.id}', 'Rejected')" class="btn btn-sm btn-danger">Reject</button>
+                </td>
+            </tr>`;
+        }
+    });
+}
+
+window.reviewLeave = async function(id, status) {
+    const approvedCount = parseInt(document.getElementById(`appDays_${id}`).value);
+    await updateDoc(doc(db, "leaveRequests", id), {
+        status: status,
+        approvedDays: approvedCount
+    });
+    alert(`Leave execution finalized as: ${status}`);
+    loadAllTeamLeaveRequests();
+    if(currentUser.role === 'Admin') loadMyLeaves();
 };
 
-// ==========================================
-// 6. PLACEHOLDER FUNCTIONS (HTML एरर रोकने के लिए)
-// ==========================================
-window.showView = function(viewType) {
-    console.log("Showing view: " + viewType);
-    // स्टाफ लिस्ट देखने का लॉजिक यहाँ आएगा
-    navTo('listPage');
-    document.getElementById('listTitle').innerText = viewType.toUpperCase() + " STAFF RECORDS";
+/* ==========================================================================
+   6. ACCOUNTS CONTROL (Create, Read, Update, Delete Engine)
+   ========================================================================== */
+function initAdminUsersTab() {
+    document.getElementById('userAccountForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = document.getElementById('adminUsername').value.trim();
+        const pass = document.getElementById('adminPassword').value;
+        const rName = document.getElementById('adminRealName').value;
+        const role = document.getElementById('adminRole').value;
+        const wage = document.getElementById('adminWageType').value;
+        const sal = parseFloat(document.getElementById('adminBaseSalary').value);
+
+        await setDoc(doc(db, "users", user), {
+            username: user,
+            password: pass,
+            realName: rName,
+            role: role,
+            employmentType: wage,
+            baseSalary: sal,
+            profilePicture: ""
+        });
+
+        alert("User record written to database.");
+        document.getElementById('userAccountForm').reset();
+        loadAdminUsersTable();
+    });
+}
+
+async function loadAdminUsersTable() {
+    const qSnap = await getDocs(collection(db, "users"));
+    const tbody = document.getElementById('adminUsersTable');
+    tbody.innerHTML = "";
+    qSnap.forEach(docSnap => {
+        const u = docSnap.data();
+        tbody.innerHTML += `<tr>
+            <td>${u.username}</td>
+            <td>${u.realName}</td>
+            <td>${u.role}</td>
+            <td>${u.employmentType}</td>
+            <td>
+                <button onclick="editUser('${u.username}')" class="btn btn-sm btn-primary">Edit</button>
+                <button onclick="deleteUser('${u.username}')" class="btn btn-sm btn-danger">Delete</button>
+            </td>
+        </tr>`;
+    });
+}
+
+window.editUser = async function(username) {
+    const snap = await getDoc(doc(db, "users", username));
+    if (snap.exists()) {
+        const u = snap.data();
+        document.getElementById('adminUsername').value = u.username;
+        document.getElementById('adminPassword').value = u.password;
+        document.getElementById('adminRealName').value = u.realName;
+        document.getElementById('adminRole').value = u.role;
+        document.getElementById('adminWageType').value = u.employmentType;
+        document.getElementById('adminBaseSalary').value = u.baseSalary;
+    }
 };
 
-window.saveNewEmployee = function() { alert("Employee data save clicked."); };
-window.updateEmployeeData = function() { alert("Update details clicked."); };
-window.setCalcMode = function(mode) { console.log("Mode set to: " + mode); };
-window.autoCalc = function() { console.log("Calculating..."); };
-window.saveSalary = function() { alert("Salary saved."); };
-window.generateReport = function() { alert("Report generated."); };
+window.deleteUser = async function(username) {
+    if (confirm(`Are you sure you want to completely delete account: ${username}?`)) {
+        await deleteDoc(doc(db, "users", username));
+        loadAdminUsersTable();
+    }
+};
+
+/* ==========================================================================
+   7. PAYROLL & CALENDAR DEDUCTIONS COMPILER
+   ========================================================================== */
+function initPayrollTab() {
+    document.getElementById('loadPayrollBtn').addEventListener('click', async () => {
+        const targetMonth = document.getElementById('payrollMonth').value; 
+        const userSnap = await getDocs(collection(db, "users"));
+        const attSnap = await getDocs(collection(db, "attendance"));
+        const leaveSnap = await getDocs(collection(db, "leaveRequests"));
+
+        const tbody = document.getElementById('payrollTableBody');
+        tbody.innerHTML = "";
+
+        let attendanceList = [];
+        attSnap.forEach(d => attendanceList.push(d.data()));
+
+        let leaveList = [];
+        leaveSnap.forEach(d => leaveList.push(d.data()));
+
+        userSnap.forEach(uDoc => {
+            const user = uDoc.data();
+            
+            const presentDays = attendanceList.filter(a => a.username === user.username && a.date.startsWith(targetMonth) && a.status === 'Present').length;
+            
+            let totalRequestedLeaves = 0;
+            let totalApprovedLeaves = 0;
+            
+            leaveList.filter(l => l.username === user.username && l.startDate.startsWith(targetMonth) && l.status === 'Approved')
+                     .forEach(l => {
+                         totalRequestedLeaves += l.requestedDays;
+                         totalApprovedLeaves += l.approvedDays;
+                     });
+
+            const unapprovedDays = totalRequestedLeaves - totalApprovedLeaves;
+            let netPayout = 0;
+            let deductionText = "0 Units";
+
+            if (user.employmentType === "Daily") {
+                netPayout = presentDays * user.baseSalary;
+            } else {
+                const dayRate = user.baseSalary / 30;
+                const totalDeductions = unapprovedDays * dayRate;
+                netPayout = user.baseSalary - totalDeductions;
+                deductionText = `${unapprovedDays} Days Deducted (${Math.round(totalDeductions)})`;
+            }
+
+            tbody.innerHTML += `<tr>
+                <td><strong>${user.realName}</strong><br><small>@${user.username}</small></td>
+                <td>${user.employmentType} (${user.baseSalary})</td>
+                <td>${presentDays} Active</td>
+                <td><span style="color:${unapprovedDays > 0 ? 'red' : 'inherit'}">${deductionText}</span></td>
+                <td><strong>${Math.round(netPayout)}</strong></td>
+            </tr>`;
+        });
+    });
+}
