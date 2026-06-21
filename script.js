@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
+// !!! APNA REAL FIREBASE CONFIG DATA YAHA ZAROOR PASTE KAREIN !!!
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY_HERE",
     authDomain: "YOUR_AUTH_DOMAIN_HERE",
@@ -10,10 +11,11 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID_HERE"
 };
 
+// Initialize Firebase safely
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Global state config for permanent user variables
+// Permanent Login Settings
 let systemAdminUser = {
     username: "admin",
     password: "12345",
@@ -57,7 +59,7 @@ function setupPasswordToggle(iconId, inputId) {
 }
 
 function showLogin() {
-    document.getElementById('loginScreen').style.style.display = 'flex';
+    document.getElementById('loginScreen').style.display = 'flex'; // FIXED: removed extra .style
     document.getElementById('dashboardScreen').style.display = 'none';
 }
 
@@ -68,15 +70,18 @@ function showDashboard() {
 }
 
 /* ==========================================================================
-   1. AUTH MODULE
+   1. AUTH MODULE (Permanent Account + Live Firebase Combo)
    ========================================================================== */
 function initLogin() {
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    const loginForm = document.getElementById('loginForm');
+    if (!loginForm) return;
+
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const userVal = document.getElementById('username').value.trim();
         const passVal = document.getElementById('password').value;
 
-        // Permanent Local System Validation Block
+        // 🌟 PERMANENT LOCAL ADMIN LOGIN BYPASS
         if (userVal === systemAdminUser.username && passVal === systemAdminUser.password) {
             currentUser = {
                 username: systemAdminUser.username,
@@ -88,7 +93,7 @@ function initLogin() {
             return;
         }
 
-        // Firebase Firestore Live Search Logic for other workers
+        // Firebase Firestore Search for other users
         try {
             const userRef = doc(db, "users", userVal);
             const userSnap = await getDoc(userRef);
@@ -103,10 +108,11 @@ function initLogin() {
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 showDashboard();
             } else {
-                alert("Incorrect Login Details.");
+                alert("Incorrect Username or Password.");
             }
         } catch (err) {
-            console.error(err);
+            console.error("Firebase Error:", err);
+            alert("Database Error. Submitting locally instead.");
         }
     });
 }
@@ -157,18 +163,20 @@ async function renderHeaderProfile() {
         document.getElementById('headerRole').innerText = systemAdminUser.role;
         document.getElementById('headerProfilePic').src = systemAdminUser.profilePicture;
     } else {
-        const snap = await getDoc(doc(db, "users", currentUser.username));
-        if (snap.exists()) {
-            const d = snap.data();
-            document.getElementById('headerRealName').innerText = d.realName;
-            document.getElementById('headerRole').innerText = d.role;
-            if(d.profilePicture) document.getElementById('headerProfilePic').src = d.profilePicture;
-        }
+        try {
+            const snap = await getDoc(doc(db, "users", currentUser.username));
+            if (snap.exists()) {
+                const d = snap.data();
+                document.getElementById('headerRealName').innerText = d.realName;
+                document.getElementById('headerRole').innerText = d.role;
+                if(d.profilePicture) document.getElementById('headerProfilePic').src = d.profilePicture;
+            }
+        } catch(e) { console.log(e); }
     }
 }
 
 /* ==========================================================================
-   3. SELF PROFILE EDITOR (With URL preview linkage updates)
+   3. SELF PROFILE EDITOR
    ========================================================================== */
 async function initProfileTab() {
     document.getElementById('profileUsername').value = currentUser.username;
@@ -178,18 +186,20 @@ async function initProfileTab() {
         document.getElementById('profilePreview').src = systemAdminUser.profilePicture;
         document.getElementById('profilePicUrl').value = systemAdminUser.profilePicture;
     } else {
-        const snap = await getDoc(doc(db, "users", currentUser.username));
-        if (snap.exists()) {
-            const d = snap.data();
-            document.getElementById('profileRealName').value = d.realName;
-            if(d.profilePicture) {
-                document.getElementById('profilePreview').src = d.profilePicture;
-                document.getElementById('profilePicUrl').value = d.profilePicture;
+        try {
+            const snap = await getDoc(doc(db, "users", currentUser.username));
+            if (snap.exists()) {
+                const d = snap.data();
+                document.getElementById('profileRealName').value = d.realName;
+                if(d.profilePicture) {
+                    document.getElementById('profilePreview').src = d.profilePicture;
+                    document.getElementById('profilePicUrl').value = d.profilePicture;
+                }
             }
-        }
+        } catch(e) { console.log(e); }
     }
 
-    // Dynamic URL box input triggers live image visual refresh instantly
+    // URL Preview Listener
     document.getElementById('profilePicUrl').addEventListener('input', (e) => {
         if(e.target.value.trim() !== "") {
             document.getElementById('profilePreview').src = e.target.value;
@@ -203,12 +213,12 @@ async function initProfileTab() {
         if(currentUser.username === "admin") {
             if(newPass) systemAdminUser.password = newPass;
             systemAdminUser.profilePicture = picUrl;
-            alert("Local Admin Session credentials edited successfully!");
+            alert("Local Admin changes saved successfully!");
         } else {
             const payload = { profilePicture: picUrl };
             if (newPass) payload.password = newPass;
             await setDoc(doc(db, "users", currentUser.username), payload, { merge: true });
-            alert("User settings written to database cluster.");
+            alert("User settings written to database.");
         }
         renderHeaderProfile();
     };
@@ -219,16 +229,19 @@ async function initProfileTab() {
    ========================================================================== */
 function initAttendanceTab() {
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('currentDateText').innerText = today;
+    const dateTxt = document.getElementById('currentDateText');
+    if(dateTxt) dateTxt.innerText = today;
 
     document.getElementById('markAttendanceBtn').onclick = async () => {
-        const docId = `${currentUser.username}_${today}`;
-        await setDoc(doc(db, "attendance", docId), {
-            username: currentUser.username,
-            date: today,
-            status: "Present"
-        });
-        document.getElementById('attendanceStatus').style.display = 'block';
+        try {
+            const docId = `${currentUser.username}_${today}`;
+            await setDoc(doc(db, "attendance", docId), {
+                username: currentUser.username,
+                date: today,
+                status: "Present"
+            });
+            document.getElementById('attendanceStatus').style.display = 'block';
+        } catch(e) { alert("Error writing attendance to Firebase."); }
     };
 }
 
@@ -243,58 +256,65 @@ async function initLeaveTab() {
         const sDate = document.getElementById('leaveStartDate').value;
         const rDays = parseInt(document.getElementById('leaveDays').value);
 
-        const newLeaveRef = doc(collection(db, "leaveRequests"));
-        await setDoc(newLeaveRef, {
-            id: newLeaveRef.id,
-            username: currentUser.username,
-            realName: currentUser.username === 'admin' ? systemAdminUser.realName : currentUser.username,
-            startDate: sDate,
-            requestedDays: rDays,
-            approvedDays: rDays,
-            status: "Pending"
-        });
-
-        alert("Leave request logged.");
-        loadMyLeaves();
+        try {
+            const newLeaveRef = doc(collection(db, "leaveRequests"));
+            await setDoc(newLeaveRef, {
+                id: newLeaveRef.id,
+                username: currentUser.username,
+                realName: currentUser.username === 'admin' ? systemAdminUser.realName : currentUser.username,
+                startDate: sDate,
+                requestedDays: rDays,
+                approvedDays: rDays,
+                status: "Pending"
+            });
+            alert("Leave request submitted successfully.");
+            loadMyLeaves();
+        } catch(err) { alert("Firebase upload failed."); }
     };
 }
 
 async function loadMyLeaves() {
-    const qSnap = await getDocs(collection(db, "leaveRequests"));
-    const tbody = document.getElementById('myLeavesTable');
-    tbody.innerHTML = "";
-    qSnap.forEach(docSnap => {
-        const data = docSnap.data();
-        if (data.username === currentUser.username) {
-            tbody.innerHTML += `<tr>
-                <td>${data.startDate}</td>
-                <td>${data.requestedDays}</td>
-                <td>${data.status === 'Pending' ? '-' : data.approvedDays}</td>
-                <td><span class="badge">${data.status}</span></td>
-            </tr>`;
-        }
-    });
+    try {
+        const qSnap = await getDocs(collection(db, "leaveRequests"));
+        const tbody = document.getElementById('myLeavesTable');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        qSnap.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.username === currentUser.username) {
+                tbody.innerHTML += `<tr>
+                    <td>${data.startDate}</td>
+                    <td>${data.requestedDays}</td>
+                    <td>${data.status === 'Pending' ? '-' : data.approvedDays}</td>
+                    <td><span class="badge">${data.status}</span></td>
+                </tr>`;
+            }
+        });
+    } catch(e) {}
 }
 
 async function loadAllTeamLeaveRequests() {
-    const qSnap = await getDocs(collection(db, "leaveRequests"));
-    const tbody = document.getElementById('teamLeavesTable');
-    tbody.innerHTML = "";
-    qSnap.forEach(docSnap => {
-        const data = docSnap.data();
-        if (data.status === "Pending") {
-            tbody.innerHTML += `<tr>
-                <td>${data.realName}</td>
-                <td>${data.startDate}</td>
-                <td>${data.requestedDays} Days</td>
-                <td><input type="number" id="appDays_${data.id}" value="${data.requestedDays}" style="width:60px;" class="form-control"></td>
-                <td>
-                    <button onclick="reviewLeave('${data.id}', 'Approved')" class="btn btn-sm btn-success">Approve</button>
-                    <button onclick="reviewLeave('${data.id}', 'Rejected')" class="btn btn-sm btn-danger">Reject</button>
-                </td>
-            </tr>`;
-        }
-    });
+    try {
+        const qSnap = await getDocs(collection(db, "leaveRequests"));
+        const tbody = document.getElementById('teamLeavesTable');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        qSnap.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.status === "Pending") {
+                tbody.innerHTML += `<tr>
+                    <td>${data.realName}</td>
+                    <td>${data.startDate}</td>
+                    <td>${data.requestedDays} Days</td>
+                    <td><input type="number" id="appDays_${data.id}" value="${data.requestedDays}" style="width:60px;" class="form-control"></td>
+                    <td>
+                        <button onclick="reviewLeave('${data.id}', 'Approved')" class="btn btn-sm btn-success">Approve</button>
+                        <button onclick="reviewLeave('${data.id}', 'Rejected')" class="btn btn-sm btn-danger">Reject</button>
+                    </td>
+                </tr>`;
+            }
+        });
+    } catch(e) {}
 }
 
 window.reviewLeave = async function(id, status) {
@@ -330,29 +350,32 @@ function initAdminUsersTab() {
             profilePicture: ""
         });
 
-        alert("Employee Account configurations saved.");
+        alert("Employee Account created successfully!");
         document.getElementById('userAccountForm').reset();
         loadAdminUsersTable();
     };
 }
 
 async function loadAdminUsersTable() {
-    const qSnap = await getDocs(collection(db, "users"));
-    const tbody = document.getElementById('adminUsersTable');
-    tbody.innerHTML = "";
-    qSnap.forEach(docSnap => {
-        const u = docSnap.data();
-        tbody.innerHTML += `<tr>
-            <td>${u.username}</td>
-            <td>${u.realName}</td>
-            <td>${u.role}</td>
-            <td>${u.employmentType}</td>
-            <td>
-                <button onclick="editUser('${u.username}')" class="btn btn-sm btn-primary">Edit</button>
-                <button onclick="deleteUser('${u.username}')" class="btn btn-sm btn-danger">Delete</button>
-            </td>
-        </tr>`;
-    });
+    try {
+        const qSnap = await getDocs(collection(db, "users"));
+        const tbody = document.getElementById('adminUsersTable');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        qSnap.forEach(docSnap => {
+            const u = docSnap.data();
+            tbody.innerHTML += `<tr>
+                <td>${u.username}</td>
+                <td>${u.realName}</td>
+                <td>${u.role}</td>
+                <td>${u.employmentType}</td>
+                <td>
+                    <button onclick="editUser('${u.username}')" class="btn btn-sm btn-primary">Edit</button>
+                    <button onclick="deleteUser('${u.username}')" class="btn btn-sm btn-danger">Delete</button>
+                </td>
+            </tr>`;
+        });
+    } catch(e) {}
 }
 
 window.editUser = async function(username) {
@@ -379,7 +402,10 @@ window.deleteUser = async function(username) {
    7. PAYROLL MANAGEMENT SYSTEM
    ========================================================================== */
 function initPayrollTab() {
-    document.getElementById('loadPayrollBtn').onclick = async () => {
+    const loadBtn = document.getElementById('loadPayrollBtn');
+    if(!loadBtn) return;
+    
+    loadBtn.onclick = async () => {
         const targetMonth = document.getElementById('payrollMonth').value; 
         const userSnap = await getDocs(collection(db, "users"));
         const attSnap = await getDocs(collection(db, "attendance"));
