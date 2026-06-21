@@ -1,3 +1,4 @@
+/* Purani files ke aage yeh CSS replace karein */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -25,6 +26,25 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     width: 100%;
     max-width: 400px;
+}
+
+/* EYE BUTTON WRAPPER CLASSES */
+.input-icon-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    color: #777;
+    z-index: 10;
+}
+
+.toggle-password:hover {
+    color: #333;
 }
 
 .main-header {
@@ -105,6 +125,7 @@ body {
 
 .form-group {
     margin-bottom: 15px;
+    width: 100%;
 }
 
 .form-group label {
@@ -116,6 +137,7 @@ body {
 .form-control {
     width: 100%;
     padding: 10px;
+    padding-right: 40px; /* Space for eye icon */
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
@@ -165,7 +187,7 @@ body {
 
 .profile-editor {
     display: grid;
-    grid-template-columns: 150px 1fr;
+    grid-template-columns: 200px 1fr;
     gap: 30px;
 }
 
