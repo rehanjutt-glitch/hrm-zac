@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Management System - Updated Panel</title>
+    <title>Advanced HR Management System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -93,6 +93,7 @@
             border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
+            display: inline-block;
         }
 
         .btn-primary { background: #3498db; color: white; }
@@ -147,7 +148,7 @@
             border: 2px solid #fff;
         }
 
-        /* 🔴 NEW PROFILE DROPDOWN MENU (Icon ke andar settings) */
+        /* Profile Dropdown */
         .profile-dropdown {
             position: absolute;
             top: 55px;
@@ -158,7 +159,7 @@
             border-radius: 8px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
             padding: 20px;
-            display: none; /* Controlled by JS */
+            display: none;
             z-index: 1000;
         }
 
@@ -182,7 +183,7 @@
             margin-bottom: 10px;
         }
 
-        /* Layout Grid */
+        /* Layout */
         .dashboard-layout {
             display: flex;
             min-height: calc(100vh - 70px);
@@ -242,6 +243,8 @@
             border-radius: 12px;
             font-size: 11px;
         }
+        .badge-success { background: #2ecc71; }
+        .badge-danger { background: #e74c3c; }
 
         .data-table {
             width: 100%;
@@ -253,6 +256,7 @@
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
+            font-size: 14px;
         }
 
         .data-table th {
@@ -262,48 +266,10 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Calculator Styles */
-        .calculator {
-            width: 100%;
-            max-width: 300px;
-            background: #2c3e50;
-            padding: 15px;
-            border-radius: 6px;
+        /* Admin Management Only Alerts */
+        .admin-only, .manager-only {
+            display: none;
         }
-
-        .calc-screen {
-            width: 100%;
-            height: 50px;
-            background: #ecf0f1;
-            border: none;
-            text-align: right;
-            padding: 10px;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-
-        .calc-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        .btn-calc {
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            background: #34495e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .btn-calc.operator { background: #e67e22; }
-        .btn-calc.danger { background: #e74c3c; }
-        .btn-calc.success { background: #2ecc71; }
     </style>
 </head>
 <body>
@@ -311,10 +277,10 @@
     <div id="loginScreen" class="centered-body">
         <div class="login-container">
             <h2>HRM Portal</h2>
-            <p>Login Account: <strong>Malik</strong> / <strong>Malik786</strong></p>
+            <p>Default Master Admin: <strong>Malik</strong> / <strong>Malik786</strong></p>
             <form id="loginForm">
                 <div class="form-group">
-                    <label>Username</label>
+                    <label>Username (or Employee ID)</label>
                     <input type="text" id="username" placeholder="Enter username" required class="form-control">
                 </div>
                 <div class="form-group">
@@ -331,7 +297,7 @@
 
     <div id="dashboardScreen" style="display: none;">
         <header class="main-header">
-            <div class="header-brand">HRM Dashboard</div>
+            <div class="header-brand">HRM Dashboard Dashboard</div>
             
             <div class="header-user">
                 <div class="profile-trigger" id="profileTrigger">
@@ -378,26 +344,28 @@
                 <ul>
                     <li><button class="nav-link active" data-target="attendanceTab">Attendance</button></li>
                     <li><button class="nav-link" data-target="leaveTab">Leave Requests</button></li>
-                    <li><button class="nav-link" data-target="adminSalaryTab">Payroll Calculator</button></li>
+                    <li class="admin-only"><button class="nav-link" data-target="employeeManagementTab">Manage Employees</button></li>
+                    <li class="manager-only"><button class="nav-link" data-target="allLeavesReviewTab">Review Team Leaves</button></li>
+                    <li class="admin-only"><button class="nav-link" data-target="payrollTab">Automatic Payroll Sheet</button></li>
                 </ul>
             </nav>
 
             <main class="content-area">
                 <section id="attendanceTab" class="tab-content active">
-                    <h2>Daily Attendance</h2>
+                    <h2>Daily Attendance Log</h2>
                     <div class="card">
                         <p>Mark your attendance for today: <strong id="currentDateText"></strong></p>
                         <br>
                         <button id="markAttendanceBtn" class="btn btn-success">Mark Present</button>
-                        <div id="attendanceStatus" class="alert" style="display:none; margin-top:15px; color: green; font-weight: bold;">✓ Attendance logged locally!</div>
+                        <div id="attendanceStatus" class="alert" style="display:none; margin-top:15px; color: green; font-weight: bold;">✓ Attendance logged successfully!</div>
                     </div>
                 </section>
 
                 <section id="leaveTab" class="tab-content">
-                    <h2>Leave Requests</h2>
+                    <h2>My Leave Requests</h2>
                     <div class="grid-2">
                         <div class="card">
-                            <h3>Submit Leave Request</h3>
+                            <h3>Submit Leave Form</h3>
                             <br>
                             <form id="leaveRequestForm">
                                 <div class="form-group">
@@ -405,86 +373,132 @@
                                     <input type="date" id="leaveStartDate" required class="form-control">
                                 </div>
                                 <div class="form-group">
-                                    <label>Requested Days</label>
+                                    <label>Total Days</label>
                                     <input type="number" id="leaveDays" min="1" required class="form-control">
                                 </div>
                                 <button type="submit" class="btn btn-primary">Submit Request</button>
                             </form>
                         </div>
                         <div class="card">
-                            <h3>Your Leave History</h3>
+                            <h3>My Leave History</h3>
                             <table class="data-table">
                                 <thead>
                                     <tr>
                                         <th>Start Date</th>
-                                        <th>Requested</th>
+                                        <th>Requested Days</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
-                                <tbody id="myLeavesTable">
-                                    <tr>
-                                        <td>2026-06-15</td>
-                                        <td>2 Days</td>
-                                        <td><span class="badge">Approved</span></td>
-                                    </tr>
-                                </tbody>
+                                <tbody id="myLeavesTable"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
-                <section id="adminSalaryTab" class="tab-content">
-                    <h2>Payroll Generation & Calculator</h2>
-                    <div class="grid-2">
-                        <div class="card">
-                            <h3>Interactive Digital Calculator</h3>
-                            <br>
-                            <div class="calculator">
-                                <input type="text" id="calcDisplay" readonly class="calc-screen">
-                                <div class="calc-buttons">
-                                    <button type="button" class="btn-calc" onclick="appendCalc('7')">7</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('8')">8</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('9')">9</button>
-                                    <button type="button" class="btn-calc operator" onclick="appendCalc('/')">/</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('4')">4</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('5')">5</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('6')">6</button>
-                                    <button type="button" class="btn-calc operator" onclick="appendCalc('*')">*</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('1')">1</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('2')">2</button>
-                                    <button type="button" class="btn-calc" onclick="assert('3'); appendCalc('3')">3</button>
-                                    <button type="button" class="btn-calc operator" onclick="appendCalc('-')">-</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('0')">0</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('.')">.</button>
-                                    <button type="button" class="btn-calc danger" onclick="clearCalc()">C</button>
-                                    <button type="button" class="btn-calc success" onclick="calculateResult()">=</button>
+                <section id="employeeManagementTab" class="tab-content admin-only">
+                    <h2>Add & Manage Employee Database</h2>
+                    <div class="card">
+                        <h3>Create New Account (Admin / Manager / Employee)</h3>
+                        <br>
+                        <form id="addEmployeeForm">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label>Employee ID</label>
+                                    <input type="text" id="empId" placeholder="EMP-101" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Username (For Login)</label>
+                                    <input type="text" id="empUsername" placeholder="e.g. ali123" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="empPassword" placeholder="Set Password" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Real Name</label>
+                                    <input type="text" id="empRealName" placeholder="Full Name" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number</label>
+                                    <input type="text" id="empPhone" placeholder="03XXXXXXXXX" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Bank Account Number</label>
+                                    <input type="text" id="empBank" placeholder="IBAN / Account Number" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Designation / Role</label>
+                                    <select id="empRole" class="form-control">
+                                        <option value="Employee">Employee</option>
+                                        <option value="Manager">Manager</option>
+                                        <option value="Admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Monthly Base Salary (PKR)</label>
+                                    <input type="number" id="empSalary" placeholder="e.g. 50000" required class="form-control">
                                 </div>
                             </div>
-                        </div>
-                        <div class="card">
-                            <h3>Process Salary Sheet</h3>
-                            <br>
-                            <div class="form-group">
-                                <label>Select Month</label>
-                                <input type="month" id="payrollMonth" class="form-control" value="2026-06">
-                            </div>
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Role</th>
-                                        <th>Net Payout</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong id="tableAdminName">Malik Admin</strong></td>
-                                        <td>Admin</td>
-                                        <td>150,000 PKR</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                            <button type="submit" class="btn btn-success" style="margin-top: 10px;">Register Account</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Registered Employees Directory</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Phone</th>
+                                    <th>Bank Account</th>
+                                    <th>Base Salary</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesDirectoryTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="allLeavesReviewTab" class="tab-content manager-only">
+                    <h2>Review Team Leave Requests</h2>
+                    <div class="card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Username</th>
+                                    <th>Start Date</th>
+                                    <th>Days</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teamLeavesReviewTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="payrollTab" class="tab-content admin-only">
+                    <h2>Automatic Smart Payroll Sheet</h2>
+                    <div class="card">
+                        <p style="color: #666; margin-bottom: 15px;">Website system auto calculation rule: *Unapproved or Pending leaves reduce salary dynamically based on daily rate (Base Salary / 30).*</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Emp ID</th>
+                                    <th>Name</th>
+                                    <th>Designation</th>
+                                    <th>Bank Account</th>
+                                    <th>Base Salary</th>
+                                    <th>Deducted Days (Leaves)</th>
+                                    <th>Final Net Payout</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payrollTableBody"></tbody>
+                        </table>
                     </div>
                 </section>
             </main>
@@ -492,20 +506,35 @@
     </div>
 
     <script>
-        // System Config Data
-        let systemAdmin = {
-            username: "Malik",
-            password: "Malik786",
-            realName: "Malik Admin",
-            profilePic: "https://via.placeholder.com/120"
-        };
+        // Local Data Stores (Simulating Database)
+        let usersDatabase = JSON.parse(localStorage.getItem('hr_users')) || [
+            {
+                empId: "MASTER-01",
+                username: "Malik",
+                password: "Malik786",
+                realName: "Malik Admin",
+                role: "Admin",
+                phone: "03001234567",
+                bank: "HBL-00123456789",
+                salary: 150000,
+                profilePic: "https://via.placeholder.com/120"
+            }
+        ];
+
+        let leavesDatabase = JSON.parse(localStorage.getItem('hr_leaves')) || [];
+        let loggedInUser = null;
+
+        function saveToLocalStorage() {
+            localStorage.setItem('hr_users', JSON.stringify(usersDatabase));
+            localStorage.setItem('hr_leaves', JSON.stringify(leavesDatabase));
+        }
 
         function initEyeToggle(iconId, inputId) {
             const icon = document.getElementById(iconId);
             const input = document.getElementById(inputId);
             if(icon && input) {
                 icon.onclick = function(e) {
-                    e.stopPropagation(); // Dropdown close hone se rokne ke liye
+                    e.stopPropagation();
                     if (input.type === "password") {
                         input.type = "text";
                         icon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -524,7 +553,7 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('currentDateText').innerText = today;
 
-            // Sidebar Tabs Switching Trigger
+            // Sidebar Navigation Trigger
             document.querySelectorAll('.nav-link').forEach(btn => {
                 btn.onclick = function(e) {
                     document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
@@ -535,7 +564,7 @@
                 };
             });
 
-            // 🟢 Toggle Profile Dropdown Panel
+            // Toggle Profile Dropdown
             const profileTrigger = document.getElementById('profileTrigger');
             const profileDropdown = document.getElementById('profileDropdown');
             
@@ -543,33 +572,61 @@
                 e.stopPropagation();
                 profileDropdown.classList.toggle('show');
             };
+            profileDropdown.onclick = function(e) { e.stopPropagation(); };
+            document.onclick = function() { profileDropdown.classList.remove('show'); };
 
-            // Dropdown ke andar click karne se band na ho
-            profileDropdown.onclick = function(e) {
-                e.stopPropagation();
-            };
-
-            // Bahar click karne se dropdown close ho jaye
-            document.onclick = function() {
-                profileDropdown.classList.remove('show');
-            };
-
-            // LOGIN FORM TRIGGER (100% FIX)
+            // ==========================================
+            // AUTHENTICATION & LOGIN LOGIC
+            // ==========================================
             document.getElementById('loginForm').onsubmit = function(e) {
                 e.preventDefault();
-                const u = document.getElementById('username').value.trim();
-                const p = document.getElementById('password').value;
+                const uInput = document.getElementById('username').value.trim();
+                const pInput = document.getElementById('password').value;
 
-                if (u === systemAdmin.username && p === systemAdmin.password) {
+                // Find user by username OR Employee ID
+                const user = usersDatabase.find(user => (user.username.toLowerCase() === uInput.toLowerCase() || user.empId.toLowerCase() === uInput.toLowerCase()) && user.password === pInput);
+
+                if (user) {
+                    loggedInUser = user;
+                    setupDashboardForRole();
+                    
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboardScreen').style.display = 'block';
                 } else {
-                    alert("Ghalat Username ya Password daala hai!");
+                    alert("Ghalat Username/ID ya Password daala hai!");
                 }
             };
 
-            // LOGOUT TRIGGER
+            function setupDashboardForRole() {
+                // Header details
+                document.getElementById('headerRealName').innerText = loggedInUser.realName;
+                document.getElementById('headerProfilePic').src = loggedInUser.profilePic || "https://via.placeholder.com/40";
+                document.getElementById('dropdownPreview').src = loggedInUser.profilePic || "https://via.placeholder.com/120";
+                document.getElementById('profileUsername').value = loggedInUser.username;
+                document.getElementById('profileRealName').value = loggedInUser.realName;
+                document.getElementById('profilePicUrl').value = loggedInUser.profilePic || "";
+
+                // Reset sidebar view limits
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'none');
+
+                if (loggedInUser.role === "Admin") {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                    document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'block');
+                    renderEmployeesDirectory();
+                    renderTeamLeavesReview();
+                    calculateAutomaticPayroll();
+                } else if (loggedInUser.role === "Manager") {
+                    document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'block');
+                    renderTeamLeavesReview();
+                }
+
+                renderMyLeavesHistory();
+            }
+
+            // LOGOUT
             document.getElementById('logoutBtn').onclick = function() {
+                loggedInUser = null;
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 profileDropdown.classList.remove('show');
@@ -577,67 +634,230 @@
                 document.getElementById('loginScreen').style.display = 'flex';
             };
 
-            // ATTENDANCE LOGIC
+            // ATTENDANCE
             document.getElementById('markAttendanceBtn').onclick = function() {
                 document.getElementById('attendanceStatus').style.display = 'block';
-                alert("Attendance successful!");
+                alert("Attendance successfully logged!");
             };
 
-            // IMAGE URL REAL-TIME PREVIEW
-            document.getElementById('profilePicUrl').oninput = function(e) {
-                const url = e.target.value;
-                if(url.trim() !== "") {
-                    document.getElementById('dropdownPreview').src = url;
-                }
-            };
-
-            // 🟢 SAVE PROFILE CHANGES (Name change fix!)
+            // UPDATE PROFILE
             document.getElementById('updateProfileBtn').onclick = function() {
                 const newName = document.getElementById('profileRealName').value.trim();
                 const newPwd = document.getElementById('profileNewPassword').value;
                 const newUrl = document.getElementById('profilePicUrl').value.trim();
                 
                 if(newName !== "") {
-                    systemAdmin.realName = newName;
+                    loggedInUser.realName = newName;
                     document.getElementById('headerRealName').innerText = newName;
-                    document.getElementById('tableAdminName').innerText = newName;
                 }
-                if(newPwd !== "") {
-                    systemAdmin.password = newPwd;
-                }
+                if(newPwd !== "") loggedInUser.password = newPwd;
                 if(newUrl !== "") {
-                    systemAdmin.profilePic = newUrl;
+                    loggedInUser.profilePic = newUrl;
                     document.getElementById('headerProfilePic').src = newUrl;
                     document.getElementById('dropdownPreview').src = newUrl;
                 }
                 
-                alert("Profile changes saved successfully!");
-                profileDropdown.classList.remove('show'); // Menu close karein
+                // update back in list
+                const idx = usersDatabase.findIndex(u => u.empId === loggedInUser.empId);
+                if(idx !== -1) usersDatabase[idx] = loggedInUser;
+                saveToLocalStorage();
+
+                alert("Profile settings saved successfully!");
+                profileDropdown.classList.remove('show');
+                setupDashboardForRole();
             };
 
-            // LEAVE FORM SUBMIT
+            // ==========================================
+            // ADMIN MODULE: CREATE & MANAGE EMPLOYEE
+            // ==========================================
+            document.getElementById('addEmployeeForm').onsubmit = function(e) {
+                e.preventDefault();
+                
+                const id = document.getElementById('empId').value.trim();
+                const user = document.getElementById('empUsername').value.trim();
+                const pass = document.getElementById('empPassword').value;
+                const name = document.getElementById('empRealName').value.trim();
+                const ph = document.getElementById('empPhone').value.trim();
+                const bnk = document.getElementById('empBank').value.trim();
+                const role = document.getElementById('empRole').value;
+                const sal = parseFloat(document.getElementById('empSalary').value);
+
+                // Check duplicate IDs
+                if(usersDatabase.some(u => u.empId.toLowerCase() === id.toLowerCase() || u.username.toLowerCase() === user.toLowerCase())) {
+                    alert("Employee ID ya Username pehle se maujood hai!");
+                    return;
+                }
+
+                usersDatabase.push({
+                    empId: id,
+                    username: user,
+                    password: pass,
+                    realName: name,
+                    role: role,
+                    phone: ph,
+                    bank: bnk,
+                    salary: sal,
+                    profilePic: "https://via.placeholder.com/120"
+                });
+
+                saveToLocalStorage();
+                document.getElementById('addEmployeeForm').reset();
+                alert("Naya account kamyabi se ban gaya!");
+                
+                renderEmployeesDirectory();
+                calculateAutomaticPayroll();
+            };
+
+            function renderEmployeesDirectory() {
+                const tbody = document.getElementById('employeesDirectoryTable');
+                tbody.innerHTML = "";
+                usersDatabase.forEach(emp => {
+                    tbody.innerHTML += `<tr>
+                        <td><strong>${emp.empId}</strong></td>
+                        <td>${emp.realName}</td>
+                        <td><span class="badge" style="background:#34495e">${emp.role}</span></td>
+                        <td>${emp.phone}</td>
+                        <td>${emp.bank}</td>
+                        <td>${emp.salary.toLocaleString()} PKR</td>
+                        <td>
+                            <button onclick="deleteAccount('${emp.empId}')" class="btn btn-xs btn-danger btn-sm" ${emp.empId === 'MASTER-01' ? 'disabled' : ''}>Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            window.deleteAccount = function(id) {
+                if(confirm("Kya aap waqai is employee ka account delete karna chahte hain?")) {
+                    usersDatabase = usersDatabase.filter(u => u.empId !== id);
+                    saveToLocalStorage();
+                    renderEmployeesDirectory();
+                    calculateAutomaticPayroll();
+                }
+            };
+
+            // ==========================================
+            // AUTOMATIC LEAVES ENGINE
+            // ==========================================
             document.getElementById('leaveRequestForm').onsubmit = function(e) {
                 e.preventDefault();
                 const sDate = document.getElementById('leaveStartDate').value;
-                const days = document.getElementById('leaveDays').value;
+                const days = parseInt(document.getElementById('leaveDays').value);
 
-                const tbody = document.getElementById('myLeavesTable');
-                tbody.innerHTML += `<tr>
-                    <td>${sDate}</td>
-                    <td>${days} Days</td>
-                    <td><span class="badge" style="background:#f1c40f">Pending</span></td>
-                </tr>`;
-                alert("Leave request submitted.");
+                leavesDatabase.push({
+                    id: 'LV-' + Math.floor(Math.random() * 10000),
+                    empId: loggedInUser.empId,
+                    username: loggedInUser.username,
+                    startDate: sDate,
+                    days: days,
+                    status: "Pending"
+                });
+
+                saveToLocalStorage();
+                document.getElementById('leaveRequestForm').reset();
+                alert("Leave request submit ho gayi hai!");
+                renderMyLeavesHistory();
+                if(loggedInUser.role === "Admin") renderTeamLeavesReview();
             };
-        });
 
-        // Calculator Scripts
-        function appendCalc(val) { document.getElementById('calcDisplay').value += val; }
-        function clearCalc() { document.getElementById('calcDisplay').value = ''; }
-        function calculateResult() {
-            try { document.getElementById('calcDisplay').value = eval(document.getElementById('calcDisplay').value); }
-            catch(e) { document.getElementById('calcDisplay').value = 'Error'; }
-        }
+            function renderMyLeavesHistory() {
+                const tbody = document.getElementById('myLeavesTable');
+                tbody.innerHTML = "";
+                const myLeaves = leavesDatabase.filter(l => l.empId === loggedInUser.empId);
+                
+                if(myLeaves.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No leave records found.</td></tr>`;
+                    return;
+                }
+
+                myLeaves.forEach(l => {
+                    let stBadge = `<span class="badge">${l.status}</span>`;
+                    if(l.status === 'Approved') stBadge = `<span class="badge badge-success">Approved</span>`;
+                    if(l.status === 'Rejected') stBadge = `<span class="badge badge-danger">Rejected</span>`;
+
+                    tbody.innerHTML += `<tr>
+                        <td>${l.startDate}</td>
+                        <td>${l.days} Days</td>
+                        <td>${stBadge}</td>
+                    </tr>`;
+                });
+            }
+
+            function renderTeamLeavesReview() {
+                const tbody = document.getElementById('teamLeavesReviewTable');
+                tbody.innerHTML = "";
+
+                if(leavesDatabase.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No pending team requests.</td></tr>`;
+                    return;
+                }
+
+                leavesDatabase.forEach(l => {
+                    let actions = `
+                        <button onclick="updateLeaveStatus('${l.id}', 'Approved')" class="btn btn-sm btn-success">Approve</button>
+                        <button onclick="updateLeaveStatus('${l.id}', 'Rejected')" class="btn btn-sm btn-danger">Reject</button>
+                    `;
+                    if(l.status !== 'Pending') actions = `Reviewed (${l.status})`;
+
+                    tbody.innerHTML += `<tr>
+                        <td><strong>${l.empId}</strong></td>
+                        <td>${l.username}</td>
+                        <td>${l.startDate}</td>
+                        <td>${l.days} Days</td>
+                        <td><span class="badge">${l.status}</span></td>
+                        <td>${actions}</td>
+                    </tr>`;
+                });
+            }
+
+            window.updateLeaveStatus = function(id, newStatus) {
+                const idx = leavesDatabase.findIndex(l => l.id === id);
+                if(idx !== -1) {
+                    leavesDatabase[idx].status = newStatus;
+                    saveToLocalStorage();
+                    renderTeamLeavesReview();
+                    calculateAutomaticPayroll();
+                    renderMyLeavesHistory();
+                    alert(`Leave request status changed to ${newStatus}`);
+                }
+            };
+
+            // ==========================================
+            // AUTOMATIC SALARY & HISAB CALCULATOR
+            // ==========================================
+            function calculateAutomaticPayroll() {
+                const tbody = document.getElementById('payrollTableBody');
+                if(!tbody) return;
+                tbody.innerHTML = "";
+
+                usersDatabase.forEach(emp => {
+                    // Hisab Formula: Kisi bhi leave ka status agar "Approved" nahi hai, 
+                    // toh un dinon ke paise katenge (Pending aur Rejected dono deduct honge).
+                    const empDeductedLeaves = leavesDatabase.filter(l => l.empId === emp.empId && l.status !== "Approved");
+                    
+                    let totalDeductedDays = 0;
+                    empDeductedLeaves.forEach(l => {
+                        totalDeductedDays += l.days;
+                    });
+
+                    // Daily wage rate allocation
+                    const dailyRate = emp.salary / 30;
+                    const totalDeductionAmount = totalDeductedDays * dailyRate;
+                    const netPayout = emp.salary - totalDeductionAmount;
+
+                    tbody.innerHTML += `<tr>
+                        <td><strong>${emp.empId}</strong></td>
+                        <td>${emp.realName}</td>
+                        <td>${emp.role}</td>
+                        <td>${emp.bank}</td>
+                        <td>${emp.salary.toLocaleString()} PKR</td>
+                        <td style="color: ${totalDeductedDays > 0 ? 'red' : 'green'}; font-weight: bold;">
+                            ${totalDeductedDays} Din (${Math.round(totalDeductionAmount).toLocaleString()} PKR Cut)
+                        </td>
+                        <td><strong>${Math.round(netPayout).toLocaleString()} PKR</strong></td>
+                    </tr>`;
+                });
+            }
+        });
     </script>
 </body>
 </html>
