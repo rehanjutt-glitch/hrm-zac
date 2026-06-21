@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// PLACE YOUR EXACT FIREBASE CREDENTIALS INSIDE THIS OBJECT:
+// !!! APNA FIREBASE CONFIG DATA YAHA PASTE KAREIN !!!
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY_HERE",
     authDomain: "YOUR_AUTH_DOMAIN_HERE",
@@ -17,22 +17,27 @@ const db = getFirestore(app);
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
 document.addEventListener("DOMContentLoaded", () => {
-    initAppRouting();
-    if (document.getElementById('loginForm')) initLogin();
-    if (document.getElementById('logoutBtn')) initDashboard();
+    if (currentUser) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+    initLogin();
 });
 
-function initAppRouting() {
-    const isLoginPage = window.location.pathname.includes('login.html') || window.location.pathname === '/' || !window.location.pathname.includes('.html');
-    if (!currentUser && !isLoginPage) {
-        window.location.href = 'login.html';
-    } else if (currentUser && isLoginPage) {
-        window.location.href = 'dashboard.html';
-    }
+function showLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboardScreen').style.display = 'none';
+}
+
+function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardScreen').style.display = 'block';
+    initDashboard();
 }
 
 /* ==========================================================================
-   1. AUTHENTICATION MODULE (Username Engine)
+   1. AUTH MODULE (With Temporary Account Bypass)
    ========================================================================== */
 function initLogin() {
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -40,48 +45,65 @@ function initLogin() {
         const userVal = document.getElementById('username').value.trim();
         const passVal = document.getElementById('password').value;
 
+        // 🌟 TEMPORARY BYPASS LOGIN MECHANISM
+        if (userVal === "admin" && passVal === "12345") {
+            currentUser = {
+                username: "admin",
+                realName: "Temporary Admin",
+                role: "Admin"
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showDashboard();
+            return;
+        }
+
+        // Real Firebase Live Authentication Check
         try {
             const userRef = doc(db, "users", userVal);
             const userSnap = await getDoc(userRef);
 
             if (userSnap.exists() && userSnap.data().password === passVal) {
                 const uData = userSnap.data();
-                localStorage.setItem('currentUser', JSON.stringify({
+                currentUser = {
                     username: uData.username,
                     realName: uData.realName,
                     role: uData.role
-                }));
-                window.location.href = 'dashboard.html';
+                };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showDashboard();
             } else {
-                alert("Invalid Username or Password.");
+                alert("Invalid Credentials.");
             }
         } catch (err) {
             console.error(err);
+            alert("Database Error. Check your Firebase Config.");
         }
     });
 }
 
 /* ==========================================================================
-   2. DASHBOARD FRAMEWORK
+   2. DASHBOARD CORE CONTROLLER
    ========================================================================== */
 function initDashboard() {
     renderHeaderProfile();
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('logoutBtn').onclick = () => {
         localStorage.removeItem('currentUser');
-        window.location.href = 'login.html';
-    });
+        currentUser = null;
+        showLogin();
+    };
 
+    // Tab switcher
     document.querySelectorAll('.nav-link').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.onclick = (e) => {
             document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            
             e.target.classList.add('active');
             document.getElementById(e.target.dataset.target).classList.add('active');
-        });
+        };
     });
 
+    // Access privileges
     if (currentUser.role === 'Admin') {
         document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
         document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'block');
@@ -102,52 +124,52 @@ function initDashboard() {
 }
 
 async function renderHeaderProfile() {
+    document.getElementById('headerRealName').innerText = currentUser.realName;
+    document.getElementById('headerRole').innerText = currentUser.role;
+    
+    // Fetch fresh picture link if available in Firestore
     const snap = await getDoc(doc(db, "users", currentUser.username));
-    if (snap.exists()) {
-        const d = snap.data();
-        document.getElementById('headerRealName').innerText = d.realName;
-        document.getElementById('headerRole').innerText = d.role;
-        if(d.profilePicture) {
-            document.getElementById('headerProfilePic').src = d.profilePicture;
-        }
+    if (snap.exists() && snap.data().profilePicture) {
+        document.getElementById('headerProfilePic').src = snap.data().profilePicture;
     }
 }
 
 /* ==========================================================================
-   3. PROFILE MANAGEMENT (Real name display & Picture url / pass settings)
+   3. SELF PROFILE EDITOR
    ========================================================================== */
 async function initProfileTab() {
+    document.getElementById('profileUsername').value = currentUser.username;
+    document.getElementById('profileRealName').value = currentUser.realName;
+
     const snap = await getDoc(doc(db, "users", currentUser.username));
     if (snap.exists()) {
         const d = snap.data();
-        document.getElementById('profileUsername').value = d.username;
-        document.getElementById('profileRealName').value = d.realName;
         if(d.profilePicture) {
             document.getElementById('profilePreview').src = d.profilePicture;
             document.getElementById('profilePicUrl').value = d.profilePicture;
         }
     }
 
-    document.getElementById('updateProfileBtn').addEventListener('click', async () => {
+    document.getElementById('updateProfileBtn').onclick = async () => {
         const newPass = document.getElementById('profileNewPassword').value;
         const picUrl = document.getElementById('profilePicUrl').value;
         const payload = { profilePicture: picUrl };
         if (newPass) payload.password = newPass;
 
-        await updateDoc(doc(db, "users", currentUser.username), payload);
-        alert("Profile updated successfully!");
+        await setDoc(doc(db, "users", currentUser.username), payload, { merge: true });
+        alert("Profile operational changes saved successfully!");
         renderHeaderProfile();
-    });
+    };
 }
 
 /* ==========================================================================
-   4. ATTENDANCE JOURNAL
+   4. ATTENDANCE LOG
    ========================================================================== */
 function initAttendanceTab() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('currentDateText').innerText = today;
 
-    document.getElementById('markAttendanceBtn').addEventListener('click', async () => {
+    document.getElementById('markAttendanceBtn').onclick = async () => {
         const docId = `${currentUser.username}_${today}`;
         await setDoc(doc(db, "attendance", docId), {
             username: currentUser.username,
@@ -155,16 +177,16 @@ function initAttendanceTab() {
             status: "Present"
         });
         document.getElementById('attendanceStatus').style.display = 'block';
-    });
+    };
 }
 
 /* ==========================================================================
-   5. LEAVE REQUEST ENGINE (Supports custom approval counts)
+   5. LEAVE REQUEST CONTROLLER
    ========================================================================== */
 async function initLeaveTab() {
     loadMyLeaves();
     
-    document.getElementById('leaveRequestForm').addEventListener('submit', async (e) => {
+    document.getElementById('leaveRequestForm').onsubmit = async (e) => {
         e.preventDefault();
         const sDate = document.getElementById('leaveStartDate').value;
         const rDays = parseInt(document.getElementById('leaveDays').value);
@@ -176,13 +198,13 @@ async function initLeaveTab() {
             realName: currentUser.realName,
             startDate: sDate,
             requestedDays: rDays,
-            approvedDays: rDays, 
+            approvedDays: rDays,
             status: "Pending"
         });
 
-        alert("Leave request sent.");
+        alert("Leave request submitted.");
         loadMyLeaves();
-    });
+    };
 }
 
 async function loadMyLeaves() {
@@ -229,16 +251,15 @@ window.reviewLeave = async function(id, status) {
         status: status,
         approvedDays: approvedCount
     });
-    alert(`Leave execution finalized as: ${status}`);
+    alert(`Leave transaction completed: ${status}`);
     loadAllTeamLeaveRequests();
-    if(currentUser.role === 'Admin') loadMyLeaves();
 };
 
 /* ==========================================================================
-   6. ACCOUNTS CONTROL (Create, Read, Update, Delete Engine)
+   6. ADMIN CRUD ACCOUNTS
    ========================================================================== */
 function initAdminUsersTab() {
-    document.getElementById('userAccountForm').addEventListener('submit', async (e) => {
+    document.getElementById('userAccountForm').onsubmit = async (e) => {
         e.preventDefault();
         const user = document.getElementById('adminUsername').value.trim();
         const pass = document.getElementById('adminPassword').value;
@@ -257,10 +278,10 @@ function initAdminUsersTab() {
             profilePicture: ""
         });
 
-        alert("User record written to database.");
+        alert("Account processed successfully.");
         document.getElementById('userAccountForm').reset();
         loadAdminUsersTable();
-    });
+    };
 }
 
 async function loadAdminUsersTable() {
@@ -296,17 +317,17 @@ window.editUser = async function(username) {
 };
 
 window.deleteUser = async function(username) {
-    if (confirm(`Are you sure you want to completely delete account: ${username}?`)) {
+    if (confirm(`Delete account ${username}?`)) {
         await deleteDoc(doc(db, "users", username));
         loadAdminUsersTable();
     }
 };
 
 /* ==========================================================================
-   7. PAYROLL & CALENDAR DEDUCTIONS COMPILER
+   7. PAYROLL DEDUCTION CALCULATOR
    ========================================================================== */
 function initPayrollTab() {
-    document.getElementById('loadPayrollBtn').addEventListener('click', async () => {
+    document.getElementById('loadPayrollBtn').onclick = async () => {
         const targetMonth = document.getElementById('payrollMonth').value; 
         const userSnap = await getDocs(collection(db, "users"));
         const attSnap = await getDocs(collection(db, "attendance"));
@@ -323,7 +344,6 @@ function initPayrollTab() {
 
         userSnap.forEach(uDoc => {
             const user = uDoc.data();
-            
             const presentDays = attendanceList.filter(a => a.username === user.username && a.date.startsWith(targetMonth) && a.status === 'Present').length;
             
             let totalRequestedLeaves = 0;
@@ -337,7 +357,7 @@ function initPayrollTab() {
 
             const unapprovedDays = totalRequestedLeaves - totalApprovedLeaves;
             let netPayout = 0;
-            let deductionText = "0 Units";
+            let deductionText = "0 PKR";
 
             if (user.employmentType === "Daily") {
                 netPayout = presentDays * user.baseSalary;
@@ -345,16 +365,16 @@ function initPayrollTab() {
                 const dayRate = user.baseSalary / 30;
                 const totalDeductions = unapprovedDays * dayRate;
                 netPayout = user.baseSalary - totalDeductions;
-                deductionText = `${unapprovedDays} Days Deducted (${Math.round(totalDeductions)})`;
+                deductionText = `${unapprovedDays} Days (${Math.round(totalDeductions)} PKR)`;
             }
 
             tbody.innerHTML += `<tr>
-                <td><strong>${user.realName}</strong><br><small>@${user.username}</small></td>
-                <td>${user.employmentType} (${user.baseSalary})</td>
-                <td>${presentDays} Active</td>
-                <td><span style="color:${unapprovedDays > 0 ? 'red' : 'inherit'}">${deductionText}</span></td>
-                <td><strong>${Math.round(netPayout)}</strong></td>
+                <td><strong>${user.realName}</strong></td>
+                <td>${user.employmentType}</td>
+                <td>${presentDays} Days</td>
+                <td><span style="color:red">${deductionText}</span></td>
+                <td><strong>${Math.round(netPayout)} PKR</strong></td>
             </tr>`;
         });
-    });
+    };
 }
