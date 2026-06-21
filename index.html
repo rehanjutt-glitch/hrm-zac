@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Management System</title>
+    <title>HR Management System - Updated Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -58,6 +58,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
+            font-size: 13px;
         }
 
         .input-icon-container {
@@ -86,10 +87,6 @@
             z-index: 10;
         }
 
-        .toggle-password:hover {
-            color: #333;
-        }
-
         .btn {
             padding: 10px 20px;
             border: none;
@@ -112,6 +109,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 100;
         }
 
         .header-brand {
@@ -123,6 +122,21 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            position: relative;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .profile-trigger:hover {
+            background: #34495e;
         }
 
         .profile-icon {
@@ -131,6 +145,41 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #fff;
+        }
+
+        /* 🔴 NEW PROFILE DROPDOWN MENU (Icon ke andar settings) */
+        .profile-dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            color: #333;
+            width: 320px;
+            border-radius: 8px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            padding: 20px;
+            display: none; /* Controlled by JS */
+            z-index: 1000;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-avatar-section {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .dropdown-avatar-section img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #3498db;
+            margin-bottom: 10px;
         }
 
         /* Layout Grid */
@@ -213,20 +262,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .profile-editor {
-            display: grid;
-            grid-template-columns: 200px 1fr;
-            gap: 30px;
-        }
-
-        .avatar-upload img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #ddd;
-        }
-
         /* Calculator Styles */
         .calculator {
             width: 100%;
@@ -297,57 +332,58 @@
     <div id="dashboardScreen" style="display: none;">
         <header class="main-header">
             <div class="header-brand">HRM Dashboard</div>
+            
             <div class="header-user">
-                <img id="headerProfilePic" src="https://via.placeholder.com/40" alt="Profile" class="profile-icon">
-                <span id="headerRealName">Malik Admin</span>
-                <span id="headerRole" class="badge">Admin</span>
-                <button id="logoutBtn" class="btn btn-sm btn-danger">Logout</button>
+                <div class="profile-trigger" id="profileTrigger">
+                    <img id="headerProfilePic" src="https://via.placeholder.com/40" alt="Profile" class="profile-icon">
+                    <span id="headerRealName">Malik Admin</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 12px;"></i>
+                </div>
+
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-avatar-section">
+                        <img id="dropdownPreview" src="https://via.placeholder.com/120" alt="Avatar">
+                        <div class="form-group" style="text-align: left;">
+                            <label>Image URL</label>
+                            <input type="text" id="profilePicUrl" placeholder="Paste image link" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="profileUsername" value="Malik" class="form-control" readonly style="background: #eee;">
+                    </div>
+                    <div class="form-group">
+                        <label>Real Name</label>
+                        <input type="text" id="profileRealName" value="Malik Admin" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <div class="input-icon-container">
+                            <input type="password" id="profileNewPassword" placeholder="Change password" class="form-control form-control-pwd">
+                            <i class="toggle-password fa-solid fa-eye" id="toggleProfilePassword" style="right:10px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button id="updateProfileBtn" class="btn btn-primary btn-sm" style="flex: 1;">Save Changes</button>
+                        <button id="logoutBtn" class="btn btn-danger btn-sm">Logout</button>
+                    </div>
+                </div>
             </div>
         </header>
 
         <div class="dashboard-layout">
             <nav class="sidebar">
                 <ul>
-                    <li><button class="nav-link active" data-target="profileTab">My Profile</button></li>
-                    <li><button class="nav-link" data-target="attendanceTab">Attendance</button></li>
+                    <li><button class="nav-link active" data-target="attendanceTab">Attendance</button></li>
                     <li><button class="nav-link" data-target="leaveTab">Leave Requests</button></li>
                     <li><button class="nav-link" data-target="adminSalaryTab">Payroll Calculator</button></li>
                 </ul>
             </nav>
 
             <main class="content-area">
-                <section id="profileTab" class="tab-content active">
-                    <h2>Account Settings</h2>
-                    <div class="card">
-                        <div class="profile-editor">
-                            <div class="avatar-upload">
-                                <img id="profilePreview" src="https://via.placeholder.com/120" alt="Avatar">
-                                <label style="display:block; margin-top:10px; font-weight:600; font-size:12px;">Image URL Box:</label>
-                                <input type="text" id="profilePicUrl" placeholder="Paste image link/URL here" class="form-control">
-                            </div>
-                            <div class="profile-details">
-                                <div class="form-group">
-                                    <label>Username</label>
-                                    <input type="text" id="profileUsername" value="Malik" class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label>Real Name</label>
-                                    <input type="text" id="profileRealName" value="Malik Admin" class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label>New Password</label>
-                                    <div class="input-icon-container">
-                                        <input type="password" id="profileNewPassword" placeholder="Change password" class="form-control form-control-pwd">
-                                        <i class="toggle-password fa-solid fa-eye" id="toggleProfilePassword"></i>
-                                    </div>
-                                </div>
-                                <button id="updateProfileBtn" class="btn btn-primary">Save Changes</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="attendanceTab" class="tab-content">
+                <section id="attendanceTab" class="tab-content active">
                     <h2>Daily Attendance</h2>
                     <div class="card">
                         <p>Mark your attendance for today: <strong id="currentDateText"></strong></p>
@@ -416,7 +452,7 @@
                                     <button type="button" class="btn-calc operator" onclick="appendCalc('*')">*</button>
                                     <button type="button" class="btn-calc" onclick="appendCalc('1')">1</button>
                                     <button type="button" class="btn-calc" onclick="appendCalc('2')">2</button>
-                                    <button type="button" class="btn-calc" onclick="appendCalc('3')">3</button>
+                                    <button type="button" class="btn-calc" onclick="assert('3'); appendCalc('3')">3</button>
                                     <button type="button" class="btn-calc operator" onclick="appendCalc('-')">-</button>
                                     <button type="button" class="btn-calc" onclick="appendCalc('0')">0</button>
                                     <button type="button" class="btn-calc" onclick="appendCalc('.')">.</button>
@@ -442,7 +478,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><strong>Malik Admin</strong></td>
+                                        <td><strong id="tableAdminName">Malik Admin</strong></td>
                                         <td>Admin</td>
                                         <td>150,000 PKR</td>
                                     </tr>
@@ -456,7 +492,7 @@
     </div>
 
     <script>
-        // Updated configurations with user custom credentials
+        // System Config Data
         let systemAdmin = {
             username: "Malik",
             password: "Malik786",
@@ -468,7 +504,8 @@
             const icon = document.getElementById(iconId);
             const input = document.getElementById(inputId);
             if(icon && input) {
-                icon.onclick = function() {
+                icon.onclick = function(e) {
+                    e.stopPropagation(); // Dropdown close hone se rokne ke liye
                     if (input.type === "password") {
                         input.type = "text";
                         icon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -487,6 +524,7 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('currentDateText').innerText = today;
 
+            // Sidebar Tabs Switching Trigger
             document.querySelectorAll('.nav-link').forEach(btn => {
                 btn.onclick = function(e) {
                     document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
@@ -497,7 +535,26 @@
                 };
             });
 
-            // 100% Working Login verification block
+            // 🟢 Toggle Profile Dropdown Panel
+            const profileTrigger = document.getElementById('profileTrigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+            
+            profileTrigger.onclick = function(e) {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('show');
+            };
+
+            // Dropdown ke andar click karne se band na ho
+            profileDropdown.onclick = function(e) {
+                e.stopPropagation();
+            };
+
+            // Bahar click karne se dropdown close ho jaye
+            document.onclick = function() {
+                profileDropdown.classList.remove('show');
+            };
+
+            // LOGIN FORM TRIGGER (100% FIX)
             document.getElementById('loginForm').onsubmit = function(e) {
                 e.preventDefault();
                 const u = document.getElementById('username').value.trim();
@@ -507,41 +564,58 @@
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboardScreen').style.display = 'block';
                 } else {
-                    alert("Ghalat Username ya Password daala hai aapne!");
+                    alert("Ghalat Username ya Password daala hai!");
                 }
             };
 
+            // LOGOUT TRIGGER
             document.getElementById('logoutBtn').onclick = function() {
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
+                profileDropdown.classList.remove('show');
                 document.getElementById('dashboardScreen').style.display = 'none';
                 document.getElementById('loginScreen').style.display = 'flex';
             };
 
+            // ATTENDANCE LOGIC
             document.getElementById('markAttendanceBtn').onclick = function() {
                 document.getElementById('attendanceStatus').style.display = 'block';
                 alert("Attendance successful!");
             };
 
+            // IMAGE URL REAL-TIME PREVIEW
             document.getElementById('profilePicUrl').oninput = function(e) {
                 const url = e.target.value;
                 if(url.trim() !== "") {
-                    document.getElementById('profilePreview').src = url;
+                    document.getElementById('dropdownPreview').src = url;
                 }
             };
 
+            // 🟢 SAVE PROFILE CHANGES (Name change fix!)
             document.getElementById('updateProfileBtn').onclick = function() {
+                const newName = document.getElementById('profileRealName').value.trim();
                 const newPwd = document.getElementById('profileNewPassword').value;
-                const newUrl = document.getElementById('profilePicUrl').value;
+                const newUrl = document.getElementById('profilePicUrl').value.trim();
                 
-                if(newPwd) systemAdmin.password = newPwd;
-                if(newUrl) {
+                if(newName !== "") {
+                    systemAdmin.realName = newName;
+                    document.getElementById('headerRealName').innerText = newName;
+                    document.getElementById('tableAdminName').innerText = newName;
+                }
+                if(newPwd !== "") {
+                    systemAdmin.password = newPwd;
+                }
+                if(newUrl !== "") {
                     systemAdmin.profilePic = newUrl;
                     document.getElementById('headerProfilePic').src = newUrl;
+                    document.getElementById('dropdownPreview').src = newUrl;
                 }
-                alert("Profile and password settings saved locally!");
+                
+                alert("Profile changes saved successfully!");
+                profileDropdown.classList.remove('show'); // Menu close karein
             };
 
+            // LEAVE FORM SUBMIT
             document.getElementById('leaveRequestForm').onsubmit = function(e) {
                 e.preventDefault();
                 const sDate = document.getElementById('leaveStartDate').value;
@@ -553,10 +627,11 @@
                     <td>${days} Days</td>
                     <td><span class="badge" style="background:#f1c40f">Pending</span></td>
                 </tr>`;
-                alert("Leave request submitted successfully.");
+                alert("Leave request submitted.");
             };
         });
 
+        // Calculator Scripts
         function appendCalc(val) { document.getElementById('calcDisplay').value += val; }
         function clearCalc() { document.getElementById('calcDisplay').value = ''; }
         function calculateResult() {
