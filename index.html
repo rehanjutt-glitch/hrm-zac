@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced HR Management System</title>
+    <title>Advanced HR Management System - Status Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -222,6 +222,48 @@
             padding: 30px;
         }
 
+        /* 🔴 NEW OVERALL STATUS CARDS STYLING */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid #3498db;
+        }
+
+        .status-card.blue { border-left-color: #3498db; }
+        .status-card.green { border-left-color: #2ecc71; }
+        .status-card.orange { border-left-color: #e67e22; }
+        .status-card.purple { border-left-color: #9b59b6; }
+
+        .status-info h3 {
+            font-size: 13px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .status-info p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .status-icon {
+            font-size: 28px;
+            color: #bdc3c7;
+        }
+
         .card {
             background: white;
             border-radius: 6px;
@@ -266,7 +308,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Admin Management Only Alerts */
         .admin-only, .manager-only {
             display: none;
         }
@@ -297,7 +338,7 @@
 
     <div id="dashboardScreen" style="display: none;">
         <header class="main-header">
-            <div class="header-brand">HRM Dashboard Dashboard</div>
+            <div class="header-brand">HRM Dashboard</div>
             
             <div class="header-user">
                 <div class="profile-trigger" id="profileTrigger">
@@ -351,6 +392,38 @@
             </nav>
 
             <main class="content-area">
+                
+                <div class="status-grid">
+                    <div class="status-card blue">
+                        <div class="status-info">
+                            <h3>Total Employees</h3>
+                            <p id="statTotalEmployees">1</p>
+                        </div>
+                        <i class="fa-solid fa-users status-icon"></i>
+                    </div>
+                    <div class="status-card green">
+                        <div class="status-info">
+                            <h3>Present Today</h3>
+                            <p id="statPresentToday">0</p>
+                        </div>
+                        <i class="fa-solid fa-user-check status-icon"></i>
+                    </div>
+                    <div class="status-card orange">
+                        <div class="status-info">
+                            <h3>Pending Leaves</h3>
+                            <p id="statPendingLeaves">0</p>
+                        </div>
+                        <i class="fa-solid fa-business-time status-icon"></i>
+                    </div>
+                    <div class="status-card purple">
+                        <div class="status-info">
+                            <h3>Monthly Payroll</h3>
+                            <p id="statTotalPayroll">150,000 PKR</p>
+                        </div>
+                        <i class="fa-solid fa-wallet status-icon"></i>
+                    </div>
+                </div>
+
                 <section id="attendanceTab" class="tab-content active">
                     <h2>Daily Attendance Log</h2>
                     <div class="card">
@@ -506,7 +579,7 @@
     </div>
 
     <script>
-        // Local Data Stores (Simulating Database)
+        // Database Stores
         let usersDatabase = JSON.parse(localStorage.getItem('hr_users')) || [
             {
                 empId: "MASTER-01",
@@ -522,11 +595,37 @@
         ];
 
         let leavesDatabase = JSON.parse(localStorage.getItem('hr_leaves')) || [];
+        let attendanceCountToday = parseInt(localStorage.getItem('hr_attendance_count')) || 0;
         let loggedInUser = null;
 
         function saveToLocalStorage() {
             localStorage.setItem('hr_users', JSON.stringify(usersDatabase));
             localStorage.setItem('hr_leaves', JSON.stringify(leavesDatabase));
+            localStorage.setItem('hr_attendance_count', attendanceCountToday);
+        }
+
+        function updateGlobalStats() {
+            // 1. Total Employees
+            document.getElementById('statTotalEmployees').innerText = usersDatabase.length;
+            
+            // 2. Pending Leaves Counters
+            const pendingCount = leavesDatabase.filter(l => l.status === "Pending").length;
+            document.getElementById('statPendingLeaves').innerText = pendingCount;
+
+            // 3. Present Today
+            document.getElementById('statPresentToday').innerText = attendanceCountToday;
+
+            // 4. Monthly Net Payroll Calculation
+            let totalPayrollSum = 0;
+            usersDatabase.forEach(emp => {
+                const empUnapprovedLeaves = leavesDatabase.filter(l => l.empId === emp.empId && l.status !== "Approved");
+                let deductedDays = 0;
+                empUnapprovedLeaves.forEach(l => deductedDays += l.days);
+                
+                const deduction = deductedDays * (emp.salary / 30);
+                totalPayrollSum += Math.max(0, emp.salary - deduction);
+            });
+            document.getElementById('statTotalPayroll').innerText = Math.round(totalPayrollSum).toLocaleString() + " PKR";
         }
 
         function initEyeToggle(iconId, inputId) {
@@ -553,7 +652,7 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('currentDateText').innerText = today;
 
-            // Sidebar Navigation Trigger
+            // Navigation trigger
             document.querySelectorAll('.nav-link').forEach(btn => {
                 btn.onclick = function(e) {
                     document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
@@ -564,7 +663,7 @@
                 };
             });
 
-            // Toggle Profile Dropdown
+            // Profile Dropdown Toggle
             const profileTrigger = document.getElementById('profileTrigger');
             const profileDropdown = document.getElementById('profileDropdown');
             
@@ -575,20 +674,18 @@
             profileDropdown.onclick = function(e) { e.stopPropagation(); };
             document.onclick = function() { profileDropdown.classList.remove('show'); };
 
-            // ==========================================
-            // AUTHENTICATION & LOGIN LOGIC
-            // ==========================================
+            // LOGIN FORM TRIGGER
             document.getElementById('loginForm').onsubmit = function(e) {
                 e.preventDefault();
                 const uInput = document.getElementById('username').value.trim();
                 const pInput = document.getElementById('password').value;
 
-                // Find user by username OR Employee ID
                 const user = usersDatabase.find(user => (user.username.toLowerCase() === uInput.toLowerCase() || user.empId.toLowerCase() === uInput.toLowerCase()) && user.password === pInput);
 
                 if (user) {
                     loggedInUser = user;
                     setupDashboardForRole();
+                    updateGlobalStats();
                     
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboardScreen').style.display = 'block';
@@ -598,7 +695,6 @@
             };
 
             function setupDashboardForRole() {
-                // Header details
                 document.getElementById('headerRealName').innerText = loggedInUser.realName;
                 document.getElementById('headerProfilePic').src = loggedInUser.profilePic || "https://via.placeholder.com/40";
                 document.getElementById('dropdownPreview').src = loggedInUser.profilePic || "https://via.placeholder.com/120";
@@ -606,7 +702,6 @@
                 document.getElementById('profileRealName').value = loggedInUser.realName;
                 document.getElementById('profilePicUrl').value = loggedInUser.profilePic || "";
 
-                // Reset sidebar view limits
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
                 document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'none');
 
@@ -620,11 +715,11 @@
                     document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'block');
                     renderTeamLeavesReview();
                 }
-
+                document.getElementById('attendanceStatus').style.display = 'none';
                 renderMyLeavesHistory();
             }
 
-            // LOGOUT
+            // LOGOUT TRIGGER
             document.getElementById('logoutBtn').onclick = function() {
                 loggedInUser = null;
                 document.getElementById('username').value = '';
@@ -634,42 +729,41 @@
                 document.getElementById('loginScreen').style.display = 'flex';
             };
 
-            // ATTENDANCE
+            // ATTENDANCE LOGIC
             document.getElementById('markAttendanceBtn').onclick = function() {
-                document.getElementById('attendanceStatus').style.display = 'block';
-                alert("Attendance successfully logged!");
+                const statusBox = document.getElementById('attendanceStatus');
+                if(statusBox.style.display !== 'block') {
+                    attendanceCountToday += 1;
+                    statusBox.style.display = 'block';
+                    saveToLocalStorage();
+                    updateGlobalStats();
+                    alert("Attendance successfully logged!");
+                } else {
+                    alert("Aap aaj pehle hi attendance laga chuke hain!");
+                }
             };
 
-            // UPDATE PROFILE
+            // UPDATE PROFILE SETTINGS
             document.getElementById('updateProfileBtn').onclick = function() {
                 const newName = document.getElementById('profileRealName').value.trim();
                 const newPwd = document.getElementById('profileNewPassword').value;
                 const newUrl = document.getElementById('profilePicUrl').value.trim();
                 
-                if(newName !== "") {
-                    loggedInUser.realName = newName;
-                    document.getElementById('headerRealName').innerText = newName;
-                }
+                if(newName !== "") loggedInUser.realName = newName;
                 if(newPwd !== "") loggedInUser.password = newPwd;
-                if(newUrl !== "") {
-                    loggedInUser.profilePic = newUrl;
-                    document.getElementById('headerProfilePic').src = newUrl;
-                    document.getElementById('dropdownPreview').src = newUrl;
-                }
+                if(newUrl !== "") loggedInUser.profilePic = newUrl;
                 
-                // update back in list
                 const idx = usersDatabase.findIndex(u => u.empId === loggedInUser.empId);
                 if(idx !== -1) usersDatabase[idx] = loggedInUser;
+                
                 saveToLocalStorage();
-
                 alert("Profile settings saved successfully!");
                 profileDropdown.classList.remove('show');
                 setupDashboardForRole();
+                updateGlobalStats();
             };
 
-            // ==========================================
-            // ADMIN MODULE: CREATE & MANAGE EMPLOYEE
-            // ==========================================
+            // REGISTER NEW EMPLOYEE
             document.getElementById('addEmployeeForm').onsubmit = function(e) {
                 e.preventDefault();
                 
@@ -682,30 +776,23 @@
                 const role = document.getElementById('empRole').value;
                 const sal = parseFloat(document.getElementById('empSalary').value);
 
-                // Check duplicate IDs
                 if(usersDatabase.some(u => u.empId.toLowerCase() === id.toLowerCase() || u.username.toLowerCase() === user.toLowerCase())) {
                     alert("Employee ID ya Username pehle se maujood hai!");
                     return;
                 }
 
                 usersDatabase.push({
-                    empId: id,
-                    username: user,
-                    password: pass,
-                    realName: name,
-                    role: role,
-                    phone: ph,
-                    bank: bnk,
-                    salary: sal,
-                    profilePic: "https://via.placeholder.com/120"
+                    empId: id, username: user, password: pass, realName: name,
+                    role: role, phone: ph, bank: bnk, salary: sal, profilePic: "https://via.placeholder.com/120"
                 });
 
                 saveToLocalStorage();
                 document.getElementById('addEmployeeForm').reset();
-                alert("Naya account kamyabi se ban gaya!");
+                alert("Naya account register ho chuka hai!");
                 
                 renderEmployeesDirectory();
                 calculateAutomaticPayroll();
+                updateGlobalStats();
             };
 
             function renderEmployeesDirectory() {
@@ -732,12 +819,11 @@
                     saveToLocalStorage();
                     renderEmployeesDirectory();
                     calculateAutomaticPayroll();
+                    updateGlobalStats();
                 }
             };
 
-            // ==========================================
-            // AUTOMATIC LEAVES ENGINE
-            // ==========================================
+            // LEAVE FORM REQUEST
             document.getElementById('leaveRequestForm').onsubmit = function(e) {
                 e.preventDefault();
                 const sDate = document.getElementById('leaveStartDate').value;
@@ -754,8 +840,9 @@
 
                 saveToLocalStorage();
                 document.getElementById('leaveRequestForm').reset();
-                alert("Leave request submit ho gayi hai!");
+                alert("Leave request submit ho gayi!");
                 renderMyLeavesHistory();
+                updateGlobalStats();
                 if(loggedInUser.role === "Admin") renderTeamLeavesReview();
             };
 
@@ -774,11 +861,7 @@
                     if(l.status === 'Approved') stBadge = `<span class="badge badge-success">Approved</span>`;
                     if(l.status === 'Rejected') stBadge = `<span class="badge badge-danger">Rejected</span>`;
 
-                    tbody.innerHTML += `<tr>
-                        <td>${l.startDate}</td>
-                        <td>${l.days} Days</td>
-                        <td>${stBadge}</td>
-                    </tr>`;
+                    tbody.innerHTML += `<tr><td>${l.startDate}</td><td>${l.days} Days</td><td>${stBadge}</td></tr>`;
                 });
             }
 
@@ -817,29 +900,22 @@
                     renderTeamLeavesReview();
                     calculateAutomaticPayroll();
                     renderMyLeavesHistory();
-                    alert(`Leave request status changed to ${newStatus}`);
+                    updateGlobalStats();
+                    alert(`Leave request status updated to ${newStatus}`);
                 }
             };
 
-            // ==========================================
-            // AUTOMATIC SALARY & HISAB CALCULATOR
-            // ==========================================
+            // RENDER AUTOMATIC PAYROLL
             function calculateAutomaticPayroll() {
                 const tbody = document.getElementById('payrollTableBody');
                 if(!tbody) return;
                 tbody.innerHTML = "";
 
                 usersDatabase.forEach(emp => {
-                    // Hisab Formula: Kisi bhi leave ka status agar "Approved" nahi hai, 
-                    // toh un dinon ke paise katenge (Pending aur Rejected dono deduct honge).
-                    const empDeductedLeaves = leavesDatabase.filter(l => l.empId === emp.empId && l.status !== "Approved");
-                    
+                    const empUnapprovedLeaves = leavesDatabase.filter(l => l.empId === emp.empId && l.status !== "Approved");
                     let totalDeductedDays = 0;
-                    empDeductedLeaves.forEach(l => {
-                        totalDeductedDays += l.days;
-                    });
+                    empUnapprovedLeaves.forEach(l => totalDeductedDays += l.days);
 
-                    // Daily wage rate allocation
                     const dailyRate = emp.salary / 30;
                     const totalDeductionAmount = totalDeductedDays * dailyRate;
                     const netPayout = emp.salary - totalDeductionAmount;
