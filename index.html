@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced HR Management System - Status Dashboard</title>
+    <title>Advanced HR Management System - Clean Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -222,7 +223,7 @@
             padding: 30px;
         }
 
-        /* 🔴 NEW OVERALL STATUS CARDS STYLING */
+        /* STATUS CARDS STYLING */
         .status-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -305,6 +306,7 @@
             background-color: #f8f9fa;
         }
 
+        /* FIX: Content area isolation tabs */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -383,7 +385,7 @@
         <div class="dashboard-layout">
             <nav class="sidebar">
                 <ul>
-                    <li><button class="nav-link active" data-target="attendanceTab">Attendance</button></li>
+                    <li><button class="nav-link active" data-target="attendanceTab">Attendance & Stats</button></li>
                     <li><button class="nav-link" data-target="leaveTab">Leave Requests</button></li>
                     <li class="admin-only"><button class="nav-link" data-target="employeeManagementTab">Manage Employees</button></li>
                     <li class="manager-only"><button class="nav-link" data-target="allLeavesReviewTab">Review Team Leaves</button></li>
@@ -392,41 +394,42 @@
             </nav>
 
             <main class="content-area">
-                
-                <div class="status-grid">
-                    <div class="status-card blue">
-                        <div class="status-info">
-                            <h3>Total Employees</h3>
-                            <p id="statTotalEmployees">1</p>
-                        </div>
-                        <i class="fa-solid fa-users status-icon"></i>
-                    </div>
-                    <div class="status-card green">
-                        <div class="status-info">
-                            <h3>Present Today</h3>
-                            <p id="statPresentToday">0</p>
-                        </div>
-                        <i class="fa-solid fa-user-check status-icon"></i>
-                    </div>
-                    <div class="status-card orange">
-                        <div class="status-info">
-                            <h3>Pending Leaves</h3>
-                            <p id="statPendingLeaves">0</p>
-                        </div>
-                        <i class="fa-solid fa-business-time status-icon"></i>
-                    </div>
-                    <div class="status-card purple">
-                        <div class="status-info">
-                            <h3>Monthly Payroll</h3>
-                            <p id="statTotalPayroll">150,000 PKR</p>
-                        </div>
-                        <i class="fa-solid fa-wallet status-icon"></i>
-                    </div>
-                </div>
 
                 <section id="attendanceTab" class="tab-content active">
+                    
+                    <div class="status-grid">
+                        <div class="status-card blue">
+                            <div class="status-info">
+                                <h3>Total Employees</h3>
+                                <p id="statTotalEmployees">1</p>
+                            </div>
+                            <i class="fa-solid fa-users status-icon"></i>
+                        </div>
+                        <div class="status-card green">
+                            <div class="status-info">
+                                <h3>Present Today</h3>
+                                <p id="statPresentToday">0</p>
+                            </div>
+                            <i class="fa-solid fa-user-check status-icon"></i>
+                        </div>
+                        <div class="status-card orange">
+                            <div class="status-info">
+                                <h3>Pending Leaves</h3>
+                                <p id="statPendingLeaves">0</p>
+                            </div>
+                            <i class="fa-solid fa-business-time status-icon"></i>
+                        </div>
+                        <div class="status-card purple">
+                            <div class="status-info">
+                                <h3>Monthly Payroll</h3>
+                                <p id="statTotalPayroll">150,000 PKR</p>
+                            </div>
+                            <i class="fa-solid fa-wallet status-icon"></i>
+                        </div>
+                    </div>
+
                     <h2>Daily Attendance Log</h2>
-                    <div class="card">
+                    <div class="card" style="margin-top: 15px;">
                         <p>Mark your attendance for today: <strong id="currentDateText"></strong></p>
                         <br>
                         <button id="markAttendanceBtn" class="btn btn-success">Mark Present</button>
@@ -605,17 +608,11 @@
         }
 
         function updateGlobalStats() {
-            // 1. Total Employees
             document.getElementById('statTotalEmployees').innerText = usersDatabase.length;
-            
-            // 2. Pending Leaves Counters
             const pendingCount = leavesDatabase.filter(l => l.status === "Pending").length;
             document.getElementById('statPendingLeaves').innerText = pendingCount;
-
-            // 3. Present Today
             document.getElementById('statPresentToday').innerText = attendanceCountToday;
 
-            // 4. Monthly Net Payroll Calculation
             let totalPayrollSum = 0;
             usersDatabase.forEach(emp => {
                 const empUnapprovedLeaves = leavesDatabase.filter(l => l.empId === emp.empId && l.status !== "Approved");
@@ -652,7 +649,7 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('currentDateText').innerText = today;
 
-            // Navigation trigger
+            // FIX: Complete content separation on navigation click
             document.querySelectorAll('.nav-link').forEach(btn => {
                 btn.onclick = function(e) {
                     document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
@@ -663,7 +660,7 @@
                 };
             });
 
-            // Profile Dropdown Toggle
+            // Profile Dropdown
             const profileTrigger = document.getElementById('profileTrigger');
             const profileDropdown = document.getElementById('profileDropdown');
             
@@ -674,7 +671,7 @@
             profileDropdown.onclick = function(e) { e.stopPropagation(); };
             document.onclick = function() { profileDropdown.classList.remove('show'); };
 
-            // LOGIN FORM TRIGGER
+            // LOGIN
             document.getElementById('loginForm').onsubmit = function(e) {
                 e.preventDefault();
                 const uInput = document.getElementById('username').value.trim();
@@ -690,7 +687,7 @@
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboardScreen').style.display = 'block';
                 } else {
-                    alert("Ghalat Username/ID ya Password daala hai!");
+                    alert("Ghalat Username/ID ya Password!");
                 }
             };
 
@@ -719,7 +716,7 @@
                 renderMyLeavesHistory();
             }
 
-            // LOGOUT TRIGGER
+            // LOGOUT
             document.getElementById('logoutBtn').onclick = function() {
                 loggedInUser = null;
                 document.getElementById('username').value = '';
@@ -729,7 +726,7 @@
                 document.getElementById('loginScreen').style.display = 'flex';
             };
 
-            // ATTENDANCE LOGIC
+            // ATTENDANCE
             document.getElementById('markAttendanceBtn').onclick = function() {
                 const statusBox = document.getElementById('attendanceStatus');
                 if(statusBox.style.display !== 'block') {
@@ -743,7 +740,7 @@
                 }
             };
 
-            // UPDATE PROFILE SETTINGS
+            // PROFILE UPDATE
             document.getElementById('updateProfileBtn').onclick = function() {
                 const newName = document.getElementById('profileRealName').value.trim();
                 const newPwd = document.getElementById('profileNewPassword').value;
@@ -763,10 +760,9 @@
                 updateGlobalStats();
             };
 
-            // REGISTER NEW EMPLOYEE
+            // EMP REGISTER
             document.getElementById('addEmployeeForm').onsubmit = function(e) {
                 e.preventDefault();
-                
                 const id = document.getElementById('empId').value.trim();
                 const user = document.getElementById('empUsername').value.trim();
                 const pass = document.getElementById('empPassword').value;
@@ -823,7 +819,7 @@
                 }
             };
 
-            // LEAVE FORM REQUEST
+            // LEAVE
             document.getElementById('leaveRequestForm').onsubmit = function(e) {
                 e.preventDefault();
                 const sDate = document.getElementById('leaveStartDate').value;
@@ -860,7 +856,6 @@
                     let stBadge = `<span class="badge">${l.status}</span>`;
                     if(l.status === 'Approved') stBadge = `<span class="badge badge-success">Approved</span>`;
                     if(l.status === 'Rejected') stBadge = `<span class="badge badge-danger">Rejected</span>`;
-
                     tbody.innerHTML += `<tr><td>${l.startDate}</td><td>${l.days} Days</td><td>${stBadge}</td></tr>`;
                 });
             }
@@ -868,12 +863,10 @@
             function renderTeamLeavesReview() {
                 const tbody = document.getElementById('teamLeavesReviewTable');
                 tbody.innerHTML = "";
-
                 if(leavesDatabase.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No pending team requests.</td></tr>`;
                     return;
                 }
-
                 leavesDatabase.forEach(l => {
                     let actions = `
                         <button onclick="updateLeaveStatus('${l.id}', 'Approved')" class="btn btn-sm btn-success">Approve</button>
@@ -905,7 +898,6 @@
                 }
             };
 
-            // RENDER AUTOMATIC PAYROLL
             function calculateAutomaticPayroll() {
                 const tbody = document.getElementById('payrollTableBody');
                 if(!tbody) return;
