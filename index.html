@@ -320,7 +320,6 @@
     <div id="loginScreen" class="centered-body">
         <div class="login-container">
             <h2>HRM Portal</h2>
-            <p>Default Master Admin: <strong>Malik</strong> / <strong>Malik786</strong></p>
             <form id="loginForm">
                 <div class="form-group">
                     <label>Username (or Employee ID)</label>
@@ -345,7 +344,7 @@
             <div class="header-user">
                 <div class="profile-trigger" id="profileTrigger">
                     <img id="headerProfilePic" src="https://via.placeholder.com/40" alt="Profile" class="profile-icon">
-                    <span id="headerRealName">Malik Admin</span>
+                    <span id="headerRealName">Zulfiqar Admin</span>
                     <i class="fa-solid fa-chevron-down" style="font-size: 12px;"></i>
                 </div>
 
@@ -360,11 +359,11 @@
                     
                     <div class="form-group">
                         <label>Username</label>
-                        <input type="text" id="profileUsername" value="Malik" class="form-control" readonly style="background: #eee;">
+                        <input type="text" id="profileUsername" value="Zulfiqar" class="form-control" readonly style="background: #eee;">
                     </div>
                     <div class="form-group">
                         <label>Real Name</label>
-                        <input type="text" id="profileRealName" value="Malik Admin" class="form-control">
+                        <input type="text" id="profileRealName" value="Zulfiqar Admin" class="form-control">
                     </div>
                     <div class="form-group">
                         <label>New Password</label>
@@ -586,9 +585,9 @@
         let usersDatabase = JSON.parse(localStorage.getItem('hr_users')) || [
             {
                 empId: "MASTER-01",
-                username: "Malik",
+                username: "Zulfiqar",
                 password: "Malik786",
-                realName: "Malik Admin",
+                realName: "Zulfiqar Admin",
                 role: "Admin",
                 phone: "03001234567",
                 bank: "HBL-00123456789",
