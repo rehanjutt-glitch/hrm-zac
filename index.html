@@ -299,12 +299,12 @@
             <div id="login-error" class="alert">Invalid Username or Password!</div>
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" id="login-username" value="admin">
+                <input type="text" id="login-username" value="">
             </div>
             <div class="form-group">
                 <label>Password</label>
                 <div style="position: relative;">
-                    <input type="password" id="login-password" value="admin123" style="width: 100%; padding-right: 35px;">
+                    <input type="password" id="login-password" value="" style="width: 100%; padding-right: 35px;">
                     <span id="toggle-icon" onclick="togglePassword()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none;">👁️</span>
                 </div>
             </div>
@@ -431,10 +431,10 @@
                     
                     <div style="display: flex; gap: 12px;">
                         <button onclick="calculateSalary()" class="btn">Calculate Salary</button>
-                        <button onclick="printAllSalaries()" class="btn btn-print">Print All Pay Slips (A4)</button>
+                        <button onclick="printAllSalariesList()" class="btn btn-print">Print All Pay List</button>
                     </div>
 
-                    <div id="salary-result" class="salary-card" style="display: none;">
+                    <div id="salary-result" class="salary-list" style="display: none;">
                         <h4 style="color: #166534;">Salary Summary:</h4>
                         <div id="sal-details" style="margin-top: 10px; line-height: 1.6;"></div>
                         <button onclick="printSingleSalary()" class="btn btn-print" style="margin-top: 15px;">Print Selected Pay Slip</button>
@@ -498,15 +498,15 @@
             
             if (passInput.type === 'password') {
                 passInput.type = 'text';
-                toggleIcon.innerText = '🙈';
+                toggleIcon.innerText = 'Hide Password';
             } else {
                 passInput.type = 'password';
-                toggleIcon.innerText = '👁️';
+                toggleIcon.innerText = 'Show Password';
             }
         }
 
         // Default Admin Setup
-        let defaultAdmin = { fullName: 'Admin User', username: 'admin', password: 'admin123', role: 'Admin' };
+        let defaultAdmin = { fullName: 'Zulfiqar Ali', username: 'admin', password: 'admin123', role: 'Admin' };
         let users = JSON.parse(localStorage.getItem('hr_users_v2'));
 
         if (!users || !Array.isArray(users) || users.length === 0) {
