@@ -324,10 +324,10 @@
 
         <div class="container">
             <nav>
-                <button id="nav-emp" class="active" onclick="switchTab('employees')">👥 Employees</button>
-                <button id="nav-att" onclick="switchTab('attendance')">📅 Attendance</button>
-                <button id="nav-sal" onclick="switchTab('payroll')">💵 Payroll & Slips</button>
-                <button id="nav-users" onclick="switchTab('users')">⚙️ System Users</button>
+                <button id="nav-emp" class="active" onclick="navigateTo('employees')">👥 Employees</button>
+                <button id="nav-att" onclick="navigateTo('attendance')">📅 Attendance</button>
+                <button id="nav-sal" onclick="navigateTo('payroll')">💵 Payroll & Slips</button>
+                <button id="nav-users" onclick="navigateTo('users')">⚙️ System Users</button>
             </nav>
 
             <main>
@@ -505,7 +505,7 @@
             }
         }
 
-        // Default Admin Setup with Full Name
+        // Default Admin Setup
         let defaultAdmin = { fullName: 'Admin User', username: 'admin', password: 'admin123', role: 'Admin' };
         let users = JSON.parse(localStorage.getItem('hr_users_v2'));
 
@@ -516,29 +516,39 @@
 
         let employees = JSON.parse(localStorage.getItem('hr_employees')) || [];
         let attendance = JSON.parse(localStorage.getItem('hr_attendance')) || [];
-        let currentUser = null;
+        let currentUser = JSON.parse(sessionStorage.getItem('hr_active_session')) || null;
         let lastCalculatedSalary = null;
+
+        // Auto Login if session exists on reload
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentUser) {
+                showDashboard();
+                handleHashRoute();
+            } else {
+                showLogin();
+            }
+        });
+
+        // Listen for browser Back/Forward navigation
+        window.addEventListener('hashchange', () => {
+            if (currentUser) {
+                handleHashRoute();
+            }
+        });
 
         function login() {
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value.trim();
             
             users = JSON.parse(localStorage.getItem('hr_users_v2')) || [defaultAdmin];
-            
             const found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
             if (found) {
                 currentUser = found;
+                sessionStorage.setItem('hr_active_session', JSON.stringify(currentUser));
                 document.getElementById('login-error').style.display = 'none';
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard-screen').style.display = 'block';
-                
-                // Show Real Name instead of Username
-                const nameToShow = currentUser.fullName || currentUser.username;
-                document.getElementById('user-display').innerText = `👤 Welcome, ${nameToShow} (${currentUser.role})`;
-                
-                applyPermissions();
-                renderAll();
+                showDashboard();
+                navigateTo('employees');
             } else {
                 document.getElementById('login-error').style.display = 'block';
             }
@@ -546,20 +556,52 @@
 
         function logout() {
             currentUser = null;
+            sessionStorage.removeItem('hr_active_session');
+            window.location.hash = '';
+            showLogin();
+        }
+
+        function showDashboard() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'block';
+            
+            const nameToShow = currentUser.fullName || currentUser.username;
+            document.getElementById('user-display').innerText = `👤 Welcome, ${nameToShow} (${currentUser.role})`;
+            
+            applyPermissions();
+            renderAll();
+        }
+
+        function showLogin() {
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('dashboard-screen').style.display = 'none';
         }
 
-        function applyPermissions() {
-            document.getElementById('nav-users').style.display = (currentUser.role === 'Manager') ? 'none' : 'block';
+        function navigateTo(tab) {
+            window.location.hash = tab;
         }
 
-        function switchTab(tab) {
+        function handleHashRoute() {
+            let hash = window.location.hash.replace('#', '');
+            if (!hash || !['employees', 'attendance', 'payroll', 'users'].includes(hash)) {
+                hash = 'employees';
+            }
+            switchTabUI(hash);
+        }
+
+        function switchTabUI(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.getElementById(`nav-${tab.substring(0,3)}`).classList.add('active');
+            const selectedTab = document.getElementById(`tab-${tab}`);
+            const selectedNav = document.getElementById(`nav-${tab.substring(0,3)}`);
+            
+            if(selectedTab) selectedTab.classList.add('active');
+            if(selectedNav) selectedNav.classList.add('active');
+        }
+
+        function applyPermissions() {
+            document.getElementById('nav-users').style.display = (currentUser.role === 'Manager') ? 'none' : 'block';
         }
 
         function addEmployee(e) {
