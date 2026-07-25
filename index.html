@@ -1,27 +1,18 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ایچ آر مینجمنٹ سسٹم - Firebase Integration</title>
+    <title>HR Management System</title>
 
-    <!-- آپ کا Firebase SDK Link اس سیکشن میں شامل کر دیا گیا ہے -->
+    <!-- Firebase SDK Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-
-        // یہاں آپ کی آپشنل Firebase Config آیئگی (اگر آپ فائر بیس ڈیٹا بیس استعمال کرنا چاہیں)
-        const firebaseConfig = {
-            // apiKey: "YOUR_API_KEY",
-            // authDomain: "YOUR_PROJECT.firebaseapp.com",
-            // projectId: "YOUR_PROJECT_ID",
-            // storageBucket: "YOUR_PROJECT.appspot.com",
-            // messagingSenderId: "YOUR_SENDER_ID",
-            // appId: "YOUR_APP_ID"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        console.log("Firebase Successfully Connected!");
+        const firebaseConfig = {};
+        try {
+            initializeApp(firebaseConfig);
+            console.log("Firebase Connected!");
+        } catch(e) { console.log(e); }
     </script>
 
     <style>
@@ -44,7 +35,7 @@
         body {
             background-color: #f4f6f9;
             color: #333;
-            direction: rtl;
+            direction: ltr;
         }
 
         /* Login Screen */
@@ -72,7 +63,7 @@
 
         .form-group {
             margin-bottom: 15px;
-            text-align: right;
+            text-align: left;
         }
 
         .form-group label {
@@ -134,7 +125,7 @@
             background: none;
             border: none;
             color: white;
-            text-align: right;
+            text-align: left;
             cursor: pointer;
             font-size: 15px;
         }
@@ -165,7 +156,7 @@
         }
 
         table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: right; }
+        th, td { padding: 10px; text-align: left; }
         th { background-color: var(--light); }
 
         .alert {
@@ -190,24 +181,13 @@
 
         @media print {
             @page {
-                size: A4 portrait; /* A4 سیدھا پیج */
+                size: A4 portrait;
                 margin: 15mm;
             }
 
-            body {
-                background: white !important;
-                color: black !important;
-            }
-
-            #login-screen, #dashboard-screen {
-                display: none !important;
-            }
-
-            #print-section {
-                display: block !important;
-                direction: rtl;
-                width: 100%;
-            }
+            body { background: white !important; color: black !important; }
+            #login-screen, #dashboard-screen { display: none !important; }
+            #print-section { display: block !important; direction: ltr; width: 100%; }
 
             .slip-box {
                 border: 2px solid #333;
@@ -234,7 +214,7 @@
             .slip-table th, .slip-table td {
                 border: 1px solid #333 !important;
                 padding: 8px;
-                text-align: right;
+                text-align: left;
             }
 
             .signatures {
@@ -258,78 +238,78 @@
     <!-- 1. Login Screen -->
     <div id="login-screen">
         <div class="login-card">
-            <h2>HR پورٹل میں لاگ ان کریں</h2>
-            <div id="login-error" class="alert">یوزر نیم یا پاسورڈ غلط ہے!</div>
+            <h2>HR Portal Login</h2>
+            <div id="login-error" class="alert">Invalid Username or Password!</div>
             <div class="form-group">
-                <label>یوزر نیم (Username)</label>
+                <label>Username</label>
                 <input type="text" id="login-username" value="admin">
             </div>
             <div class="form-group">
-                <label>پاسورڈ (Password)</label>
+                <label>Password</label>
                 <input type="password" id="login-password" value="admin123">
             </div>
-            <button class="btn" style="width:100%" onclick="login()">لاگ ان</button>
+            <button class="btn" style="width:100%" onclick="login()">Login</button>
         </div>
     </div>
 
     <!-- 2. Dashboard Screen -->
     <div id="dashboard-screen">
         <header>
-            <h2>ایچ آر مینجمنٹ سسٹم</h2>
+            <h2>HR Management System</h2>
             <div>
                 <span id="user-display"></span>
-                <button class="btn btn-danger" style="margin-right: 15px;" onclick="logout()">لاگ آؤٹ</button>
+                <button class="btn btn-danger" style="margin-left: 15px;" onclick="logout()">Logout</button>
             </div>
         </header>
 
         <div class="container">
             <nav>
-                <button id="nav-emp" class="active" onclick="switchTab('employees')">ملازمین (Employees)</button>
-                <button id="nav-att" onclick="switchTab('attendance')">حاضری و چھٹیاں</button>
-                <button id="nav-sal" onclick="switchTab('payroll')">سیلری و پرنٹ سلپ</button>
-                <button id="nav-users" onclick="switchTab('users')">یوزر مینجمنٹ</button>
+                <button id="nav-emp" class="active" onclick="switchTab('employees')">Employees</button>
+                <button id="nav-att" onclick="switchTab('attendance')">Attendance & Leaves</button>
+                <button id="nav-sal" onclick="switchTab('payroll')">Payroll & Print Slips</button>
+                <button id="nav-users" onclick="switchTab('users')">User Management</button>
             </nav>
 
             <main>
                 <!-- Employees Tab -->
                 <div id="tab-employees" class="tab-content active">
-                    <h3>نئے ملازم کی انٹری (Data Entry)</h3>
+                    <h3>Employee Data Entry</h3>
                     <form id="emp-form" onsubmit="addEmployee(event)" style="margin-top: 15px;">
                         <div style="display: flex; gap: 10px;">
                             <div class="form-group" style="flex: 1;">
-                                <label>نام</label>
+                                <label>Full Name</label>
                                 <input type="text" id="emp-name" required>
                             </div>
                             <div class="form-group" style="flex: 1;">
-                                <label>عہدہ (Designation)</label>
+                                <label>Designation</label>
                                 <input type="text" id="emp-role" required>
                             </div>
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <div class="form-group" style="flex: 1;">
-                                <label>پے کی قسم (Pay Type)</label>
+                                <label>Pay Type</label>
                                 <select id="emp-pay-type">
-                                    <option value="Monthly">ماہانہ (Monthly)</option>
-                                    <option value="Daily">ڈیلی ویجز (Daily Wages)</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Daily">Daily Wages</option>
                                 </select>
                             </div>
                             <div class="form-group" style="flex: 1;">
-                                <label>بنیادی سیلری / ڈیلی ریٹ (PKR)</label>
+                                <label>Base Salary / Daily Rate (PKR)</label>
                                 <input type="number" id="emp-rate" required>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success">ملازم کا اندراج کریں</button>
+                        <button type="submit" class="btn btn-success">Add Employee</button>
                     </form>
 
-                    <h3 style="margin-top: 30px;">ملازمین کی فہرست</h3>
+                    <h3 style="margin-top: 30px;">Employees List</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>آئی ڈی</th>
-                                <th>نام</th>
-                                <th>عہدہ</th>
-                                <th>پے کی قسم</th>
-                                <th>ریٹ/سیلری</th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Designation</th>
+                                <th>Pay Type</th>
+                                <th>Rate / Salary</th>
                             </tr>
                         </thead>
                         <tbody id="emp-table-body"></tbody>
@@ -338,33 +318,33 @@
 
                 <!-- Attendance Tab -->
                 <div id="tab-attendance" class="tab-content">
-                    <h3>حاضری اور چھٹیوں کا حساب</h3>
+                    <h3>Attendance & Leave Records</h3>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
                         <div class="form-group" style="flex: 1;">
-                            <label>تاریخ (Date)</label>
+                            <label>Date</label>
                             <input type="date" id="att-date">
                         </div>
                         <div class="form-group" style="flex: 1;">
-                            <label>ملازم منتخب کریں</label>
+                            <label>Select Employee</label>
                             <select id="att-emp-select"></select>
                         </div>
                         <div class="form-group" style="flex: 1;">
-                            <label>سٹیٹس</label>
+                            <label>Status</label>
                             <select id="att-status">
-                                <option value="Present">حاضر (Present)</option>
-                                <option value="Absent">غیر حاضر / چھٹی (Absent)</option>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent / Leave</option>
                             </select>
                         </div>
                     </div>
-                    <button onclick="markAttendance()" class="btn btn-success">حاضری درج کریں</button>
+                    <button onclick="markAttendance()" class="btn btn-success">Save Attendance</button>
 
-                    <h3 style="margin-top: 30px;">حاضری کا ریکارڈ</h3>
+                    <h3 style="margin-top: 30px;">Attendance History</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>تاریخ</th>
-                                <th>ملازم</th>
-                                <th>سٹیٹس</th>
+                                <th>Date</th>
+                                <th>Employee Name</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="att-table-body"></tbody>
@@ -373,75 +353,75 @@
 
                 <!-- Payroll / Salary Tab -->
                 <div id="tab-payroll" class="tab-content">
-                    <h3>آٹو میٹک سیلری کیلکولیٹر و پرنٹ</h3>
+                    <h3>Automatic Salary Calculator & Print</h3>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
                         <div class="form-group" style="flex: 1;">
-                            <label>ملازم منتخب کریں</label>
+                            <label>Select Employee</label>
                             <select id="sal-emp-select"></select>
                         </div>
                         <div class="form-group" style="flex: 1;">
-                            <label>کل دن (Working Days)</label>
+                            <label>Working Days</label>
                             <input type="number" id="sal-days" value="30">
                         </div>
                         <div class="form-group" style="flex: 1;">
-                            <label>چھٹیاں (Absents)</label>
+                            <label>Absents / Leaves</label>
                             <input type="number" id="sal-absents" value="0">
                         </div>
                     </div>
                     
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="calculateSalary()" class="btn">سیلری کا حساب کریں</button>
-                        <button onclick="printAllSalaries()" class="btn btn-print">تمام ملازمین کی سلپ پرنٹ کریں (A4 Portrait)</button>
+                        <button onclick="calculateSalary()" class="btn">Calculate Salary</button>
+                        <button onclick="printAllSalaries()" class="btn btn-print">Print All Pay Slips (A4 Portrait)</button>
                     </div>
 
                     <div id="salary-result" class="salary-card" style="display: none;">
-                        <h4>سیلری کی تفصیلات:</h4>
+                        <h4>Salary Summary:</h4>
                         <div id="sal-details" style="margin-top: 10px;"></div>
-                        <button onclick="printSingleSalary()" class="btn btn-print" style="margin-top: 15px;">اس ایک ملازم کی سلپ پرنٹ کریں</button>
+                        <button onclick="printSingleSalary()" class="btn btn-print" style="margin-top: 15px;">Print Selected Pay Slip</button>
                     </div>
                 </div>
 
                 <!-- Users Tab -->
                 <div id="tab-users" class="tab-content">
-                    <h3>نیا یوزر بنائیں</h3>
+                    <h3>Create New User</h3>
                     <form id="user-form" onsubmit="addUser(event)" style="margin-top: 15px;">
                         <div style="display: flex; gap: 10px;">
                             <div class="form-group" style="flex: 1;">
-                                <label>یوزر نیم</label>
+                                <label>Username</label>
                                 <input type="text" id="new-username" required>
                             </div>
                             <div class="form-group" style="flex: 1;">
-                                <label>پاسورڈ</label>
+                                <label>Password</label>
                                 <input type="password" id="new-password" required>
                             </div>
                             <div class="form-group" style="flex: 1;">
-                                <label>رول (Role)</label>
+                                <label>Role / Authority</label>
                                 <select id="new-role">
-                                    <option value="Admin">ایڈمن (مکمل اختیارات)</option>
-                                    <option value="Manager">مینیجر (محدود اختیارات)</option>
+                                    <option value="Admin">Admin (Full Access)</option>
+                                    <option value="Manager">Manager (Restricted Access)</option>
                                 </select>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success">یوزر بنائیں</button>
+                        <button type="submit" class="btn btn-success">Create User</button>
                     </form>
 
-                    <h3 style="margin-top: 30px;">پاسورڈ تبدیل کریں</h3>
+                    <h3 style="margin-top: 30px;">Change Password</h3>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
                         <div class="form-group" style="flex: 1;">
-                            <label>نیا پاسورڈ</label>
+                            <label>New Password</label>
                             <input type="password" id="change-pass-input">
                         </div>
                         <div class="form-group" style="flex: 1; align-self: flex-end;">
-                            <button onclick="changePassword()" class="btn">پاسورڈ اپ ڈیٹ کریں</button>
+                            <button onclick="changePassword()" class="btn">Update Password</button>
                         </div>
                     </div>
 
-                    <h3 style="margin-top: 30px;">موجودہ یوزرز</h3>
+                    <h3 style="margin-top: 30px;">System Users</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>یوزر نیم</th>
-                                <th>رول (Role)</th>
+                                <th>Username</th>
+                                <th>Role</th>
                             </tr>
                         </thead>
                         <tbody id="users-table-body"></tbody>
@@ -451,26 +431,38 @@
         </div>
     </div>
 
-    <!-- 3. Printable Section -->
+    <!-- Printable Section -->
     <div id="print-section"></div>
 
     <script>
-        let users = JSON.parse(localStorage.getItem('hr_users')) || [{ username: 'admin', password: 'admin123', role: 'Admin' }];
+        // Default Admin User Setup
+        let defaultAdmin = { username: 'admin', password: 'admin123', role: 'Admin' };
+        let users = JSON.parse(localStorage.getItem('hr_users'));
+
+        if (!users || !Array.isArray(users) || users.length === 0) {
+            users = [defaultAdmin];
+            localStorage.setItem('hr_users', JSON.stringify(users));
+        }
+
         let employees = JSON.parse(localStorage.getItem('hr_employees')) || [];
         let attendance = JSON.parse(localStorage.getItem('hr_attendance')) || [];
         let currentUser = null;
         let lastCalculatedSalary = null;
 
         function login() {
-            const u = document.getElementById('login-username').value;
-            const p = document.getElementById('login-password').value;
-            const found = users.find(x => x.username === u && x.password === p);
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+            
+            users = JSON.parse(localStorage.getItem('hr_users')) || [defaultAdmin];
+            
+            const found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
             if (found) {
                 currentUser = found;
+                document.getElementById('login-error').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-screen').style.display = 'block';
-                document.getElementById('user-display').innerText = `لاگ ان: ${currentUser.username} (${currentUser.role})`;
+                document.getElementById('user-display').innerText = `Logged in: ${currentUser.username} (${currentUser.role})`;
                 applyPermissions();
                 renderAll();
             } else {
@@ -516,7 +508,7 @@
             const empId = document.getElementById('att-emp-select').value;
             const status = document.getElementById('att-status').value;
 
-            if(!date || !empId) { alert("تمام معلومات کا انتخاب کریں"); return; }
+            if(!date || !empId) { alert("Please select all details."); return; }
 
             const emp = employees.find(e => e.id == empId);
             attendance.push({ date, empId, empName: emp.name, status });
@@ -543,36 +535,29 @@
                 finalSalary = emp.rate * (workingDays - absents);
             }
 
-            lastCalculatedSalary = {
-                emp, workingDays, absents, dayRate, finalSalary
-            };
+            lastCalculatedSalary = { emp, workingDays, absents, dayRate, finalSalary };
 
             const resultDiv = document.getElementById('salary-result');
             resultDiv.style.display = 'block';
             document.getElementById('sal-details').innerHTML = `
-                <strong>نام:</strong> ${emp.name} | <strong>عہدہ:</strong> ${emp.role}<br>
-                <strong>پے کی قسم:</strong> ${emp.payType === 'Monthly' ? 'ماہانہ' : 'ڈیلی ویجز'}<br>
-                <strong>بنیادی ریٹ:</strong> ${emp.rate} PKR | <strong>چھٹیاں:</strong> ${absents}<br>
-                <h3 style="color: green; margin-top:10px;">قابل ادا سیلری: ${finalSalary.toFixed(2)} PKR</h3>
+                <strong>Name:</strong> ${emp.name} | <strong>Designation:</strong> ${emp.role}<br>
+                <strong>Pay Type:</strong> ${emp.payType}<br>
+                <strong>Base Rate:</strong> ${emp.rate} PKR | <strong>Absents:</strong> ${absents}<br>
+                <h3 style="color: green; margin-top:10px;">Net Payable Salary: ${finalSalary.toFixed(2)} PKR</h3>
             `;
         }
 
         function printSingleSalary() {
             if(!lastCalculatedSalary) return;
             const data = lastCalculatedSalary;
-            const printContainer = document.getElementById('print-section');
-            
-            printContainer.innerHTML = generateSlipHTML(data.emp, data.workingDays, data.absents, data.dayRate, data.finalSalary);
+            document.getElementById('print-section').innerHTML = generateSlipHTML(data.emp, data.workingDays, data.absents, data.dayRate, data.finalSalary);
             window.print();
         }
 
         function printAllSalaries() {
-            if(employees.length === 0) { alert("کوئی ملازم موجود نہیں ہے"); return; }
-            
+            if(employees.length === 0) { alert("No employees found!"); return; }
             const workingDays = parseFloat(document.getElementById('sal-days').value) || 30;
             const absents = parseFloat(document.getElementById('sal-absents').value) || 0;
-            const printContainer = document.getElementById('print-section');
-            
             let allSlipsHTML = "";
 
             employees.forEach(emp => {
@@ -581,47 +566,39 @@
                 allSlipsHTML += generateSlipHTML(emp, workingDays, absents, dayRate, finalSalary);
             });
 
-            printContainer.innerHTML = allSlipsHTML;
+            document.getElementById('print-section').innerHTML = allSlipsHTML;
             window.print();
         }
 
         function generateSlipHTML(emp, workingDays, absents, dayRate, finalSalary) {
-            const today = new Date().toLocaleDateString('ur-PK');
+            const today = new Date().toLocaleDateString();
             return `
                 <div class="slip-box">
                     <div class="slip-header">
-                        <h2>ایچ آر سیلری سلپ (Pay Slip)</h2>
-                        <p>تاریخ: ${today}</p>
+                        <h2>HR Salary Pay Slip</h2>
+                        <p>Date: ${today}</p>
                     </div>
                     <table class="slip-table">
                         <tr>
-                            <th>ملازم کا نام</th>
-                            <td>${emp.name}</td>
-                            <th>عہدہ</th>
-                            <td>${emp.role}</td>
+                            <th>Employee Name</th><td>${emp.name}</td>
+                            <th>Designation</th><td>${emp.role}</td>
                         </tr>
                         <tr>
-                            <th>پے موڈ</th>
-                            <td>${emp.payType === 'Monthly' ? 'ماہانہ' : 'ڈیلی ویجز'}</td>
-                            <th>بنیادی سیلری/ریٹ</th>
-                            <td>${emp.rate} PKR</td>
+                            <th>Pay Mode</th><td>${emp.payType}</td>
+                            <th>Base Rate/Salary</th><td>${emp.rate} PKR</td>
                         </tr>
                         <tr>
-                            <th>کل دن</th>
-                            <td>${workingDays}</td>
-                            <th>چھٹیاں (Absents)</th>
-                            <td>${absents}</td>
+                            <th>Total Days</th><td>${workingDays}</td>
+                            <th>Absents/Leaves</th><td>${absents}</td>
                         </tr>
                         <tr>
-                            <th style="font-size: 16px;">صاف قابلِ ادا سیلری</th>
-                            <td colspan="3" style="font-size: 18px; font-weight: bold; color: #000;">
-                                ${finalSalary.toFixed(2)} PKR
-                            </td>
+                            <th style="font-size: 16px;">Net Payable Salary</th>
+                            <td colspan="3" style="font-size: 18px; font-weight: bold;">${finalSalary.toFixed(2)} PKR</td>
                         </tr>
                     </table>
                     <div class="signatures">
-                        <div class="sig-line">دستاخط ملازم</div>
-                        <div class="sig-line">دستاخط ایچ آر / منیجر</div>
+                        <div class="sig-line">Employee Signature</div>
+                        <div class="sig-line">HR / Manager Signature</div>
                     </div>
                 </div>
             `;
@@ -637,7 +614,7 @@
             saveData();
             renderUsers();
             document.getElementById('user-form').reset();
-            alert("نیا یوزر شامل ہو گیا!");
+            alert("New user created successfully!");
         }
 
         function changePassword() {
@@ -647,7 +624,7 @@
             const idx = users.findIndex(u => u.username === currentUser.username);
             if(idx !== -1) users[idx].password = newP;
             saveData();
-            alert("پاسورڈ تبدیل کر دیا گیا ہے!");
+            alert("Password updated successfully!");
             document.getElementById('change-pass-input').value = '';
         }
 
@@ -666,32 +643,19 @@
 
         function renderEmployees() {
             document.getElementById('emp-table-body').innerHTML = employees.map(e => `
-                <tr>
-                    <td>${e.id}</td>
-                    <td>${e.name}</td>
-                    <td>${e.role}</td>
-                    <td>${e.payType === 'Monthly' ? 'ماہانہ' : 'ڈیلی ویجز'}</td>
-                    <td>${e.rate} PKR</td>
-                </tr>
+                <tr><td>${e.id}</td><td>${e.name}</td><td>${e.role}</td><td>${e.payType}</td><td>${e.rate} PKR</td></tr>
             `).join('');
         }
 
         function renderAttendance() {
             document.getElementById('att-table-body').innerHTML = attendance.map(a => `
-                <tr>
-                    <td>${a.date}</td>
-                    <td>${a.empName}</td>
-                    <td>${a.status === 'Present' ? 'حاضر' : 'غیر حاضر'}</td>
-                </tr>
+                <tr><td>${a.date}</td><td>${a.empName}</td><td>${a.status}</td></tr>
             `).join('');
         }
 
         function renderUsers() {
             document.getElementById('users-table-body').innerHTML = users.map(u => `
-                <tr>
-                    <td>${u.username}</td>
-                    <td>${u.role}</td>
-                </tr>
+                <tr><td>${u.username}</td><td>${u.role}</td></tr>
             `).join('');
         }
 
