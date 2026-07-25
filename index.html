@@ -57,14 +57,14 @@
 <body>
 
     <div id="loginPage" class="container">
-        <h1>HRM CLOUD</h1>
-        <p>Please Login To Access Our Dasboard</p>
+        <h1>MESKAY HRM CLOUD</h1>
+        <p>Enter credentials to access system</p>
         <input type="text" id="username" placeholder="Username / Login ID">
         <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
             <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
         </div>
-        <button class="main-btn" onclick="handleLogin()">CLICK HERE TO LOGIN </button>
+        <button class="main-btn" onclick="handleLogin()">SECURE LOGIN</button>
     </div>
 
     <div id="dashboardPage" class="container hidden">
@@ -79,13 +79,13 @@
         </div>
 
         <div class="menu-grid" id="mainMenuGrid">
-            <button class="menu-btn" data-access="view" onclick="showView('all')">TOTAL STAFF <span class="badge" id="cntAll">0</span></button>
+            <button class="menu-btn" data-access="view" onclick="showView('all')">ALL EMPLOYEES <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" data-access="view" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
             <button class="menu-btn" data-access="view" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
             <button class="menu-btn" data-access="add" onclick="navTo('addPage')">ADD NEW STAFF</button>
             <button class="menu-btn master-btn" data-access="salary" onclick="navTo('salaryPage')" style="background:#2e7d32">SALARY CALCULATOR</button>
             <button class="menu-btn master-btn" data-access="reports" onclick="navTo('reportPage')" style="background:#01579b">REPORTS & SLIPS</button>
-            <button class="menu-btn master-btn" data-access="edit" onclick="showView('update')">MANAGE STAFF</button>
+            <button class="menu-btn master-btn" data-access="edit" onclick="showView('update')">MANAGE EMPLOYEES</button>
             <button class="menu-btn master-btn hidden" id="adminOnlyBtn" onclick="navTo('userAdminPage')" style="background:#d84315">USER MANAGEMENT (ADMIN)</button>
         </div>
     </div>
@@ -215,7 +215,7 @@
 
             // Master Admin Check
             if (u === "Meskay" && p === "Pakistan786") {
-                currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
+                currentUser = { name: "Master Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
                 return loginOk();
             }
 
