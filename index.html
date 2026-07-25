@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Management System (Modern & Colorful)</title>
+    <title>Advanced HR Management & Admin System</title>
 
     <style>
-        /* Modern Colorful Theme Palette */
         :root {
             --primary-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
             --bg-gradient: linear-gradient(135deg, #0f172a, #1e1b4b);
@@ -14,279 +13,71 @@
             --accent-blue: #2563eb;
             --accent-green: #10b981;
             --accent-red: #ef4444;
-            --accent-purple: #8b5cf6;
             --text-dark: #1e293b;
-            --text-light: #64748b;
             --border-color: #e2e8f0;
         }
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background-color: #f8fafc;
-            color: var(--text-dark);
-            direction: ltr;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f8fafc; color: var(--text-dark); direction: ltr; }
 
         /* Login Screen */
-        #login-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: var(--bg-gradient);
-        }
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--bg-gradient); }
+        .login-card { background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); width: 380px; text-align: center; }
+        .login-card h2 { margin-bottom: 25px; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px; font-weight: 800; }
 
-        .login-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-            width: 380px;
-            text-align: center;
-        }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--text-dark); }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; font-size: 14px; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #6366f1; background: #fff; }
 
-        .login-card h2 {
-            margin-bottom: 25px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 24px;
-            font-weight: 800;
-        }
+        .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
+        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
 
-        .form-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text-dark);
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: #f8fafc;
-            color: var(--text-dark);
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            background: #fff;
-        }
-
-        .btn {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px -2px rgba(79, 70, 229, 0.4);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #10b981, #059669);
-            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-print {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
-        }
+        .btn { background: var(--primary-gradient); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); }
+        .btn-print { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
 
         /* Dashboard Screen */
         #dashboard-screen { display: none; }
+        header { background: var(--primary-gradient); color: white; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Profile Header */
+        .user-profile-badge { display: flex; align-items: center; gap: 12px; }
+        .profile-img-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid white; background-color: #cbd5e1; }
 
-        header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 16px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        .container { display: flex; min-height: calc(100vh - 67px); }
+        nav { width: 240px; background-color: #1e293b; padding: 20px 10px; }
+        nav button { display: block; width: 100%; padding: 12px 16px; background: none; border: none; border-radius: 8px; color: #94a3b8; text-align: left; cursor: pointer; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        nav button:hover { background-color: #334155; color: #ffffff; }
+        nav button.active { background: var(--primary-gradient); color: white; }
 
-        header h2 { font-size: 20px; font-weight: 700; }
-
-        .container {
-            display: flex;
-            min-height: calc(100vh - 65px);
-        }
-
-        nav {
-            width: 240px;
-            background-color: #1e293b;
-            padding: 20px 10px;
-        }
-
-        nav button {
-            display: block;
-            width: 100%;
-            padding: 12px 16px;
-            background: none;
-            border: none;
-            border-radius: 8px;
-            color: #94a3b8;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            transition: all 0.2s;
-        }
-
-        nav button:hover {
-            background-color: #334155;
-            color: #ffffff;
-        }
-
-        nav button.active {
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-        }
-
-        main {
-            flex-grow: 1;
-            padding: 30px;
-        }
-
-        .tab-content {
-            display: none;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-        }
-
+        main { flex-grow: 1; padding: 30px; }
+        .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); }
         .tab-content.active { display: block; }
 
-        h3 {
-            color: var(--text-dark);
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: 700;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
+        h3 { color: var(--text-dark); margin-bottom: 20px; font-size: 18px; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 8px; overflow: hidden; }
         table, th, td { border: 1px solid var(--border-color); }
-        th, td { padding: 12px 15px; text-align: left; font-size: 14px; }
-        th { background-color: #f1f5f9; color: var(--text-dark); font-weight: 700; }
+        th, td { padding: 10px 12px; text-align: left; font-size: 13px; }
+        th { background-color: #f1f5f9; font-weight: 700; }
 
-        .alert {
-            padding: 12px;
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #b91c1c;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            display: none;
-        }
+        .alert { padding: 10px; background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 8px; margin-bottom: 15px; font-size: 13px; display: none; }
+        .salary-card { background: #f0fdf4; border: 2px dashed #86efac; padding: 20px; border-radius: 12px; margin-top: 20px; }
 
-        .salary-card {
-            background: #f0fdf4;
-            border: 2px dashed #86efac;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
-        }
-
-        /* Printable Area Styles */
+        /* Print Area */
         #print-section { display: none; }
-
         @media print {
-            @page {
-                size: A4 portrait;
-                margin: 15mm;
-            }
-
             body { background: white !important; color: black !important; }
             #login-screen, #dashboard-screen { display: none !important; }
-            #print-section { display: block !important; direction: ltr; width: 100%; }
-
-            .slip-box {
-                border: 2px solid #333;
-                padding: 20px;
-                margin-bottom: 25px;
-                page-break-inside: avoid;
-                border-radius: 5px;
-                background: #fff;
-            }
-
-            .slip-header {
-                text-align: center;
-                border-bottom: 2px solid #333;
-                padding-bottom: 10px;
-                margin-bottom: 15px;
-            }
-
-            .slip-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-            }
-
-            .slip-table th, .slip-table td {
-                border: 1px solid #333 !important;
-                padding: 8px;
-                text-align: left;
-            }
-
-            .signatures {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 40px;
-                padding-top: 10px;
-            }
-
-            .sig-line {
-                border-top: 1px solid #333;
-                width: 180px;
-                text-align: center;
-                font-size: 13px;
-            }
+            #print-section { display: block !important; width: 100%; }
+            .slip-box { border: 2px solid #333; padding: 20px; margin-bottom: 25px; page-break-inside: avoid; border-radius: 5px; }
+            .slip-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+            .slip-table { width: 100%; border-collapse: collapse; }
+            .slip-table th, .slip-table td { border: 1px solid #333 !important; padding: 8px; text-align: left; }
+            .signatures { display: flex; justify-content: space-between; margin-top: 40px; }
+            .sig-line { border-top: 1px solid #333; width: 180px; text-align: center; font-size: 13px; }
         }
     </style>
 </head>
@@ -297,18 +88,22 @@
         <div class="login-card">
             <h2>HR Portal Login</h2>
             <div id="login-error" class="alert">Invalid Username or Password!</div>
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" id="login-username" value="admin">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <div style="position: relative;">
-                    <input type="password" id="login-password" value="admin123" style="width: 100%; padding-right: 35px;">
-                    <span id="toggle-icon" onclick="togglePassword()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none;">👁️</span>
+            
+            <!-- autocomplete="off" / "new-password" تا کہ براؤزر آٹو فل نہ کرے -->
+            <form onsubmit="login(event)" autocomplete="off">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" autocomplete="off" placeholder="Enter Username" required>
                 </div>
-            </div>
-            <button class="btn" style="width:100%" onclick="login()">Login</button>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="login-password" autocomplete="new-password" placeholder="Enter Password" required style="padding-right: 35px;">
+                        <span id="toggle-icon" onclick="togglePassword()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">👁️</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="width:100%; margin-top: 10px;">Login</button>
+            </form>
         </div>
     </div>
 
@@ -316,24 +111,28 @@
     <div id="dashboard-screen">
         <header>
             <h2>HR Management System</h2>
-            <div>
-                <span id="user-display" style="font-weight: 600; margin-right: 15px; font-size: 15px;"></span>
-                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 13px;" onclick="logout()">Logout</button>
+            <div class="user-profile-badge">
+                <img id="user-avatar" src="https://via.placeholder.com/150" class="profile-img-avatar" alt="Profile">
+                <div>
+                    <div id="user-display-name" style="font-weight: 700; font-size: 14px;"></div>
+                    <div id="user-display-role" style="font-size: 11px; opacity: 0.8;"></div>
+                </div>
+                <button class="btn btn-danger btn-sm" style="margin-left: 15px;" onclick="logout()">Logout</button>
             </div>
         </header>
 
         <div class="container">
             <nav>
-                <button id="nav-emp" class="active" onclick="navigateTo('employees')">👥 Employees</button>
+                <button id="nav-emp" onclick="navigateTo('employees')">👥 Employees</button>
                 <button id="nav-att" onclick="navigateTo('attendance')">📅 Attendance</button>
                 <button id="nav-sal" onclick="navigateTo('payroll')">💵 Payroll & Slips</button>
-                <button id="nav-users" onclick="navigateTo('users')">⚙️ System Users</button>
+                <button id="nav-users" onclick="navigateTo('users')">⚙️ User Management</button>
             </nav>
 
             <main>
                 <!-- Employees Tab -->
-                <div id="tab-employees" class="tab-content active">
-                    <h3>Employee Data Entry</h3>
+                <div id="tab-employees" class="tab-content">
+                    <h3>Employee Registration</h3>
                     <form id="emp-form" onsubmit="addEmployee(event)">
                         <div style="display: flex; gap: 15px;">
                             <div class="form-group" style="flex: 1;">
@@ -344,32 +143,49 @@
                                 <label>Designation</label>
                                 <input type="text" id="emp-role" required>
                             </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Phone Number</label>
+                                <input type="text" id="emp-phone" placeholder="0300-1234567" required>
+                            </div>
                         </div>
+
                         <div style="display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Account / IBAN Number</label>
+                                <input type="text" id="emp-account" required>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Date of Joining</label>
+                                <input type="date" id="emp-doj" required>
+                            </div>
                             <div class="form-group" style="flex: 1;">
                                 <label>Pay Type</label>
                                 <select id="emp-pay-type">
-                                    <option value="Monthly">Monthly</option>
-                                    <option value="Daily">Daily Wages</option>
+                                    <option value="Monthly">Monthly Base</option>
+                                    <option value="Daily">Daily Wage</option>
                                 </select>
                             </div>
                             <div class="form-group" style="flex: 1;">
-                                <label>Base Salary / Daily Rate (PKR)</label>
+                                <label>Base Rate / Salary (PKR)</label>
                                 <input type="number" id="emp-rate" required>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-success">Add Employee</button>
                     </form>
 
-                    <h3 style="margin-top: 35px;">Employees List</h3>
+                    <h3 style="margin-top: 35px;">Registered Employees List</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Emp ID</th>
                                 <th>Name</th>
                                 <th>Designation</th>
-                                <th>Pay Type</th>
-                                <th>Rate / Salary</th>
+                                <th>Phone</th>
+                                <th>Account No.</th>
+                                <th>Joining Date</th>
+                                <th>Pay Mode</th>
+                                <th>Rate/Salary</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="emp-table-body"></tbody>
@@ -379,7 +195,7 @@
                 <!-- Attendance Tab -->
                 <div id="tab-attendance" class="tab-content">
                     <h3>Attendance & Leave Records</h3>
-                    <div style="display: flex; gap: 15px; margin-top: 15px;">
+                    <div style="display: flex; gap: 15px;">
                         <div class="form-group" style="flex: 1;">
                             <label>Date</label>
                             <input type="date" id="att-date">
@@ -403,6 +219,7 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
+                                <th>Emp ID</th>
                                 <th>Employee Name</th>
                                 <th>Status</th>
                             </tr>
@@ -411,10 +228,10 @@
                     </table>
                 </div>
 
-                <!-- Payroll / Salary Tab -->
+                <!-- Payroll Tab -->
                 <div id="tab-payroll" class="tab-content">
-                    <h3>Automatic Salary Calculator & Print</h3>
-                    <div style="display: flex; gap: 15px; margin-top: 15px;">
+                    <h3>Salary Calculator & Pay Slips</h3>
+                    <div style="display: flex; gap: 15px;">
                         <div class="form-group" style="flex: 1;">
                             <label>Select Employee</label>
                             <select id="sal-emp-select"></select>
@@ -441,43 +258,53 @@
                     </div>
                 </div>
 
-                <!-- Users Tab -->
+                <!-- Users Tab (Admin Panel) -->
                 <div id="tab-users" class="tab-content">
-                    <h3>Create New System User</h3>
+                    <h3>Admin Panel - System Users & Authorities</h3>
                     <form id="user-form" onsubmit="addUser(event)">
                         <div style="display: flex; gap: 15px;">
                             <div class="form-group" style="flex: 1;">
-                                <label>Full Name (Real Name)</label>
+                                <label>Full Name</label>
                                 <input type="text" id="new-fullname" placeholder="e.g. Zulfiqar Ali" required>
                             </div>
                             <div class="form-group" style="flex: 1;">
-                                <label>Username (For Login)</label>
-                                <input type="text" id="new-username" placeholder="e.g. zulfiqar" required>
+                                <label>Username</label>
+                                <input type="text" id="new-username" autocomplete="off" placeholder="Username for login" required>
                             </div>
-                        </div>
-                        <div style="display: flex; gap: 15px;">
                             <div class="form-group" style="flex: 1;">
                                 <label>Password</label>
-                                <input type="password" id="new-password" required>
-                            </div>
-                            <div class="form-group" style="flex: 1;">
-                                <label>Role / Authority</label>
-                                <select id="new-role">
-                                    <option value="Admin">Admin (Full Access)</option>
-                                    <option value="Manager">Manager (Restricted Access)</option>
-                                </select>
+                                <input type="password" id="new-password" autocomplete="new-password" placeholder="Password" required>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success">Create User</button>
+
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Profile Picture</label>
+                                <input type="file" id="new-avatar" accept="image/*" onchange="convertAvatarToBase64(this)">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>User Access Rights (Permissions)</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-item"><input type="checkbox" id="perm-emp" checked> Employees</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="perm-att" checked> Attendance</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="perm-sal" checked> Payroll</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="perm-admin"> Admin Access</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success" style="margin-top: 10px;">Create System User</button>
                     </form>
 
-                    <h3 style="margin-top: 35px;">System Users List</h3>
+                    <h3 style="margin-top: 35px;">System Users & Permissions List</h3>
                     <table>
                         <thead>
                             <tr>
+                                <th>Photo</th>
                                 <th>Full Name</th>
                                 <th>Username</th>
-                                <th>Role</th>
+                                <th>Permissions</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="users-table-body"></tbody>
@@ -495,7 +322,6 @@
         function togglePassword() {
             const passInput = document.getElementById('login-password');
             const toggleIcon = document.getElementById('toggle-icon');
-            
             if (passInput.type === 'password') {
                 passInput.type = 'text';
                 toggleIcon.innerText = '🙈';
@@ -505,22 +331,29 @@
             }
         }
 
-        // Default Admin Setup
-        let defaultAdmin = { fullName: 'Admin User', username: 'admin', password: 'admin123', role: 'Admin' };
-        let users = JSON.parse(localStorage.getItem('hr_users_v2'));
+        // Default Main Admin Setup
+        const defaultAdmin = {
+            fullName: 'Super Admin',
+            username: 'admin',
+            password: '123',
+            avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+            perms: { emp: true, att: true, sal: true, admin: true }
+        };
 
-        if (!users || !Array.isArray(users) || users.length === 0) {
-            users = [defaultAdmin];
-            localStorage.setItem('hr_users_v2', JSON.stringify(users));
-        }
-
-        let employees = JSON.parse(localStorage.getItem('hr_employees')) || [];
-        let attendance = JSON.parse(localStorage.getItem('hr_attendance')) || [];
+        let users = JSON.parse(localStorage.getItem('hr_users_v3')) || [defaultAdmin];
+        let employees = JSON.parse(localStorage.getItem('hr_employees_v3')) || [];
+        let attendance = JSON.parse(localStorage.getItem('hr_attendance_v3')) || [];
         let currentUser = JSON.parse(sessionStorage.getItem('hr_active_session')) || null;
+        
+        let tempAvatarBase64 = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
         let lastCalculatedSalary = null;
 
-        // Auto Login if session exists on reload
+        // Auto Load check on Refresh
         window.addEventListener('DOMContentLoaded', () => {
+            // Password fields ko empty rakhne ke liye
+            document.getElementById('login-password').value = "";
+            document.getElementById('login-username').value = "";
+
             if (currentUser) {
                 showDashboard();
                 handleHashRoute();
@@ -529,18 +362,16 @@
             }
         });
 
-        // Listen for browser Back/Forward navigation
         window.addEventListener('hashchange', () => {
-            if (currentUser) {
-                handleHashRoute();
-            }
+            if (currentUser) handleHashRoute();
         });
 
-        function login() {
+        function login(e) {
+            e.preventDefault();
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value.trim();
-            
-            users = JSON.parse(localStorage.getItem('hr_users_v2')) || [defaultAdmin];
+
+            users = JSON.parse(localStorage.getItem('hr_users_v3')) || [defaultAdmin];
             const found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
             if (found) {
@@ -548,7 +379,7 @@
                 sessionStorage.setItem('hr_active_session', JSON.stringify(currentUser));
                 document.getElementById('login-error').style.display = 'none';
                 showDashboard();
-                navigateTo('employees');
+                navigateToFirstAvailableTab();
             } else {
                 document.getElementById('login-error').style.display = 'block';
             }
@@ -559,16 +390,18 @@
             sessionStorage.removeItem('hr_active_session');
             window.location.hash = '';
             showLogin();
+            document.getElementById('login-password').value = "";
         }
 
         function showDashboard() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'block';
-            
-            const nameToShow = currentUser.fullName || currentUser.username;
-            document.getElementById('user-display').innerText = `👤 Welcome, ${nameToShow} (${currentUser.role})`;
-            
-            applyPermissions();
+
+            document.getElementById('user-display-name').innerText = currentUser.fullName;
+            document.getElementById('user-display-role').innerText = currentUser.perms.admin ? "Super Admin" : "Authorized User";
+            document.getElementById('user-avatar').src = currentUser.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+            applyAuthorities();
             renderAll();
         }
 
@@ -577,138 +410,179 @@
             document.getElementById('dashboard-screen').style.display = 'none';
         }
 
+        // Apply Tab Level Authorities
+        function applyAuthorities() {
+            const p = currentUser.perms;
+            document.getElementById('nav-emp').style.display = p.emp ? 'block' : 'none';
+            document.getElementById('nav-att').style.display = p.att ? 'block' : 'none';
+            document.getElementById('nav-sal').style.display = p.sal ? 'block' : 'none';
+            document.getElementById('nav-users').style.display = p.admin ? 'block' : 'none';
+        }
+
+        function navigateToFirstAvailableTab() {
+            const p = currentUser.perms;
+            if (p.emp) navigateTo('employees');
+            else if (p.att) navigateTo('attendance');
+            else if (p.sal) navigateTo('payroll');
+            else if (p.admin) navigateTo('users');
+        }
+
         function navigateTo(tab) {
             window.location.hash = tab;
         }
 
         function handleHashRoute() {
             let hash = window.location.hash.replace('#', '');
-            if (!hash || !['employees', 'attendance', 'payroll', 'users'].includes(hash)) {
-                hash = 'employees';
+            if (!hash) { navigateToFirstAvailableTab(); return; }
+
+            // Check Permission before viewing
+            if ((hash === 'employees' && !currentUser.perms.emp) ||
+                (hash === 'attendance' && !currentUser.perms.att) ||
+                (hash === 'payroll' && !currentUser.perms.sal) ||
+                (hash === 'users' && !currentUser.perms.admin)) {
+                navigateToFirstAvailableTab();
+                return;
             }
+
             switchTabUI(hash);
         }
 
         function switchTabUI(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
-            
+
             const selectedTab = document.getElementById(`tab-${tab}`);
             const selectedNav = document.getElementById(`nav-${tab.substring(0,3)}`);
-            
-            if(selectedTab) selectedTab.classList.add('active');
-            if(selectedNav) selectedNav.classList.add('active');
+
+            if (selectedTab) selectedTab.classList.add('active');
+            if (selectedNav) selectedNav.classList.add('active');
         }
 
-        function applyPermissions() {
-            document.getElementById('nav-users').style.display = (currentUser.role === 'Manager') ? 'none' : 'block';
-        }
-
+        // Add Employee Functionality
         function addEmployee(e) {
             e.preventDefault();
+            
+            // Auto Generate Employee ID (e.g. EMP-1001)
+            const autoId = "EMP-" + (1000 + employees.length + 1);
+
             const emp = {
-                id: Date.now(),
+                id: autoId,
                 name: document.getElementById('emp-name').value,
                 role: document.getElementById('emp-role').value,
+                phone: document.getElementById('emp-phone').value,
+                account: document.getElementById('emp-account').value,
+                doj: document.getElementById('emp-doj').value,
                 payType: document.getElementById('emp-pay-type').value,
                 rate: parseFloat(document.getElementById('emp-rate').value)
             };
+
             employees.push(emp);
             saveData();
             renderAll();
             document.getElementById('emp-form').reset();
+            alert(`Employee ${emp.name} added successfully with ID: ${autoId}`);
         }
 
+        // Delete Employee
+        function deleteEmployee(empId) {
+            if (confirm("Are you sure you want to delete this employee?")) {
+                employees = employees.filter(e => e.id !== empId);
+                saveData();
+                renderAll();
+            }
+        }
+
+        // Attendance Functionality
         function markAttendance() {
             const date = document.getElementById('att-date').value;
             const empId = document.getElementById('att-emp-select').value;
             const status = document.getElementById('att-status').value;
 
-            if(!date || !empId) { alert("Please select all details."); return; }
+            if (!date || !empId) { alert("Please select all options!"); return; }
 
-            const emp = employees.find(e => e.id == empId);
+            const emp = employees.find(e => e.id === empId);
             attendance.push({ date, empId, empName: emp.name, status });
             saveData();
             renderAttendance();
         }
 
+        // Payroll Functionality
         function calculateSalary() {
             const empId = document.getElementById('sal-emp-select').value;
             const workingDays = parseFloat(document.getElementById('sal-days').value) || 30;
             const absents = parseFloat(document.getElementById('sal-absents').value) || 0;
 
-            const emp = employees.find(e => e.id == empId);
-            if(!emp) return;
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
 
             let finalSalary = 0;
-            let dayRate = 0;
-
-            if (emp.payType === 'Monthly') {
-                dayRate = emp.rate / workingDays;
-                finalSalary = dayRate * (workingDays - absents);
-            } else {
-                dayRate = emp.rate;
-                finalSalary = emp.rate * (workingDays - absents);
-            }
+            let dayRate = (emp.payType === 'Monthly') ? (emp.rate / workingDays) : emp.rate;
+            finalSalary = dayRate * (workingDays - absents);
 
             lastCalculatedSalary = { emp, workingDays, absents, dayRate, finalSalary };
 
-            const resultDiv = document.getElementById('salary-result');
-            resultDiv.style.display = 'block';
+            document.getElementById('salary-result').style.display = 'block';
             document.getElementById('sal-details').innerHTML = `
-                <strong>Name:</strong> ${emp.name} | <strong>Designation:</strong> ${emp.role}<br>
-                <strong>Pay Type:</strong> ${emp.payType}<br>
-                <strong>Base Rate:</strong> ${emp.rate} PKR | <strong>Absents:</strong> ${absents}<br>
-                <h3 style="color: #15803d; margin-top:10px; border:none;">Net Payable Salary: ${finalSalary.toFixed(2)} PKR</h3>
+                <strong>ID:</strong> ${emp.id} | <strong>Name:</strong> ${emp.name} | <strong>Designation:</strong> ${emp.role}<br>
+                <strong>Phone:</strong> ${emp.phone} | <strong>Account No:</strong> ${emp.account}<br>
+                <strong>Base Rate:</strong> ${emp.rate} PKR (${emp.payType}) | <strong>Absents:</strong> ${absents}<br>
+                <h3 style="color: #15803d; margin-top:10px; border:none;">Net Payable Amount: ${finalSalary.toFixed(2)} PKR</h3>
             `;
         }
 
         function printSingleSalary() {
-            if(!lastCalculatedSalary) return;
-            const data = lastCalculatedSalary;
-            document.getElementById('print-section').innerHTML = generateSlipHTML(data.emp, data.workingDays, data.absents, data.dayRate, data.finalSalary);
+            if (!lastCalculatedSalary) return;
+            const d = lastCalculatedSalary;
+            document.getElementById('print-section').innerHTML = generateSlipHTML(d.emp, d.workingDays, d.absents, d.dayRate, d.finalSalary);
             window.print();
         }
 
         function printAllSalaries() {
-            if(employees.length === 0) { alert("No employees found!"); return; }
+            if (employees.length === 0) { alert("No employees found!"); return; }
             const workingDays = parseFloat(document.getElementById('sal-days').value) || 30;
             const absents = parseFloat(document.getElementById('sal-absents').value) || 0;
-            let allSlipsHTML = "";
+            let allSlips = "";
 
             employees.forEach(emp => {
                 let dayRate = (emp.payType === 'Monthly') ? (emp.rate / workingDays) : emp.rate;
                 let finalSalary = dayRate * (workingDays - absents);
-                allSlipsHTML += generateSlipHTML(emp, workingDays, absents, dayRate, finalSalary);
+                allSlips += generateSlipHTML(emp, workingDays, absents, dayRate, finalSalary);
             });
 
-            document.getElementById('print-section').innerHTML = allSlipsHTML;
+            document.getElementById('print-section').innerHTML = allSlips;
             window.print();
         }
 
         function generateSlipHTML(emp, workingDays, absents, dayRate, finalSalary) {
-            const today = new Date().toLocaleDateString();
             return `
                 <div class="slip-box">
                     <div class="slip-header">
                         <h2>HR Salary Pay Slip</h2>
-                        <p>Date: ${today}</p>
+                        <p>Date: ${new Date().toLocaleDateString()}</p>
                     </div>
                     <table class="slip-table">
                         <tr>
+                            <th>Emp ID</th><td>${emp.id}</td>
                             <th>Employee Name</th><td>${emp.name}</td>
+                        </tr>
+                        <tr>
                             <th>Designation</th><td>${emp.role}</td>
+                            <th>Phone No.</th><td>${emp.phone}</td>
+                        </tr>
+                        <tr>
+                            <th>Account No</th><td>${emp.account}</td>
+                            <th>Date of Joining</th><td>${emp.doj}</td>
                         </tr>
                         <tr>
                             <th>Pay Mode</th><td>${emp.payType}</td>
-                            <th>Base Rate/Salary</th><td>${emp.rate} PKR</td>
+                            <th>Base Salary/Rate</th><td>${emp.rate} PKR</td>
                         </tr>
                         <tr>
-                            <th>Total Days</th><td>${workingDays}</td>
-                            <th>Absents/Leaves</th><td>${absents}</td>
+                            <th>Working Days</th><td>${workingDays}</td>
+                            <th>Absents / Leaves</th><td>${absents}</td>
                         </tr>
                         <tr>
-                            <th style="font-size: 16px;">Net Payable Salary</th>
+                            <th style="font-size: 16px;">Net Payable Amount</th>
                             <td colspan="3" style="font-size: 18px; font-weight: bold;">${finalSalary.toFixed(2)} PKR</td>
                         </tr>
                     </table>
@@ -720,24 +594,59 @@
             `;
         }
 
+        // Profile Avatar Base64 Converter
+        function convertAvatarToBase64(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { tempAvatarBase64 = e.target.result; };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Add System User with Authorities
         function addUser(e) {
             e.preventDefault();
-            users.push({
+            const username = document.getElementById('new-username').value.trim();
+
+            if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                alert("Username already exists! Choose another.");
+                return;
+            }
+
+            const newUser = {
                 fullName: document.getElementById('new-fullname').value,
-                username: document.getElementById('new-username').value,
+                username: username,
                 password: document.getElementById('new-password').value,
-                role: document.getElementById('new-role').value
-            });
+                avatar: tempAvatarBase64,
+                perms: {
+                    emp: document.getElementById('perm-emp').checked,
+                    att: document.getElementById('perm-att').checked,
+                    sal: document.getElementById('perm-sal').checked,
+                    admin: document.getElementById('perm-admin').checked
+                }
+            };
+
+            users.push(newUser);
             saveData();
             renderUsers();
             document.getElementById('user-form').reset();
-            alert("New user created successfully!");
+            tempAvatarBase64 = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+            alert("New user created with selected authorities!");
+        }
+
+        function deleteUser(username) {
+            if (username === 'admin') { alert("Super Admin cannot be deleted!"); return; }
+            if (confirm(`Are you sure you want to delete user '${username}'?`)) {
+                users = users.filter(u => u.username !== username);
+                saveData();
+                renderUsers();
+            }
         }
 
         function saveData() {
-            localStorage.setItem('hr_users_v2', JSON.stringify(users));
-            localStorage.setItem('hr_employees', JSON.stringify(employees));
-            localStorage.setItem('hr_attendance', JSON.stringify(attendance));
+            localStorage.setItem('hr_users_v3', JSON.stringify(users));
+            localStorage.setItem('hr_employees_v3', JSON.stringify(employees));
+            localStorage.setItem('hr_attendance_v3', JSON.stringify(attendance));
         }
 
         function renderAll() {
@@ -749,24 +658,52 @@
 
         function renderEmployees() {
             document.getElementById('emp-table-body').innerHTML = employees.map(e => `
-                <tr><td>${e.id}</td><td>${e.name}</td><td>${e.role}</td><td>${e.payType}</td><td>${e.rate} PKR</td></tr>
+                <tr>
+                    <td><strong>${e.id}</strong></td>
+                    <td>${e.name}</td>
+                    <td>${e.role}</td>
+                    <td>${e.phone}</td>
+                    <td>${e.account}</td>
+                    <td>${e.doj}</td>
+                    <td>${e.payType}</td>
+                    <td>${e.rate} PKR</td>
+                    <td><button onclick="deleteEmployee('${e.id}')" class="btn btn-danger btn-sm">Delete</button></td>
+                </tr>
             `).join('');
         }
 
         function renderAttendance() {
             document.getElementById('att-table-body').innerHTML = attendance.map(a => `
-                <tr><td>${a.date}</td><td>${a.empName}</td><td>${a.status}</td></tr>
+                <tr>
+                    <td>${a.date}</td>
+                    <td>${a.empId}</td>
+                    <td>${a.empName}</td>
+                    <td>${a.status}</td>
+                </tr>
             `).join('');
         }
 
         function renderUsers() {
             document.getElementById('users-table-body').innerHTML = users.map(u => `
-                <tr><td>${u.fullName || u.username}</td><td>${u.username}</td><td>${u.role}</td></tr>
+                <tr>
+                    <td><img src="${u.avatar || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" style="width: 35px; height: 35px; border-radius: 50%;"></td>
+                    <td>${u.fullName}</td>
+                    <td><strong>${u.username}</strong></td>
+                    <td>
+                        ${u.perms.emp ? '👥 Emp ' : ''}
+                        ${u.perms.att ? '📅 Att ' : ''}
+                        ${u.perms.sal ? '💵 Pay ' : ''}
+                        ${u.perms.admin ? '⚙️ Admin' : ''}
+                    </td>
+                    <td>
+                        ${u.username !== 'admin' ? `<button onclick="deleteUser('${u.username}')" class="btn btn-danger btn-sm">Delete</button>` : '<em>Protected</em>'}
+                    </td>
+                </tr>
             `).join('');
         }
 
         function populateSelects() {
-            const options = employees.map(e => `<option value="${e.id}">${e.name} (${e.role})</option>`).join('');
+            const options = employees.map(e => `<option value="${e.id}">${e.id} - ${e.name} (${e.role})</option>`).join('');
             document.getElementById('att-emp-select').innerHTML = options;
             document.getElementById('sal-emp-select').innerHTML = options;
         }
