@@ -431,7 +431,7 @@
                     
                     <div style="display: flex; gap: 12px;">
                         <button onclick="calculateSalary()" class="btn">Calculate Salary</button>
-                        <button onclick="printAllSalariesList()" class="btn btn-print">Print All Pay List</button>
+                        <button onclick="printAllSalaries()" class="btn btn-print">Print All Pay List</button>
                     </div>
 
                     <div id="salary-result" class="salary-list" style="display: none;">
@@ -448,7 +448,7 @@
                         <div style="display: flex; gap: 15px;">
                             <div class="form-group" style="flex: 1;">
                                 <label>Full Name (Real Name)</label>
-                                <input type="text" id="new-fullname" placeholder="e.g. Zulfiqar Ali" required>
+                                <input type="text" id="new-fullname" placeholder="e.g. Admin" required>
                             </div>
                             <div class="form-group" style="flex: 1;">
                                 <label>Username (For Login)</label>
@@ -674,7 +674,7 @@
             if(employees.length === 0) { alert("No employees found!"); return; }
             const workingDays = parseFloat(document.getElementById('sal-days').value) || 30;
             const absents = parseFloat(document.getElementById('sal-absents').value) || 0;
-            let allSlipsHTML = "";
+            let listHTML = "";
 
             employees.forEach(emp => {
                 let dayRate = (emp.payType === 'Monthly') ? (emp.rate / workingDays) : emp.rate;
