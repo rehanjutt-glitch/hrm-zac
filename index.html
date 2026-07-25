@@ -246,7 +246,10 @@
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="login-password" value="admin123">
+                <div style="position: relative;">
+                    <input type="password" id="login-password" value="admin123" style="width: 100%; padding-right: 35px;">
+                    <span id="toggle-icon" onclick="togglePassword()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none;">👁️</span>
+                </div>
             </div>
             <button class="btn" style="width:100%" onclick="login()">Login</button>
         </div>
@@ -435,6 +438,20 @@
     <div id="print-section"></div>
 
     <script>
+        // Password Visibility Toggle
+        function togglePassword() {
+            const passInput = document.getElementById('login-password');
+            const toggleIcon = document.getElementById('toggle-icon');
+            
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggleIcon.innerText = '🙈';
+            } else {
+                passInput.type = 'password';
+                toggleIcon.innerText = '👁️';
+            }
+        }
+
         // Default Admin User Setup
         let defaultAdmin = { username: 'admin', password: 'admin123', role: 'Admin' };
         let users = JSON.parse(localStorage.getItem('hr_users'));
