@@ -243,7 +243,8 @@
         navTo('dashboardPage');
     }
 }
- function applyPermissions() {
+
+        function applyPermissions() {
             const btns = document.querySelectorAll('.menu-btn');
             btns.forEach(btn => {
                 const req = btn.getAttribute('data-access');
@@ -311,6 +312,8 @@ async function saveOrUpdateUser() {
     resetUserForm();
     loadUsers();
 }
+
+// فارم کو ریسیٹ کرنے کا فنکشن
 function resetUserForm() {
     document.getElementById("editUserDocId").value = "";
     document.getElementById("newFullNm").value = "";
@@ -349,7 +352,7 @@ async function deleteUser(id) {
             }
         }
 
-      function navTo(id) {
+       function navTo(id) {
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     
     const target = document.getElementById(id);
@@ -541,27 +544,6 @@ async function deleteUser(id) {
             if(!id || !name) return alert("ID and Name are required!");
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
-        }
-            // URL پڑھ کر وہی پیج کھولنے کا فنکشن
-function handleRoute() {
-    // اگر صارف لاگ ان نہیں ہے تو لاگ ان پیج ہی دکھائے
-    if (!currentUser) {
-        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-        document.getElementById('loginPage').classList.remove('hidden');
-        return;
-    }
-
-    // URL کے ہیش (#) سے پیج ID حاصل کریں
-    const hash = window.location.hash.replace('#', '');
-    if (hash && document.getElementById(hash)) {
-        navTo(hash);
-    } else {
-        navTo('dashboardPage');
-    }
-}
-
-// براؤزر کا Back/Forward بٹن دبانے پر صفحہ تبدیل کرنے کے لیے
-window.addEventListener('popstate', handleRoute);
         }
         // براؤزر کے Back / Forward بٹن کو ہینڈل کرنے کے لیے
 window.addEventListener('popstate', function() {
