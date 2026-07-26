@@ -75,7 +75,7 @@
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
                 <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
-                <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
+              <button class="main-btn btn-red" onclick="handleLogout()">Logout</button>
             </div>
         </div>
 
@@ -231,11 +231,14 @@
             alert("Invalid Credentials!");
         }
 
-        function loginOk() {
+        ffunction loginOk() {
+    // صارف کا لاگ ان سیشن براؤزر کی میموری میں سیو کریں
+    localStorage.setItem("hrmUser", JSON.stringify(currentUser));
+
     document.getElementById("navName").innerText = currentUser.name;
     applyPermissions();
     
-    // اگر URL میں لاگ ان کے وقت کوئی ہیش (#) موجود ہو تو وہی پیج کھولے
+    // اگر URL میں کوئی ہیش (#) موجود ہو تو وہی پیج کھولے ورنہ ڈیش بورڈ
     const currentHash = window.location.hash.replace('#', '');
     if (currentHash && document.getElementById(currentHash) && currentHash !== 'loginPage') {
         navTo(currentHash);
@@ -556,6 +559,47 @@ window.addEventListener('popstate', function() {
         navTo('dashboardPage');
     }
 });
+        // پیج لوڈ یا ری فریش ہوتے ہی لاگ ان سیشن چیک کرنے کا فنکشن
+function checkSessionAndRoute() {
+    const savedUser = localStorage.getItem("hrmUser");
+    
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById("navName").innerText = currentUser.name;
+        applyPermissions();
+        
+        // URL چیک کریں کہ کون سا صفحہ کھولنا ہے
+        const hash = window.location.hash.replace('#', '');
+        if (hash && document.getElementById(hash) && hash !== 'loginPage') {
+            navTo(hash);
+        } else {
+            navTo('dashboardPage');
+        }
+    } else {
+        // اگر سیشن نہیں ملتا تو لاگ ان پیج دکھائیں
+        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+        document.getElementById('loginPage').classList.remove('hidden');
+    }
+}
+
+// ویب سائٹ یا پیج کھلتے ہی سیشن خود بخود چیک ہوگا
+window.addEventListener('DOMContentLoaded', checkSessionAndRoute);
+
+// براؤزر کا Back / Forward بٹن ہینڈل کرنے کے لیے
+window.addEventListener('popstate', function() {
+    if (!currentUser) return;
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) {
+        navTo(hash);
+    } else {
+        navTo('dashboardPage');
+    }
+});
+        function handleLogout() {
+    localStorage.removeItem("hrmUser"); // لاگ ان ڈیٹا صاف کریں
+    window.location.hash = ""; // URL صاف کریں
+    location.reload(); // پیج ری لوڈ کریں
+}
     </script>
 </body>
 </html>
