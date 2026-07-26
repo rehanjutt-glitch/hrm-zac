@@ -91,7 +91,6 @@
     </div>
 
     <div id="userAdminPage" class="container hidden">
-        <button> class="main-btn- btn black" onclick="manageUser()">"Manager User"</button>
         <h2>Admin Panel: Manage Users</h2>
         <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
             <h3>Create New User / Manager</h3>
@@ -106,12 +105,14 @@
                 <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
                 <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
             </div>
-            <button class="main-btn btn-green" onclick="createNewUser()">CREATE USER</button>
+            <<button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">CREATE USER</button>
+<button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">CANCEL EDIT</button>
+                <input type="hidden" id="editUserDocId">
         </div>
         
         <div style="overflow-x:auto;">
             <table id="userTable">
-                <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Action</th></tr></thead>
+                <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Actions</th></tr></thead>
                 <tbody id="userListBody"></tbody>
             </table>
         </div>
