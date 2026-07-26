@@ -75,8 +75,7 @@
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
                 <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
-              <!-- نیا -->
-<button class="main-btn btn-red" onclick="handleLogout()">Logout</button>
+                <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
             </div>
         </div>
 
@@ -212,25 +211,14 @@
         let calcMode = 'monthly';
 
         async function handleLogin() {
-    const u = document.getElementById("username").value.trim();
-    const p = document.getElementById("password").value.trim();
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
 
-    // Master Admin Check
-    if (u === "Meskay" && p === "Pakistan786") {
-        currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
-        return loginOk();
-    }
-
-    // Check Users from DB
-    const userSnap = await db.collection("users").where("username", "==", u).where("password", "==", p).get();
-    if (!userSnap.empty) {
-        const userData = userSnap.docs[0].data();
-        currentUser = { name: userData.fullName, role: "user", access: userData.permissions || [] };
-        return loginOk();
-    }
-
-    alert("Invalid Credentials!");
-}
+            // Master Admin Check
+            if (u === "Meskay" && p === "Pakistan786") {
+                currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
+                return loginOk();
+            }
 
             // Check Users from DB
             const userSnap = await db.collection("users").where("username", "==", u).where("password", "==", p).get();
@@ -244,38 +232,10 @@
         }
 
         function loginOk() {
-    // لاگ ان سیشن محفوظ کریں
-    localStorage.setItem("hrmUser", JSON.stringify(currentUser));
-    
-    document.getElementById("navName").innerText = currentUser.name;
-    applyPermissions();
-    
-    // URL والا پیج کھولیں
-    const currentHash = window.location.hash.replace('#', '');
-    if (currentHash && document.getElementById(currentHash) && currentHash !== 'loginPage') {
-        navTo(currentHash);
-    } else {
-        navTo('dashboardPage');
-    }
-}
-
-function navTo(id) {
-    document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-    
-    const target = document.getElementById(id);
-    if(target) {
-        target.classList.remove('hidden');
-    }
-
-    // URL اپ ڈیٹ کریں
-    if (currentUser && window.location.hash !== '#' + id) {
-        history.pushState(null, null, '#' + id);
-    }
-
-    if(id === 'dashboardPage') updateCounts();
-    if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
-    if(id === 'userAdminPage') loadUsers();
-}
+            document.getElementById("navName").innerText = currentUser.name;
+            applyPermissions();
+            navTo('dashboardPage');
+        }
 
         function applyPermissions() {
             const btns = document.querySelectorAll('.menu-btn');
@@ -385,23 +345,13 @@ async function deleteUser(id) {
             }
         }
 
-       function navTo(id) {
-    document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-    
-    const target = document.getElementById(id);
-    if(target) {
-        target.classList.remove('hidden');
-    }
-
-    // اگر صارف لاگ ان ہے تو URL میں پیج کا نام دکھائے
-    if (currentUser && window.location.hash !== '#' + id) {
-        history.pushState(null, null, '#' + id);
-    }
-
-    if(id === 'dashboardPage') updateCounts();
-    if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
-    if(id === 'userAdminPage') loadUsers();
-}
+        function navTo(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'dashboardPage') updateCounts();
+            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
+            if(id === 'userAdminPage') loadUsers();
+        }
 
         // --- All your original functions remain exactly the same below ---
 
@@ -578,91 +528,6 @@ async function deleteUser(id) {
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
-        // براؤزر کے Back / Forward بٹن کو ہینڈل کرنے کے لیے
-window.addEventListener('popstate', function() {
-    if (!currentUser) return; // اگر لاگ ان نہیں ہے تو کچھ نہ کرے
-    
-    const hash = window.location.hash.replace('#', '');
-    if (hash && document.getElementById(hash)) {
-        navTo(hash);
-    } else {
-        navTo('dashboardPage');
-    }
-});
-        // پیج لوڈ یا ری فریش ہوتے ہی لاگ ان سیشن چیک کرنے کا فنکشن
-function checkSessionAndRoute() {
-    const savedUser = localStorage.getItem("hrmUser");
-    
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        document.getElementById("navName").innerText = currentUser.name;
-        applyPermissions();
-        
-        // URL چیک کریں کہ کون سا صفحہ کھولنا ہے
-        const hash = window.location.hash.replace('#', '');
-        if (hash && document.getElementById(hash) && hash !== 'loginPage') {
-            navTo(hash);
-        } else {
-            navTo('dashboardPage');
-        }
-    } else {
-        // اگر سیشن نہیں ملتا تو لاگ ان پیج دکھائیں
-        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-        document.getElementById('loginPage').classList.remove('hidden');
-    }
-}
-
-// ویب سائٹ یا پیج کھلتے ہی سیشن خود بخود چیک ہوگا
-window.addEventListener('DOMContentLoaded', checkSessionAndRoute);
-
-// براؤزر کا Back / Forward بٹن ہینڈل کرنے کے لیے
-window.addEventListener('popstate', function() {
-    if (!currentUser) return;
-    const hash = window.location.hash.replace('#', '');
-    if (hash && document.getElementById(hash)) {
-        navTo(hash);
-    } else {
-        navTo('dashboardPage');
-    }
-});
-        function handleLogout() {
-    localStorage.removeItem("hrmUser"); // لاگ ان ڈیٹا صاف کریں
-    window.location.hash = ""; // URL صاف کریں
-    location.reload(); // پیج ری لوڈ کریں
-}
-        function loginOk() {
-    // لاگ ان سیشن محفوظ کریں
-    localStorage.setItem("hrmUser", JSON.stringify(currentUser));
-    
-    document.getElementById("navName").innerText = currentUser.name;
-    applyPermissions();
-    
-    // URL والا پیج کھولیں
-    const currentHash = window.location.hash.replace('#', '');
-    if (currentHash && document.getElementById(currentHash) && currentHash !== 'loginPage') {
-        navTo(currentHash);
-    } else {
-        navTo('dashboardPage');
-    }
-}
-
-function navTo(id) {
-    document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-    
-    const target = document.getElementById(id);
-    if(target) {
-        target.classList.remove('hidden');
-    }
-
-    // URL اپ ڈیٹ کریں
-    if (currentUser && window.location.hash !== '#' + id) {
-        history.pushState(null, null, '#' + id);
-    }
-
-    if(id === 'dashboardPage') updateCounts();
-    if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
-    if(id === 'userAdminPage') loadUsers();
-}
     </script>
 </body>
 </html>
