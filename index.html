@@ -75,7 +75,7 @@
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
                 <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
-                <button class="main-btn btn-red" onclick="localStorage.removeItem('hrm_user'); location.href='#loginPage'; location.reload();">Logout</button>
+                <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
             </div>
         </div>
 
@@ -90,30 +90,29 @@
         </div>
     </div>
 
-   <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
-    <h3 id="userFormTitle">Create New User / Manager</h3>
-    <input type="hidden" id="editUserDocId">
-    <input type="text" id="newFullNm" placeholder="Full Name">
-    <input type="text" id="newUserNm" placeholder="Username (Login ID)">
-    <input type="password" id="newUserPs" placeholder="Password">
-    
-    <div class="access-box">
-        <strong>Set Access Permissions:</strong>
-        <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
-        <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
-        <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
-        <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
-        <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
-    </div>
-    
-    <button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">CREATE USER</button>
-    <button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">CANCEL EDIT</button>
-                <input type="hidden" id="editUserDocId">
+    <div id="userAdminPage" class="container hidden">
+        <h2>Admin Panel: Manage Users</h2>
+        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
+            <h3>Create New User / Manager</h3>
+            <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
+            <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+            <input type="password" id="newUserPs" placeholder="Password">
+            
+            <div class="access-box">
+                <strong>Set Access Permissions:</strong>
+                <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
+                <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
+                <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
+                <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
+                <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
+            </div>
+            
+            <button class="main-btn btn-green" onclick="createNewUser()">CREATE USER</button>
         </div>
         
         <div style="overflow-x:auto;">
             <table id="userTable">
-                <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Action</th></tr></thead>
                 <tbody id="userListBody"></tbody>
             </table>
         </div>
@@ -213,7 +212,7 @@
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
-localStorage.setItem("hrm_user", JSON.stringify(currentUser));
+
             // Master Admin Check
             if (u === "Meskay" && p === "Pakistan786") {
                 currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
@@ -256,100 +255,39 @@ localStorage.setItem("hrm_user", JSON.stringify(currentUser));
             }
         }
 
-        // یوزر کا ڈیٹا فارم میں ایڈٹ کے لیے بھرنے کا فنکشن
-async function editUser(docId) {
-    try {
-        const doc = await db.collection("users").doc(docId).get();
-        if (!doc.exists) return alert("User not found!");
+        async function createNewUser() {
+            const fn = document.getElementById("newFullNm").value;
+            const un = document.getElementById("newUserNm").value;
+            const up = document.getElementById("newUserPs").value;
+            const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
 
-        const d = doc.data();
+            if(!fn || !un || !up) return alert("All fields are required!");
 
-        // فارم میں ڈیٹا سیٹ کریں
-        document.getElementById("editUserDocId").value = docId;
-        document.getElementById("newFullNm").value = d.fullName || '';
-        document.getElementById("newUserNm").value = d.username || '';
-        document.getElementById("newUserPs").value = d.password || '';
+            await db.collection("users").add({
+                fullName: fn,
+                username: un,
+                password: up,
+                permissions: perms
+            });
+            alert("User Created!");
+            loadUsers();
+        }
 
-        // Checkboxes سیٹ کریں
-        const perms = d.permissions || [];
-        document.querySelectorAll('.acc-check').forEach(cb => {
-            cb.checked = perms.includes(cb.value);
-        });
-
-        // بٹن کا متن اور کینسل بٹن دکھائیں
-        document.getElementById("saveUserBtn").innerText = "UPDATE USER";
-        document.getElementById("cancelUserEditBtn").classList.remove("hidden");
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) {
-        alert("Error loading user: " + err.message);
-    }
-}
-// نیا یوزر بنانے اور پرانے کو اپڈیٹ کرنے کا مشترکہ فنکشن
-async function saveOrUpdateUser() {
-    const docId = document.getElementById("editUserDocId").value;
-    const fn = document.getElementById("newFullNm").value.trim();
-    const un = document.getElementById("newUserNm").value.trim();
-    const up = document.getElementById("newUserPs").value.trim();
-    const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
-
-    if(!fn || !un || !up) return alert("All fields are required!");
-
-    if(docId) {
-        // Update
-        await db.collection("users").doc(docId).update({
-            fullName: fn, username: un, password: up, permissions: perms
-        });
-        alert("User Updated Successfully!");
-    } else {
-        // Create
-        await db.collection("users").add({
-            fullName: fn, username: un, password: up, permissions: perms
-        });
-        alert("User Created Successfully!");
-    }
-
-    resetUserForm();
-    loadUsers();
-}
-
-// فارم کو ریسیٹ کرنے کا فنکشن
-function resetUserForm() {
-    document.getElementById("editUserDocId").value = "";
-    document.getElementById("newFullNm").value = "";
-    document.getElementById("newUserNm").value = "";
-    document.getElementById("newUserPs").value = "";
-    
-    document.querySelectorAll('.acc-check').forEach(cb => cb.checked = false);
-    document.querySelector('.acc-check[value="view"]').checked = true;
-
-    document.getElementById("saveUserBtn").innerText = "CREATE USER";
-    document.getElementById("cancelUserEditBtn").classList.add("hidden");
-}
-async function loadUsers() {
-    const body = document.getElementById("userListBody");
-    body.innerHTML = "Loading...";
-    const snap = await db.collection("users").get();
-    body.innerHTML = "";
-
-    snap.forEach(doc => {
-        const d = doc.data();
-        const permsList = d.permissions ? d.permissions.join(', ') : '';
-        const docId = doc.id;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${d.fullName || ''}</td>
-            <td>${d.username || ''}</td>
-            <td><small>${permsList}</small></td>
-            <td>
-                <button class="btn-blue" style="padding:5px 10px; cursor:pointer; font-weight:bold; margin-right:5px;" onclick="editUser('${docId}')">Edit</button>
-                <button class="btn-red" style="padding:5px 10px; cursor:pointer; font-weight:bold;" onclick="deleteUser('${docId}')">Delete</button>
-            </td>
-        `;
-        body.appendChild(tr);
-    });
-}
+        async function loadUsers() {
+            const body = document.getElementById("userListBody");
+            body.innerHTML = "Loading...";
+            const snap = await db.collection("users").get();
+            body.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                body.innerHTML += `<tr>
+                    <td>${d.fullName}</td>
+                    <td>${d.username}</td>
+                    <td><small>${d.permissions.join(', ')}</small></td>
+                    <td><button class="btn-red" style="padding:5px;" onclick="deleteUser('${doc.id}')">Delete</button></td>
+                </tr>`;
+            });
+        }
 
         async function deleteUser(id) {
             if(confirm("Delete this user?")) {
@@ -365,6 +303,7 @@ async function loadUsers() {
             if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
             if(id === 'userAdminPage') loadUsers();
         }
+
         // --- All your original functions remain exactly the same below ---
 
         function togglePass() {
@@ -540,36 +479,6 @@ async function loadUsers() {
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
-        // پیج ری لوڈ ہونے پر لاگ ان اور پیج برقرار رکھنے کے لیے
-window.addEventListener("DOMContentLoaded", () => {
-    // 1. براؤزر کی لوکل اسٹوریج سے یوزر ڈیٹا اور موجودہ ہیش چیک کریں
-    const savedUser = localStorage.getItem("hrm_user");
-    const currentHash = window.location.hash.replace("#", "");
-
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        applyPermissions();
-
-        // 2. اگر URL میں کوئی ہیش موجود ہے تو اسی پیج پر رہیں، ورنہ Dashboard پر جائیں
-        if (currentHash && document.getElementById(currentHash)) {
-            navTo(currentHash);
-        } else {
-            navTo('dashboardPage');
-        }
-    } else {
-        // اگر لاگ ان نہیں ہے تو لاگ ان پیج پر رکھیں
-        navTo('loginPage');
-    }
-});
-
-// ہیش تبدیل ہونے پر پیج بدلنے کے لیے (Browser Back/Forward Button)
-window.addEventListener("hashchange", () => {
-    const pageId = window.location.hash.replace("#", "");
-    if (currentUser && pageId && document.getElementById(pageId)) {
-        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-        document.getElementById(pageId).classList.remove('hidden');
-    }
-});
     </script>
 </body>
 </html>
