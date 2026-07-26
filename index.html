@@ -90,23 +90,24 @@
         </div>
     </div>
 
-    <div id="userAdminPage" class="container hidden">
-        <h2>Admin Panel: Manage Users</h2>
-        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
-            <h3>Create New User / Manager</h3>
-            <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
-            <input type="text" id="newUserNm" placeholder="Username (Login ID)">
-            <input type="password" id="newUserPs" placeholder="Password">
-            <div class="access-box">
-                <strong>Set Access Permissions:</strong>
-                <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
-                <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
-                <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
-                <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
-                <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
-            </div>
-            <<button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">CREATE USER</button>
-<button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">CANCEL EDIT</button>
+   <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
+    <h3 id="userFormTitle">Create New User / Manager</h3>
+    <input type="hidden" id="editUserDocId">
+    <input type="text" id="newFullNm" placeholder="Full Name">
+    <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+    <input type="password" id="newUserPs" placeholder="Password">
+    
+    <div class="access-box">
+        <strong>Set Access Permissions:</strong>
+        <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
+        <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
+        <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
+        <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
+        <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
+    </div>
+    
+    <button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">CREATE USER</button>
+    <button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">CANCEL EDIT</button>
                 <input type="hidden" id="editUserDocId">
         </div>
         
@@ -257,26 +258,33 @@ localStorage.setItem("hrm_user", JSON.stringify(currentUser));
 
         // یوزر کا ڈیٹا فارم میں ایڈٹ کے لیے بھرنے کا فنکشن
 async function editUser(docId) {
-    const doc = await db.collection("users").doc(docId).get();
-    if(!doc.exists) return;
-    const d = doc.data();
+    try {
+        const doc = await db.collection("users").doc(docId).get();
+        if (!doc.exists) return alert("User not found!");
 
-    document.getElementById("editUserDocId").value = docId;
-    document.getElementById("newFullNm").value = d.fullName;
-    document.getElementById("newUserNm").value = d.username;
-    document.getElementById("newUserPs").value = d.password;
+        const d = doc.data();
 
-    const perms = d.permissions || [];
-    document.querySelectorAll('.acc-check').forEach(cb => {
-        cb.checked = perms.includes(cb.value);
-    });
+        // فارم میں ڈیٹا سیٹ کریں
+        document.getElementById("editUserDocId").value = docId;
+        document.getElementById("newFullNm").value = d.fullName || '';
+        document.getElementById("newUserNm").value = d.username || '';
+        document.getElementById("newUserPs").value = d.password || '';
 
-    document.getElementById("saveUserBtn").innerText = "UPDATE USER";
-    document.getElementById("cancelUserEditBtn").classList.remove("hidden");
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Checkboxes سیٹ کریں
+        const perms = d.permissions || [];
+        document.querySelectorAll('.acc-check').forEach(cb => {
+            cb.checked = perms.includes(cb.value);
+        });
+
+        // بٹن کا متن اور کینسل بٹن دکھائیں
+        document.getElementById("saveUserBtn").innerText = "UPDATE USER";
+        document.getElementById("cancelUserEditBtn").classList.remove("hidden");
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+        alert("Error loading user: " + err.message);
+    }
 }
-
 // نیا یوزر بنانے اور پرانے کو اپڈیٹ کرنے کا مشترکہ فنکشن
 async function saveOrUpdateUser() {
     const docId = document.getElementById("editUserDocId").value;
@@ -318,24 +326,28 @@ function resetUserForm() {
     document.getElementById("saveUserBtn").innerText = "CREATE USER";
     document.getElementById("cancelUserEditBtn").classList.add("hidden");
 }
-
-        async function loadUsers() {
+async function loadUsers() {
     const body = document.getElementById("userListBody");
     body.innerHTML = "Loading...";
     const snap = await db.collection("users").get();
     body.innerHTML = "";
+
     snap.forEach(doc => {
         const d = doc.data();
         const permsList = d.permissions ? d.permissions.join(', ') : '';
-        body.innerHTML += `<tr>
-            <td>${d.fullName}</td>
-            <td>${d.username}</td>
+        const docId = doc.id;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${d.fullName || ''}</td>
+            <td>${d.username || ''}</td>
             <td><small>${permsList}</small></td>
             <td>
-                <button onclick="editUser('${doc.id}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button>
-                <button onclick="deleteUser('${doc.id}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
+                <button class="btn-blue" style="padding:5px 10px; cursor:pointer; font-weight:bold; margin-right:5px;" onclick="editUser('${docId}')">Edit</button>
+                <button class="btn-red" style="padding:5px 10px; cursor:pointer; font-weight:bold;" onclick="deleteUser('${docId}')">Delete</button>
             </td>
-        </tr>`;
+        `;
+        body.appendChild(tr);
     });
 }
 
