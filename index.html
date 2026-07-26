@@ -234,9 +234,7 @@
         function loginOk() {
     document.getElementById("navName").innerText = currentUser.name;
     applyPermissions();
-    
-    // اگر URL میں پہلے سے کوئی پیج دیا گیا ہے تو وہ کھولے ورنہ ڈیش بورڈ
-    handleRoute(); 
+  handleRoute(); 
 }
  function applyPermissions() {
             const btns = document.querySelectorAll('.menu-btn');
@@ -306,8 +304,6 @@ async function saveOrUpdateUser() {
     resetUserForm();
     loadUsers();
 }
-
-// فارم کو ریسیٹ کرنے کا فنکشن
 function resetUserForm() {
     document.getElementById("editUserDocId").value = "";
     document.getElementById("newFullNm").value = "";
@@ -349,14 +345,9 @@ async function deleteUser(id) {
         function navTo(id) {
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
-    
-    // ----------------------------------------
-    // یہ لائن URL کے آگے ہیش/سلیش # کا اضافہ کرے گی
-    // ----------------------------------------
     if (window.location.hash !== '#' + id) {
         history.pushState(null, null, '#' + id);
     }
-
     if(id === 'dashboardPage') updateCounts();
     if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
     if(id === 'userAdminPage') loadUsers();
