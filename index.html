@@ -255,39 +255,89 @@
             }
         }
 
-        async function createNewUser() {
-            const fn = document.getElementById("newFullNm").value;
-            const un = document.getElementById("newUserNm").value;
-            const up = document.getElementById("newUserPs").value;
-            const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
+        // یوزر کا ڈیٹا فارم میں ایڈٹ کے لیے بھرنے کا فنکشن
+async function editUser(docId) {
+    const doc = await db.collection("users").doc(docId).get();
+    if(!doc.exists) return;
+    const d = doc.data();
 
-            if(!fn || !un || !up) return alert("All fields are required!");
+    document.getElementById("editUserDocId").value = docId;
+    document.getElementById("newFullNm").value = d.fullName;
+    document.getElementById("newUserNm").value = d.username;
+    document.getElementById("newUserPs").value = d.password;
 
-            await db.collection("users").add({
-                fullName: fn,
-                username: un,
-                password: up,
-                permissions: perms
-            });
-            alert("User Created!");
-            loadUsers();
-        }
+    const perms = d.permissions || [];
+    document.querySelectorAll('.acc-check').forEach(cb => {
+        cb.checked = perms.includes(cb.value);
+    });
+
+    document.getElementById("saveUserBtn").innerText = "UPDATE USER";
+    document.getElementById("cancelUserEditBtn").classList.remove("hidden");
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// نیا یوزر بنانے اور پرانے کو اپڈیٹ کرنے کا مشترکہ فنکشن
+async function saveOrUpdateUser() {
+    const docId = document.getElementById("editUserDocId").value;
+    const fn = document.getElementById("newFullNm").value.trim();
+    const un = document.getElementById("newUserNm").value.trim();
+    const up = document.getElementById("newUserPs").value.trim();
+    const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
+
+    if(!fn || !un || !up) return alert("All fields are required!");
+
+    if(docId) {
+        // Update
+        await db.collection("users").doc(docId).update({
+            fullName: fn, username: un, password: up, permissions: perms
+        });
+        alert("User Updated Successfully!");
+    } else {
+        // Create
+        await db.collection("users").add({
+            fullName: fn, username: un, password: up, permissions: perms
+        });
+        alert("User Created Successfully!");
+    }
+
+    resetUserForm();
+    loadUsers();
+}
+
+// فارم کو ریسیٹ کرنے کا فنکشن
+function resetUserForm() {
+    document.getElementById("editUserDocId").value = "";
+    document.getElementById("newFullNm").value = "";
+    document.getElementById("newUserNm").value = "";
+    document.getElementById("newUserPs").value = "";
+    
+    document.querySelectorAll('.acc-check').forEach(cb => cb.checked = false);
+    document.querySelector('.acc-check[value="view"]').checked = true;
+
+    document.getElementById("saveUserBtn").innerText = "CREATE USER";
+    document.getElementById("cancelUserEditBtn").classList.add("hidden");
+}
 
         async function loadUsers() {
-            const body = document.getElementById("userListBody");
-            body.innerHTML = "Loading...";
-            const snap = await db.collection("users").get();
-            body.innerHTML = "";
-            snap.forEach(doc => {
-                const d = doc.data();
-                body.innerHTML += `<tr>
-                    <td>${d.fullName}</td>
-                    <td>${d.username}</td>
-                    <td><small>${d.permissions.join(', ')}</small></td>
-                    <td><button class="btn-red" style="padding:5px;" onclick="deleteUser('${doc.id}')">Delete</button></td>
-                </tr>`;
-            });
-        }
+    const body = document.getElementById("userListBody");
+    body.innerHTML = "Loading...";
+    const snap = await db.collection("users").get();
+    body.innerHTML = "";
+    snap.forEach(doc => {
+        const d = doc.data();
+        const permsList = d.permissions ? d.permissions.join(', ') : '';
+        body.innerHTML += `<tr>
+            <td>${d.fullName}</td>
+            <td>${d.username}</td>
+            <td><small>${permsList}</small></td>
+            <td>
+                <button onclick="editUser('${doc.id}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button>
+                <button onclick="deleteUser('${doc.id}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
+            </td>
+        </tr>`;
+    });
+}
 
         async function deleteUser(id) {
             if(confirm("Delete this user?")) {
