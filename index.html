@@ -47,52 +47,10 @@
         .access-box label { display: block; margin: 5px 0; cursor: pointer; }
 
         @media print {
-    /* زبردستی پورٹریٹ موڈ لاگو کرنے کے لیے */
-    @page {
-        size: portrait !important;
-        margin: 10mm !important;
-    }
-
-    /* غیر ضروری چیزیں چھپانے کے لیے */
-    .no-print, .top-bar, .menu-grid, button {
-        display: none !important;
-    }
-
-    body {
-        background: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* کنٹینر کی سیٹنگ */
-    .container {
-        width: 100% !important;
-        max-width: 100% !important;
-        border: none !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* سلپ کارڈ کو پورٹریٹ میں فٹ کرنے کے لیے اہم تبدیلیاں */
-    .slip-card {
-        width: 95% !important; /* چوڑائی کو تھوڑا کم کیا تاکہ سائیڈ سے نہ کٹے */
-        max-width: 17cm !important; /* اے فور پیج کے پورٹریٹ سائز کے مطابق */
-        margin: 0 auto !important;
-        padding: 20px !important;
-        border: 2px solid #000 !important;
-        page-break-after: always;
-        box-sizing: border-box !important;
-    }
-
-    /* فونٹس کو تھوڑا چھوٹا کریں تاکہ جگہ بچ سکے */
-    h2 { font-size: 20px !important; }
-    p { font-size: 14px !important; }
-    
-    .sig-container {
-        margin-top: 40px !important;
-    }
-}
+            .no-print { display: none; }
+            body { background: white; }
+            .slip-card { page-break-after: auto; width: 100%; margin: 0; border: 1px solid #000; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
