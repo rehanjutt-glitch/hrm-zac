@@ -75,7 +75,7 @@
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
                 <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
-                <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
+                <button class="main-btn btn-red" onclick="localStorage.removeItem('hrm_user'); location.href='#loginPage'; location.reload();">Logout</button>
             </div>
         </div>
 
@@ -212,7 +212,7 @@
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
-
+localStorage.setItem("hrm_user", JSON.stringify(currentUser));
             // Master Admin Check
             if (u === "Meskay" && p === "Pakistan786") {
                 currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
@@ -353,7 +353,6 @@ function resetUserForm() {
             if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
             if(id === 'userAdminPage') loadUsers();
         }
-
         // --- All your original functions remain exactly the same below ---
 
         function togglePass() {
@@ -529,6 +528,36 @@ function resetUserForm() {
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
+        // پیج ری لوڈ ہونے پر لاگ ان اور پیج برقرار رکھنے کے لیے
+window.addEventListener("DOMContentLoaded", () => {
+    // 1. براؤزر کی لوکل اسٹوریج سے یوزر ڈیٹا اور موجودہ ہیش چیک کریں
+    const savedUser = localStorage.getItem("hrm_user");
+    const currentHash = window.location.hash.replace("#", "");
+
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        applyPermissions();
+
+        // 2. اگر URL میں کوئی ہیش موجود ہے تو اسی پیج پر رہیں، ورنہ Dashboard پر جائیں
+        if (currentHash && document.getElementById(currentHash)) {
+            navTo(currentHash);
+        } else {
+            navTo('dashboardPage');
+        }
+    } else {
+        // اگر لاگ ان نہیں ہے تو لاگ ان پیج پر رکھیں
+        navTo('loginPage');
+    }
+});
+
+// ہیش تبدیل ہونے پر پیج بدلنے کے لیے (Browser Back/Forward Button)
+window.addEventListener("hashchange", () => {
+    const pageId = window.location.hash.replace("#", "");
+    if (currentUser && pageId && document.getElementById(pageId)) {
+        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+        document.getElementById(pageId).classList.remove('hidden');
+    }
+});
     </script>
 </body>
 </html>
