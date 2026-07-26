@@ -234,7 +234,14 @@
         function loginOk() {
     document.getElementById("navName").innerText = currentUser.name;
     applyPermissions();
-  handleRoute(); 
+    
+    // اگر URL میں لاگ ان کے وقت کوئی ہیش (#) موجود ہو تو وہی پیج کھولے
+    const currentHash = window.location.hash.replace('#', '');
+    if (currentHash && document.getElementById(currentHash) && currentHash !== 'loginPage') {
+        navTo(currentHash);
+    } else {
+        navTo('dashboardPage');
+    }
 }
  function applyPermissions() {
             const btns = document.querySelectorAll('.menu-btn');
@@ -342,12 +349,19 @@ async function deleteUser(id) {
             }
         }
 
-        function navTo(id) {
+      function navTo(id) {
     document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-    if (window.location.hash !== '#' + id) {
+    
+    const target = document.getElementById(id);
+    if(target) {
+        target.classList.remove('hidden');
+    }
+
+    // اگر صارف لاگ ان ہے تو URL میں پیج کا نام دکھائے
+    if (currentUser && window.location.hash !== '#' + id) {
         history.pushState(null, null, '#' + id);
     }
+
     if(id === 'dashboardPage') updateCounts();
     if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
     if(id === 'userAdminPage') loadUsers();
@@ -527,6 +541,7 @@ async function deleteUser(id) {
             if(!id || !name) return alert("ID and Name are required!");
             await db.collection("employees").add({ id, name, phone, bank, acc, status });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
+        }
             // URL پڑھ کر وہی پیج کھولنے کا فنکشن
 function handleRoute() {
     // اگر صارف لاگ ان نہیں ہے تو لاگ ان پیج ہی دکھائے
@@ -548,6 +563,17 @@ function handleRoute() {
 // براؤزر کا Back/Forward بٹن دبانے پر صفحہ تبدیل کرنے کے لیے
 window.addEventListener('popstate', handleRoute);
         }
+        // براؤزر کے Back / Forward بٹن کو ہینڈل کرنے کے لیے
+window.addEventListener('popstate', function() {
+    if (!currentUser) return; // اگر لاگ ان نہیں ہے تو کچھ نہ کرے
+    
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) {
+        navTo(hash);
+    } else {
+        navTo('dashboardPage');
+    }
+});
     </script>
 </body>
 </html>
