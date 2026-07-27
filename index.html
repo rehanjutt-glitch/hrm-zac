@@ -3,121 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM USER CONTROL</title>
+    <title>HRM Portal - Enterprise Management</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; text-align: center; color: #333; }
-        .container { width: 95%; max-width: 900px; margin: 20px auto; background: #fff; padding: 25px; border: 3px solid #000; box-shadow: 10px 10px 0 #000; border-radius: 8px; }
-        .hidden { display: none; }
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-body: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-hover: #059669;
+            --radius: 10px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 10px;
+        }
+
+        .hidden { display: none !important; }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--surface);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            margin: 0 auto;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography & Headers */
+        h1, h2, h3 {
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #000; font-size: 16px; box-sizing: border-box; font-weight: bold; }
-        .main-btn { width: 100%; padding: 15px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; transition: 0.2s; }
-        .main-btn:active { transform: scale(0.98); }
-        .btn-red { background: #dc3545; }
-        .btn-green { background: #28a745; }
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+
+        /* Form Controls */
+        label {
+            display: block;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 12px 0 4px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 15px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Buttons */
+        .main-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .main-btn:active { transform: translateY(0); }
+        .btn-red { background: var(--danger); }
+        .btn-red:hover { background: var(--danger-hover); }
+        .btn-green { background: var(--success); }
+        .btn-green:hover { background: var(--success-hover); }
+        .btn-black { background: #1e293b; }
+        .btn-black:hover { background: #0f172a; }
+
+        /* Login Screen */
+        #loginPage {
+            max-width: 420px;
+            margin-top: 50px;
+            text-align: center;
+        }
 
         .pass-box { position: relative; }
-        .eye-icon { position: absolute; right: 15px; top: 25px; cursor: pointer; font-size: 20px; z-index: 10; }
+        .eye-icon {
+            position: absolute;
+            right: 15px;
+            top: 25px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .menu-btn { padding: 25px 10px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; position: relative; border-radius: 5px; }
-        .badge { display: block; font-size: 24px; color: #ffeb3b; margin-top: 8px; }
-        .master-btn { grid-column: span 2; background: #1a237e; }
-        
-        .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; position: relative; }
-        .profile-trigger { display: flex; align-items: center; cursor: pointer; background: #000; color: #fff; padding: 8px 15px; border: 2px solid #000; }
-        .nav-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 1px solid #fff; object-fit: cover; }
-        .dropdown-menu { position: absolute; top: 100%; right: 0; background: #fff; border: 3px solid #000; width: 220px; z-index: 1000; padding: 15px; box-shadow: 5px 5px 0 #000; text-align: center; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 2px solid #000; padding: 12px; text-align: center; }
-        th { background: #eee; }
+        /* Top Bar & Profile Dropdown */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
 
-        .calc-info { background: #e3f2fd; padding: 15px; border: 2px dashed #000; margin: 10px 0; font-weight: bold; }
-        
-        .type-selector { display: flex; gap: 10px; margin: 10px 0; }
-        .type-selector button { flex: 1; padding: 12px; border: 2px solid #000; cursor: pointer; font-weight: bold; background: #fff; }
-        .active-type { background: #000 !important; color: #fff !important; }
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            transition: 0.2s;
+        }
 
-        .slip-card { border: 2px solid #000; padding: 30px; margin: 20px auto; width: 85%; background: #fff; text-align: left; border-radius: 5px; }
+        .profile-trigger:hover { background: #e2e8f0; }
+
+        .nav-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        #navName { font-weight: 600; font-size: 14px; color: var(--text-main); }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 65px;
+            right: 30px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 200px;
+            z-index: 1000;
+            padding: 10px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .dropdown-menu .main-btn {
+            padding: 8px;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* Grid & Metrics */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .menu-btn {
+            padding: 20px 15px;
+            background: #fff;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            text-align: left;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .badge {
+            display: block;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 8px;
+        }
+
+        /* Tables */
+        .table-responsive { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
+        tr:hover { background: #f1f5f9; }
+
+        /* Miscellaneous Components */
+        .calc-info {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .type-selector { display: flex; gap: 10px; margin: 15px 0; }
+        .type-selector button {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-weight: 600;
+            background: #fff;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .active-type { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
+
+        .slip-card {
+            border: 1px solid var(--border);
+            padding: 30px;
+            margin: 20px auto;
+            width: 100%;
+            background: #fff;
+            text-align: left;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
         .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
-        .sig-box { border-top: 2px solid #000; width: 40%; text-align: center; padding-top: 5px; font-weight: bold; }
+        .sig-box { border-top: 2px solid var(--text-main); width: 40%; text-align: center; padding-top: 5px; font-weight: 600; font-size: 13px; }
 
-        .access-box { text-align: left; background: #f9f9f9; padding: 10px; border: 1px solid #000; margin-bottom: 10px; }
-        .access-box label { display: block; margin: 5px 0; cursor: pointer; }
+        .access-box {
+            text-align: left;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            margin-bottom: 15px;
+        }
+
+        .access-box label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            cursor: pointer;
+            text-transform: none;
+            color: var(--text-main);
+            font-weight: 400;
+        }
+
+        .access-box input[type="checkbox"] { width: auto; margin: 0; }
 
         @media print {
-            .no-print { display: none; }
-            body { background: white; }
-            .slip-card { page-break-after: auto; width: 100%; margin: 0; border: 1px solid #000; }
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; max-width: 100%; padding: 0; }
+            .slip-card { page-break-after: auto; width: 100%; margin: 0; border: 1px solid #000; box-shadow: none; }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
+    <!-- LOGIN PAGE -->
     <div id="loginPage" class="container">
+        <div style="font-size: 40px; color: var(--primary); margin-bottom: 10px;"><i class="fa-solid fa-square-poll-vertical"></i></div>
         <h1>HRM CLOUD</h1>
-        <p>Please Login To Access Our Dasboard</p>
+        <p>Please enter your credentials to access dashboard</p>
+        
         <input type="text" id="username" placeholder="Username / Login ID">
         <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
             <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
         </div>
-        <button class="main-btn" onclick="handleLogin()">CLICK HERE TO LOGIN </button>
+        <button class="main-btn" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login to Dashboard</button>
     </div>
 
+    <!-- DASHBOARD PAGE -->
     <div id="dashboardPage" class="container hidden">
         <div class="top-bar">
-            <div class="profile-trigger" onclick="toggleMenu()">
-                <img id="navPic" src="https://via.placeholder.com/40" class="nav-img">
-                <span id="navName">Admin</span>
+            <div style="text-align: left;">
+                <h3 style="margin:0;">Dashboard</h3>
+                <p style="margin:0; font-size:12px;">Welcome back to management console</p>
             </div>
-            <div id="profileMenu" class="dropdown-menu hidden">
-                <button class="main-btn btn-black" id="acceditBtn" onclick="navTo('acceditPage')">EDIT</button>
-                <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
-                <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
+            <div>
+                <div class="profile-trigger" onclick="toggleMenu()">
+                    <img id="navPic" src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff" class="nav-img">
+                    <span id="navName">Admin</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 8px;"></i>
+                </div>
+                <div id="profileMenu" class="dropdown-menu hidden">
+                    <button class="main-btn btn-black" id="acceditBtn" onclick="navTo('acceditPage')"><i class="fa-solid fa-user-pen"></i> Edit Profile</button>
+                    <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')"><i class="fa-solid fa-user-gear"></i> Admin Panel</button>
+                    <button class="main-btn btn-red" onclick="location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+                </div>
             </div>
         </div>
 
         <div class="menu-grid" id="mainMenuGrid">
-            <button class="menu-btn" data-access="view" onclick="showView('all')">TOTAL STAFF <span class="badge" id="cntAll">0</span></button>
-            <button class="menu-btn" data-access="view" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
-            <button class="menu-btn" data-access="view" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
-            <button class="menu-btn" data-access="add" onclick="navTo('addPage')">ADD NEW STAFF</button>
-            <button class="menu-btn" data-access="salary" onclick="navTo('salaryPage')">SALARY CALCULATOR</button>
-            <button class="menu-btn" data-access="reports" onclick="navTo('reportPage')">REPORTS & SLIPS</button>
-            <button class="menu-btn" data-access="edit" onclick="showView('update')">MANAGE STAFF</button>
+            <button class="menu-btn" data-access="view" onclick="showView('all')">
+                <span>TOTAL STAFF</span>
+                <span class="badge" id="cntAll">0</span>
+            </button>
+            <button class="menu-btn" data-access="view" onclick="showView('Active')">
+                <span>ACTIVE STAFF</span>
+                <span class="badge" id="cntActive" style="color: var(--success);">0</span>
+            </button>
+            <button class="menu-btn" data-access="view" onclick="showView('Inactive')">
+                <span>INACTIVE STAFF</span>
+                <span class="badge" id="cntInactive" style="color: var(--danger);">0</span>
+            </button>
+            <button class="menu-btn" data-access="add" onclick="navTo('addPage')">
+                <i class="fa-solid fa-user-plus" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                <span>ADD NEW STAFF</span>
+            </button>
+            <button class="menu-btn" data-access="salary" onclick="navTo('salaryPage')">
+                <i class="fa-solid fa-calculator" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                <span>SALARY CALCULATOR</span>
+            </button>
+            <button class="menu-btn" data-access="reports" onclick="navTo('reportPage')">
+                <i class="fa-solid fa-file-invoice-dollar" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                <span>REPORTS & SLIPS</span>
+            </button>
+            <button class="menu-btn" data-access="edit" onclick="showView('update')">
+                <i class="fa-solid fa-users-gear" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                <span>MANAGE STAFF</span>
+            </button>
         </div>
     </div>
-     <div id="acceditPage" class="container hidden">
+
+    <!-- UPDATE PROFILE PAGE -->
+    <div id="acceditPage" class="container hidden">
         <h2>Update Profile</h2>
-        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
-            <h3>Change Your Name/h3>
+        <div style="margin-bottom: 20px;">
+            <label>Full Name</label>
             <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
+            <label>Username</label>
             <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+            <label>Password</label>
             <input type="password" id="newUserPs" placeholder="Password">
             
             <div class="access-box">
-                <strong>Edit Account Details:</strong>
+                <strong>Account Options:</strong>
                 <label><input type="checkbox" class="acc-check" value="view" checked> Change Your Name</label>
-                <label><input type="checkbox" class="acc-check" value="add"> Chang Your Password</label>
-               </div>
+                <label><input type="checkbox" class="acc-check" value="add"> Change Your Password</label>
+            </div>
             
-            <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Update</button>
-<button class="main-btn btn-red hidden" id="cancelaccEditBtn" onclick="resetUserForm()">cancel</button>
+            <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Update Profile</button>
+            <button class="main-btn btn-red hidden" id="cancelaccEditBtn" onclick="resetUserForm()">Cancel</button>
             <input type="hidden" id="editaccDocId">
         </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
     </div>
 
-
+    <!-- ADMIN PANEL PAGE -->
     <div id="userAdminPage" class="container hidden">
         <h2>Admin Panel: Manage Users</h2>
-        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
-            <h3>Create New User / Manager</h3>
+        <div style="margin-bottom: 20px;">
+            <h3>Create / Edit User</h3>
+            <label>Full Name</label>
             <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
+            <label>Username</label>
             <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+            <label>Password</label>
             <input type="password" id="newUserPs" placeholder="Password">
             
             <div class="access-box">
@@ -129,91 +436,122 @@
                 <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
             </div>
             
-            <button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">CREATE USER</button>
-<button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">CANCEL EDIT</button>
+            <button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">Create User</button>
+            <button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">Cancel Edit</button>
             <input type="hidden" id="editUserDocId">
         </div>
-        <div style="overflow-x:auto;">
+        <div class="table-responsive">
             <table id="userTable">
                 <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Actions</th></tr></thead>
                 <tbody id="userListBody"></tbody>
             </table>
         </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        <br>
+        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
     </div>
 
+    <!-- EDIT EMPLOYEE PAGE -->
     <div id="editPage" class="container hidden">
         <h2>Edit Employee Details</h2>
         <input type="hidden" id="editDocId">
-        <label>Employee ID:</label>
+        <label>Employee ID</label>
         <input type="text" id="editEmpId">
-        <label>Full Name:</label>
+        <label>Full Name</label>
         <input type="text" id="editEmpName">
-        <label>Phone Number:</label>
+        <label>Phone Number</label>
         <input type="text" id="editEmpPhone">
-        <label>Bank Name:</label>
+        <label>Bank Name</label>
         <input type="text" id="editEmpBank">
-        <label>Account / IBAN:</label>
+        <label>Account / IBAN</label>
         <input type="text" id="editEmpAcc">
-        <label>Status:</label>
+        <label>Status</label>
         <select id="editEmpStatus">
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
         </select>
-        <button class="main-btn btn-green" onclick="updateEmployeeData()">UPDATE DETAILS</button>
-        <button class="main-btn" onclick="showView('update')">CANCEL</button>
+        <button class="main-btn btn-green" onclick="updateEmployeeData()">Update Details</button>
+        <button class="main-btn btn-black" onclick="showView('update')">Cancel</button>
     </div>
 
+    <!-- ADD EMPLOYEE PAGE -->
     <div id="addPage" class="container hidden">
         <h2>Add New Employee</h2>
-        <input type="text" id="newEmpId" placeholder="Employee ID (e.g. 101)">
+        <label>Employee ID</label>
+        <input type="text" id="newEmpId" placeholder="e.g. 101">
+        <label>Full Name</label>
         <input type="text" id="newEmpName" placeholder="Full Name">
+        <label>Phone Number</label>
         <input type="text" id="newEmpPhone" placeholder="Phone Number">
+        <label>Bank Name</label>
         <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
+        <label>Account / IBAN</label>
         <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN (Optional)">
+        <label>Status</label>
         <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
-        <button class="main-btn btn-green" onclick="saveNewEmployee()">SAVE EMPLOYEE</button>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        <button class="main-btn btn-green" onclick="saveNewEmployee()">Save Employee</button>
+        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
     </div>
 
+    <!-- SALARY CALCULATOR PAGE -->
     <div id="salaryPage" class="container hidden">
         <h2>Salary Calculator</h2>
+        <label>Select Employee</label>
         <select id="salEmpList"></select>
         <div class="type-selector">
             <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
             <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
         </div>
-        <label>From:</label><input type="date" id="startDate" onchange="autoCalc()">
-        <label>To:</label><input type="date" id="endDate" onchange="autoCalc()">
-        <div class="calc-info">Days Worked: <span id="displayDays">0</span> <small id="monthInfo" style="display:block; color:blue;"></small></div>
+        <label>From Date</label><input type="date" id="startDate" onchange="autoCalc()">
+        <label>To Date</label><input type="date" id="endDate" onchange="autoCalc()">
+        
+        <div class="calc-info">
+            Days Worked: <span id="displayDays">0</span> 
+            <small id="monthInfo" style="display:block; color:var(--primary); margin-top: 4px;"></small>
+        </div>
+        
+        <label>Base Amount (PKR)</label>
         <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
-        <div class="calc-info" style="background:#c8e6c9">Total Payable: <span id="displayTotal">0</span></div>
-        <button class="main-btn btn-green" onclick="saveSalary()">SAVE TO CLOUD</button>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        
+        <div class="calc-info" style="background:#d1fae5; color:#065f46;">
+            Total Payable: <span id="displayTotal">0</span> PKR
+        </div>
+        
+        <button class="main-btn btn-green" onclick="saveSalary()">Save To Cloud</button>
+        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
     </div>
 
+    <!-- REPORT & SLIPS PAGE -->
     <div id="reportPage" class="container hidden">
         <div class="no-print">
             <h2>Reports & Slips</h2>
-            <div style="display: flex; gap: 10px;">
-                <input type="month" id="repMonth">
-                <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <label>Select Month</label>
+                    <input type="month" id="repMonth">
+                </div>
+                <div>
+                    <label>Select Staff</label>
+                    <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
+                </div>
             </div>
-            <button class="main-btn btn-green" onclick="generateReport()">GENERATE REPORT</button>
-            <button class="main-btn" onclick="window.print()">PRINT SLIPS</button>
-            <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+            <button class="main-btn btn-green" onclick="generateReport()"><i class="fa-solid fa-gear"></i> Generate Report</button>
+            <button class="main-btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Slips</button>
+            <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
         </div>
         <div id="printArea"></div>
     </div>
 
+    <!-- EMPLOYEE LIST PAGE -->
     <div id="listPage" class="container hidden">
         <h2 id="listTitle">Employee Records</h2>
-        <div style="overflow-x:auto;">
+        <div class="table-responsive">
             <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
         </div>
-        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+        <br>
+        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
     </div>
 
+    <!-- Firebase Compat Library -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
@@ -278,89 +616,86 @@
             }
         }
 
-       // یوزر کا ڈیٹا فارم میں ایڈٹ کے لیے بھرنے کا فنکشن
-async function editUser(docId) {
-    const doc = await db.collection("users").doc(docId).get();
-    if(!doc.exists) return;
-    const d = doc.data();
+        async function editUser(docId) {
+            const doc = await db.collection("users").doc(docId).get();
+            if(!doc.exists) return;
+            const d = doc.data();
 
-    document.getElementById("editUserDocId").value = docId;
-    document.getElementById("newFullNm").value = d.fullName;
-    document.getElementById("newUserNm").value = d.username;
-    document.getElementById("newUserPs").value = d.password;
+            document.getElementById("editUserDocId").value = docId;
+            document.getElementById("newFullNm").value = d.fullName;
+            document.getElementById("newUserNm").value = d.username;
+            document.getElementById("newUserPs").value = d.password;
 
-    const perms = d.permissions || [];
-    document.querySelectorAll('.acc-check').forEach(cb => {
-        cb.checked = perms.includes(cb.value);
-    });
+            const perms = d.permissions || [];
+            document.querySelectorAll('.acc-check').forEach(cb => {
+                cb.checked = perms.includes(cb.value);
+            });
 
-    document.getElementById("saveUserBtn").innerText = "UPDATE USER";
-    document.getElementById("cancelUserEditBtn").classList.remove("hidden");
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+            document.getElementById("saveUserBtn").innerText = "UPDATE USER";
+            document.getElementById("cancelUserEditBtn").classList.remove("hidden");
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-// نیا یوزر بنانے اور پرانے کو اپڈیٹ کرنے کا مشترکہ فنکشن
-async function saveOrUpdateUser() {
-    const docId = document.getElementById("editUserDocId").value;
-    const fn = document.getElementById("newFullNm").value.trim();
-    const un = document.getElementById("newUserNm").value.trim();
-    const up = document.getElementById("newUserPs").value.trim();
-    const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
+        async function saveOrUpdateUser() {
+            const docId = document.getElementById("editUserDocId").value;
+            const fn = document.getElementById("newFullNm").value.trim();
+            const un = document.getElementById("newUserNm").value.trim();
+            const up = document.getElementById("newUserPs").value.trim();
+            const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
 
-    if(!fn || !un || !up) return alert("All fields are required!");
+            if(!fn || !un || !up) return alert("All fields are required!");
 
-    if(docId) {
-        // Update
-        await db.collection("users").doc(docId).update({
-            fullName: fn, username: un, password: up, permissions: perms
-        });
-        alert("User Updated Successfully!");
-    } else {
-        // Create
-        await db.collection("users").add({
-            fullName: fn, username: un, password: up, permissions: perms
-        });
-        alert("User Created Successfully!");
-    }
+            if(docId) {
+                await db.collection("users").doc(docId).update({
+                    fullName: fn, username: un, password: up, permissions: perms
+                });
+                alert("User Updated Successfully!");
+            } else {
+                await db.collection("users").add({
+                    fullName: fn, username: un, password: up, permissions: perms
+                });
+                alert("User Created Successfully!");
+            }
 
-    resetUserForm();
-    loadUsers();
-}
+            resetUserForm();
+            loadUsers();
+        }
 
-// فارم کو ریسیٹ کرنے کا فنکشن
-function resetUserForm() {
-    document.getElementById("editUserDocId").value = "";
-    document.getElementById("newFullNm").value = "";
-    document.getElementById("newUserNm").value = "";
-    document.getElementById("newUserPs").value = "";
-    
-    document.querySelectorAll('.acc-check').forEach(cb => cb.checked = false);
-    document.querySelector('.acc-check[value="view"]').checked = true;
+        function resetUserForm() {
+            document.getElementById("editUserDocId").value = "";
+            document.getElementById("newFullNm").value = "";
+            document.getElementById("newUserNm").value = "";
+            document.getElementById("newUserPs").value = "";
+            
+            document.querySelectorAll('.acc-check').forEach(cb => cb.checked = false);
+            document.querySelector('.acc-check[value="view"]').checked = true;
 
-    document.getElementById("saveUserBtn").innerText = "CREATE USER";
-    document.getElementById("cancelUserEditBtn").classList.add("hidden");
-}
+            document.getElementById("saveUserBtn").innerText = "CREATE USER";
+            document.getElementById("cancelUserEditBtn").classList.add("hidden");
+        }
+
         async function loadUsers() {
-    const body = document.getElementById("userListBody");
-    body.innerHTML = "Loading...";
-    const snap = await db.collection("users").get();
-    body.innerHTML = "";
-    snap.forEach(doc => {
-        const d = doc.data();
-        const permsList = d.permissions ? d.permissions.join(', ') : '';
-        body.innerHTML += `<tr>
-            <td>${d.fullName}</td>
-            <td>${d.username}</td>
-            <td><small>${permsList}</small></td>
-            <td>
-                <button onclick="editUser('${doc.id}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button>
-                <button onclick="deleteUser('${doc.id}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
-            </td>
-        </tr>`;
-    });
-}
-async function deleteUser(id) {
+            const body = document.getElementById("userListBody");
+            body.innerHTML = "Loading...";
+            const snap = await db.collection("users").get();
+            body.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                const permsList = d.permissions ? d.permissions.join(', ') : '';
+                body.innerHTML += `<tr>
+                    <td>${d.fullName}</td>
+                    <td>${d.username}</td>
+                    <td><small>${permsList}</small></td>
+                    <td>
+                        <button onclick="editUser('${doc.id}')" style="background:#4f46e5; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button>
+                        <button onclick="deleteUser('${doc.id}')" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        async function deleteUser(id) {
             if(confirm("Delete this user?")) {
                 await db.collection("users").doc(id).delete();
                 loadUsers();
@@ -374,8 +709,6 @@ async function deleteUser(id) {
             if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
             if(id === 'userAdminPage') loadUsers();
         }
-
-        // --- All your original functions remain exactly the same below ---
 
         function togglePass() {
             const p = document.getElementById("password");
@@ -470,19 +803,19 @@ async function deleteUser(id) {
             area.innerHTML = snap.empty ? "<h3>No Records Found</h3>" : "";
             if (snap.empty) return;
             if (selectedEmp === "all") {
-                let tableHtml = `<div class="slip-card" style="width:95%; border:none;"><h2 style="text-align:center; border-bottom:3px solid #000; padding-bottom:10px;">MESKAY & FEMTEE - STAFF SALARY LIST (${m})</h2><table style="width:100%; margin-top:10px;"><thead><tr style="background:#eee;"><th style="width:12%;">ID No</th><th>Employee Name</th><th>Days</th><th>Salary Amount</th><th>Receiving Sign</th></tr></thead><tbody>`;
+                let tableHtml = `<div class="slip-card" style="width:100%; border:none; box-shadow:none;"><h2 style="text-align:center; border-bottom:2px solid var(--border); padding-bottom:10px;">MESKAY & FEMTEE - STAFF SALARY LIST (${m})</h2><table style="width:100%; margin-top:10px;"><thead><tr><th style="width:12%;">ID No</th><th>Employee Name</th><th>Days</th><th>Salary Amount</th><th>Receiving Sign</th></tr></thead><tbody>`;
                 let grandTotal = 0;
                 snap.forEach(doc => {
                     const s = doc.data(); grandTotal += parseInt(s.total);
-                    tableHtml += `<tr><td style="font-weight:bold;">${s.empId || '-'}</td><td style="text-align:left; padding-left:10px;">${s.empName}</td><td>${s.days}</td><td style="font-weight:bold;">${s.total} PKR</td><td style="height:45px; border: 2px solid #000;"></td></tr>`;
+                    tableHtml += `<tr><td style="font-weight:bold;">${s.empId || '-'}</td><td>${s.empName}</td><td>${s.days}</td><td style="font-weight:bold;">${s.total} PKR</td><td style="height:45px; border-bottom: 1px solid var(--border);"></td></tr>`;
                 });
-                tableHtml += `<tr style="background:#f9f9f9; font-weight:bold;"><td colspan="3" style="text-align:right;">GRAND TOTAL:</td><td>${grandTotal} PKR</td><td></td></tr></tbody></table><div class="sig-container" style="margin-top:30px;"><div class="sig-box">Verified By (Admin)</div><div class="sig-box">Manager/Authorized Signature</div></div></div>`;
+                tableHtml += `<tr style="font-weight:bold; background:#f8fafc;"><td colspan="3" style="text-align:right;">GRAND TOTAL:</td><td>${grandTotal} PKR</td><td></td></tr></tbody></table><div class="sig-container" style="margin-top:40px;"><div class="sig-box">Verified By (Admin)</div><div class="sig-box">Manager/Authorized Signature</div></div></div>`;
                 area.innerHTML = tableHtml;
             } else {
                 snap.forEach(doc => {
                     const s = doc.data();
                     let bankInfo = (s.bank || s.acc) ? `<p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>` : '';
-                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;"><h2 style="margin:5px;">MESKAY & FEMTEE</h2><p style="margin:5px;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-size:1.3em; font-weight:bold; background:#eee; padding:2px 8px; border:1px solid #000;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p><div style="background:#eee; padding:12px; border:2px solid #000; margin-top:10px;"><h3 style="margin:0; text-align:center;">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By (Admin)</div><div class="sig-box">Employee Signature</div></div></div>`;
+                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:1px solid var(--border); margin-bottom:15px; padding-bottom:10px;"><h2 style="margin:5px; border:none;">MESKAY & FEMTEE</h2><p style="margin:0;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-weight:bold; background:#f1f5f9; padding:2px 8px; border-radius:4px;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p><div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:15px;"><h3 style="margin:0; text-align:center; color:var(--primary);">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By (Admin)</div><div class="sig-box">Employee Signature</div></div></div>`;
                 });
             }
         }
@@ -501,9 +834,9 @@ async function deleteUser(id) {
                 if(mode === 'all' || e.status === mode || isUpdate) {
                     let actionBtn = "";
                     if(isUpdate) {
-                        actionBtn = `<td><button onclick="editEmp('${docId}')" style="background:#2196f3; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button><button onclick="delEmp('${docId}')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button></td>`;
+                        actionBtn = `<td><button onclick="editEmp('${docId}')" style="background:#4f46e5; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button><button onclick="delEmp('${docId}')" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button></td>`;
                     }
-                    const statusColor = e.status === 'Active' ? 'green' : 'red';
+                    const statusColor = e.status === 'Active' ? 'var(--success)' : 'var(--danger)';
                     b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td style="color:${statusColor}; font-weight:bold;">${e.status}</td>${actionBtn}</tr>`;
                 }
             });
