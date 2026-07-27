@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +24,7 @@
             --radius: 10px;
             --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
             --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
+            --sidebar-width: 260px;
         }
 
         * {
@@ -38,22 +39,116 @@
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px 10px;
         }
 
         .hidden { display: none !important; }
 
+        /* App Layout */
+        .app-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #1e293b;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-brand i {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-menu-category {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            padding: 10px 12px 5px 12px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar-menu-item:hover, .sidebar-menu-item.active {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .sidebar-menu-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Wrapper */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Container Inside Main Layout */
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             background: var(--surface);
             padding: 30px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow);
             border: 1px solid var(--border);
-            margin: 0 auto;
+            margin: 20px auto;
             animation: fadeIn 0.3s ease-in-out;
         }
 
@@ -140,8 +235,9 @@
         /* Login Screen */
         #loginPage {
             max-width: 420px;
-            margin-top: 50px;
+            margin: 80px auto;
             text-align: center;
+            width: 100%;
         }
 
         .pass-box { position: relative; }
@@ -158,8 +254,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
+            padding: 15px 30px;
+            background: var(--surface);
             border-bottom: 1px solid var(--border);
         }
 
@@ -172,6 +268,7 @@
             border-radius: 30px;
             border: 1px solid var(--border);
             transition: 0.2s;
+            position: relative;
         }
 
         .profile-trigger:hover { background: #e2e8f0; }
@@ -314,17 +411,35 @@
 
         .access-box input[type="checkbox"] { width: auto; margin: 0; }
 
+        /* Mobile Responsive Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-brand span, .sidebar-menu-category, .sidebar-menu-item span {
+                display: none;
+            }
+            .main-wrapper {
+                margin-left: 70px;
+            }
+            .sidebar-menu-item {
+                justify-content: center;
+                padding: 15px;
+            }
+        }
+
         @media print {
-            .no-print { display: none !important; }
+            .no-print, .sidebar, .top-bar { display: none !important; }
             body { background: white; padding: 0; }
-            .container { box-shadow: none; border: none; max-width: 100%; padding: 0; }
+            .main-wrapper { margin-left: 0 !important; }
+            .container { box-shadow: none; border: none; max-width: 100%; padding: 0; margin: 0; }
             .slip-card { page-break-after: auto; width: 100%; margin: 0; border: 1px solid #000; box-shadow: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN PAGE -->
+    <!-- LOGIN PAGE (DISPLAYED OUTSIDE MAIN LAYOUT) -->
     <div id="loginPage" class="container">
         <div style="font-size: 40px; color: var(--primary); margin-bottom: 10px;"><i class="fa-solid fa-square-poll-vertical"></i></div>
         <h1>HRM CLOUD</h1>
@@ -338,217 +453,292 @@
         <button class="main-btn" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login to Dashboard</button>
     </div>
 
-    <!-- DASHBOARD PAGE -->
-    <div id="dashboardPage" class="container hidden">
-        <div class="top-bar">
-            <div style="text-align: left;">
-                <h3 style="margin:0;">Dashboard</h3>
-                <p style="margin:0; font-size:12px;">Welcome back to management console</p>
-            </div>
-            <div>
-                <div class="profile-trigger" onclick="toggleMenu()">
-                    <img id="navPic" src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff" class="nav-img">
-                    <span id="navName">Admin</span>
-                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 8px;"></i>
-                </div>
-                <div id="profileMenu" class="dropdown-menu hidden">
-                    <button class="main-btn btn-black" id="acceditBtn" onclick="navTo('acceditPage')"><i class="fa-solid fa-user-pen"></i> Edit Profile</button>
-                    <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')"><i class="fa-solid fa-user-gear"></i> Admin Panel</button>
-                    <button class="main-btn btn-red" onclick="location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="menu-grid" id="mainMenuGrid">
-            <button class="menu-btn" data-access="view" onclick="showView('all')">
-                <span>TOTAL STAFF</span>
-                <span class="badge" id="cntAll">0</span>
-            </button>
-            <button class="menu-btn" data-access="view" onclick="showView('Active')">
-                <span>ACTIVE STAFF</span>
-                <span class="badge" id="cntActive" style="color: var(--success);">0</span>
-            </button>
-            <button class="menu-btn" data-access="view" onclick="showView('Inactive')">
-                <span>INACTIVE STAFF</span>
-                <span class="badge" id="cntInactive" style="color: var(--danger);">0</span>
-            </button>
-            <button class="menu-btn" data-access="add" onclick="navTo('addPage')">
-                <i class="fa-solid fa-user-plus" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
-                <span>ADD NEW STAFF</span>
-            </button>
-            <button class="menu-btn" data-access="salary" onclick="navTo('salaryPage')">
-                <i class="fa-solid fa-calculator" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
-                <span>SALARY CALCULATOR</span>
-            </button>
-            <button class="menu-btn" data-access="reports" onclick="navTo('reportPage')">
-                <i class="fa-solid fa-file-invoice-dollar" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
-                <span>REPORTS & SLIPS</span>
-            </button>
-            <button class="menu-btn" data-access="edit" onclick="showView('update')">
-                <i class="fa-solid fa-users-gear" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
-                <span>MANAGE STAFF</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- UPDATE PROFILE PAGE -->
-    <div id="acceditPage" class="container hidden">
-        <h2>Update Profile</h2>
-        <div style="margin-bottom: 20px;">
-            <label>Full Name</label>
-            <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
-            <label>Username</label>
-            <input type="text" id="newUserNm" placeholder="Username (Login ID)">
-            <label>Password</label>
-            <input type="password" id="newUserPs" placeholder="Password">
-            
-            <div class="access-box">
-                <strong>Account Options:</strong>
-                <label><input type="checkbox" class="acc-check" value="view" checked> Change Your Name</label>
-                <label><input type="checkbox" class="acc-check" value="add"> Change Your Password</label>
-            </div>
-            
-            <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Update Profile</button>
-            <button class="main-btn btn-red hidden" id="cancelaccEditBtn" onclick="resetUserForm()">Cancel</button>
-            <input type="hidden" id="editaccDocId">
-        </div>
-        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
-    </div>
-
-    <!-- ADMIN PANEL PAGE -->
-    <div id="userAdminPage" class="container hidden">
-        <h2>Admin Panel: Manage Users</h2>
-        <div style="margin-bottom: 20px;">
-            <h3>Create / Edit User</h3>
-            <label>Full Name</label>
-            <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
-            <label>Username</label>
-            <input type="text" id="newUserNm" placeholder="Username (Login ID)">
-            <label>Password</label>
-            <input type="password" id="newUserPs" placeholder="Password">
-            
-            <div class="access-box">
-                <strong>Set Access Permissions:</strong>
-                <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
-                <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
-                <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
-                <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
-                <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
-            </div>
-            
-            <button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">Create User</button>
-            <button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">Cancel Edit</button>
-            <input type="hidden" id="editUserDocId">
-        </div>
-        <div class="table-responsive">
-            <table id="userTable">
-                <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Actions</th></tr></thead>
-                <tbody id="userListBody"></tbody>
-            </table>
-        </div>
-        <br>
-        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
-    </div>
-
-    <!-- EDIT EMPLOYEE PAGE -->
-    <div id="editPage" class="container hidden">
-        <h2>Edit Employee Details</h2>
-        <input type="hidden" id="editDocId">
-        <label>Employee ID</label>
-        <input type="text" id="editEmpId">
-        <label>Full Name</label>
-        <input type="text" id="editEmpName">
-        <label>Phone Number</label>
-        <input type="text" id="editEmpPhone">
-        <label>Bank Name</label>
-        <input type="text" id="editEmpBank">
-        <label>Account / IBAN</label>
-        <input type="text" id="editEmpAcc">
-        <label>Status</label>
-        <select id="editEmpStatus">
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        <button class="main-btn btn-green" onclick="updateEmployeeData()">Update Details</button>
-        <button class="main-btn btn-black" onclick="showView('update')">Cancel</button>
-    </div>
-
-    <!-- ADD EMPLOYEE PAGE -->
-    <div id="addPage" class="container hidden">
-        <h2>Add New Employee</h2>
-        <label>Employee ID</label>
-        <input type="text" id="newEmpId" placeholder="e.g. 101">
-        <label>Full Name</label>
-        <input type="text" id="newEmpName" placeholder="Full Name">
-        <label>Phone Number</label>
-        <input type="text" id="newEmpPhone" placeholder="Phone Number">
-        <label>Bank Name</label>
-        <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
-        <label>Account / IBAN</label>
-        <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN (Optional)">
-        <label>Status</label>
-        <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
-        <button class="main-btn btn-green" onclick="saveNewEmployee()">Save Employee</button>
-        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
-    </div>
-
-    <!-- SALARY CALCULATOR PAGE -->
-    <div id="salaryPage" class="container hidden">
-        <h2>Salary Calculator</h2>
-        <label>Select Employee</label>
-        <select id="salEmpList"></select>
-        <div class="type-selector">
-            <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
-            <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
-        </div>
-        <label>From Date</label><input type="date" id="startDate" onchange="autoCalc()">
-        <label>To Date</label><input type="date" id="endDate" onchange="autoCalc()">
+    <!-- MAIN APP WRAPPER (HIDDEN UNTIL LOGIN) -->
+    <div id="appLayout" class="app-layout hidden">
         
-        <div class="calc-info">
-            Days Worked: <span id="displayDays">0</span> 
-            <small id="monthInfo" style="display:block; color:var(--primary); margin-top: 4px;"></small>
-        </div>
-        
-        <label>Base Amount (PKR)</label>
-        <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
-        
-        <div class="calc-info" style="background:#d1fae5; color:#065f46;">
-            Total Payable: <span id="displayTotal">0</span> PKR
-        </div>
-        
-        <button class="main-btn btn-green" onclick="saveSalary()">Save To Cloud</button>
-        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
-    </div>
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-square-poll-vertical"></i>
+                <span>HRM CLOUD</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-category">Main</li>
+                <li>
+                    <button class="sidebar-menu-item active" onclick="navTo('dashboardPage')" data-access="view">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </button>
+                </li>
+                
+                <li class="sidebar-menu-category">Staff Management</li>
+                <li>
+                    <button class="sidebar-menu-item" onclick="showView('all')" data-access="view">
+                        <i class="fa-solid fa-users"></i>
+                        <span>All Staff</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="sidebar-menu-item" onclick="navTo('addPage')" data-access="add">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Add New Staff</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="sidebar-menu-item" onclick="showView('update')" data-access="edit">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>Manage Staff</span>
+                    </button>
+                </li>
 
-    <!-- REPORT & SLIPS PAGE -->
-    <div id="reportPage" class="container hidden">
-        <div class="no-print">
-            <h2>Reports & Slips</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                <div>
-                    <label>Select Month</label>
-                    <input type="month" id="repMonth">
+                <li class="sidebar-menu-category">Payroll & Finance</li>
+                <li>
+                    <button class="sidebar-menu-item" onclick="navTo('salaryPage')" data-access="salary">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Salary Calculator</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="sidebar-menu-item" onclick="navTo('reportPage')" data-access="reports">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Reports & Slips</span>
+                    </button>
+                </li>
+
+                <li class="sidebar-menu-category" id="adminCat">System</li>
+                <li id="adminSidebarBtn" class="hidden">
+                    <button class="sidebar-menu-item" onclick="navTo('userAdminPage')">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span>Admin Panel</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="sidebar-menu-item" onclick="location.reload()">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <div class="main-wrapper">
+            <!-- TOP BAR -->
+            <div class="top-bar">
+                <div style="text-align: left;">
+                    <h3 style="margin:0;" id="pageTitle">Dashboard</h3>
+                    <p style="margin:0; font-size:12px;">Welcome back to management console</p>
                 </div>
                 <div>
-                    <label>Select Staff</label>
-                    <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
+                    <div class="profile-trigger" onclick="toggleMenu()">
+                        <img id="navPic" src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff" class="nav-img">
+                        <span id="navName">Admin</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 8px;"></i>
+                    </div>
+                    <div id="profileMenu" class="dropdown-menu hidden">
+                        <button class="main-btn btn-black" id="acceditBtn" onclick="navTo('acceditPage')"><i class="fa-solid fa-user-pen"></i> Edit Profile</button>
+                        <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')"><i class="fa-solid fa-user-gear"></i> Admin Panel</button>
+                        <button class="main-btn btn-red" onclick="location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+                    </div>
                 </div>
             </div>
-            <button class="main-btn btn-green" onclick="generateReport()"><i class="fa-solid fa-gear"></i> Generate Report</button>
-            <button class="main-btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Slips</button>
-            <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
-        </div>
-        <div id="printArea"></div>
-    </div>
 
-    <!-- EMPLOYEE LIST PAGE -->
-    <div id="listPage" class="container hidden">
-        <h2 id="listTitle">Employee Records</h2>
-        <div class="table-responsive">
-            <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
+            <!-- DASHBOARD PAGE -->
+            <div id="dashboardPage" class="container">
+                <h2>Overview Dashboard</h2>
+                <div class="menu-grid" id="mainMenuGrid">
+                    <button class="menu-btn" data-access="view" onclick="showView('all')">
+                        <span>TOTAL STAFF</span>
+                        <span class="badge" id="cntAll">0</span>
+                    </button>
+                    <button class="menu-btn" data-access="view" onclick="showView('Active')">
+                        <span>ACTIVE STAFF</span>
+                        <span class="badge" id="cntActive" style="color: var(--success);">0</span>
+                    </button>
+                    <button class="menu-btn" data-access="view" onclick="showView('Inactive')">
+                        <span>INACTIVE STAFF</span>
+                        <span class="badge" id="cntInactive" style="color: var(--danger);">0</span>
+                    </button>
+                    <button class="menu-btn" data-access="add" onclick="navTo('addPage')">
+                        <i class="fa-solid fa-user-plus" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                        <span>ADD NEW STAFF</span>
+                    </button>
+                    <button class="menu-btn" data-access="salary" onclick="navTo('salaryPage')">
+                        <i class="fa-solid fa-calculator" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                        <span>SALARY CALCULATOR</span>
+                    </button>
+                    <button class="menu-btn" data-access="reports" onclick="navTo('reportPage')">
+                        <i class="fa-solid fa-file-invoice-dollar" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                        <span>REPORTS & SLIPS</span>
+                    </button>
+                    <button class="menu-btn" data-access="edit" onclick="showView('update')">
+                        <i class="fa-solid fa-users-gear" style="font-size: 20px; color: var(--primary); margin-bottom: 10px;"></i>
+                        <span>MANAGE STAFF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- UPDATE PROFILE PAGE -->
+            <div id="acceditPage" class="container hidden">
+                <h2>Update Profile</h2>
+                <div style="margin-bottom: 20px;">
+                    <label>Full Name</label>
+                    <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
+                    <label>Username</label>
+                    <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+                    <label>Password</label>
+                    <input type="password" id="newUserPs" placeholder="Password">
+                    
+                    <div class="access-box">
+                        <strong>Account Options:</strong>
+                        <label><input type="checkbox" class="acc-check" value="view" checked> Change Your Name</label>
+                        <label><input type="checkbox" class="acc-check" value="add"> Change Your Password</label>
+                    </div>
+                    
+                    <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Update Profile</button>
+                    <button class="main-btn btn-red hidden" id="cancelaccEditBtn" onclick="resetUserForm()">Cancel</button>
+                    <input type="hidden" id="editaccDocId">
+                </div>
+                <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+            </div>
+
+            <!-- ADMIN PANEL PAGE -->
+            <div id="userAdminPage" class="container hidden">
+                <h2>Admin Panel: Manage Users</h2>
+                <div style="margin-bottom: 20px;">
+                    <h3>Create / Edit User</h3>
+                    <label>Full Name</label>
+                    <input type="text" id="newFullNmAdmin" placeholder="Full Name (e.g. Zulfiqar Ali)">
+                    <label>Username</label>
+                    <input type="text" id="newUserNmAdmin" placeholder="Username (Login ID)">
+                    <label>Password</label>
+                    <input type="password" id="newUserPsAdmin" placeholder="Password">
+                    
+                    <div class="access-box">
+                        <strong>Set Access Permissions:</strong>
+                        <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
+                        <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
+                        <label><input type="checkbox" class="acc-check" value="edit"> Edit/Delete Employees</label>
+                        <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
+                        <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
+                    </div>
+                    
+                    <button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">Create User</button>
+                    <button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">Cancel Edit</button>
+                    <input type="hidden" id="editUserDocId">
+                </div>
+                <div class="table-responsive">
+                    <table id="userTable">
+                        <thead><tr><th>Name</th><th>User ID</th><th>Access</th><th>Actions</th></tr></thead>
+                        <tbody id="userListBody"></tbody>
+                    </table>
+                </div>
+                <br>
+                <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+            </div>
+
+            <!-- EDIT EMPLOYEE PAGE -->
+            <div id="editPage" class="container hidden">
+                <h2>Edit Employee Details</h2>
+                <input type="hidden" id="editDocId">
+                <label>Employee ID</label>
+                <input type="text" id="editEmpId">
+                <label>Full Name</label>
+                <input type="text" id="editEmpName">
+                <label>Phone Number</label>
+                <input type="text" id="editEmpPhone">
+                <label>Bank Name</label>
+                <input type="text" id="editEmpBank">
+                <label>Account / IBAN</label>
+                <input type="text" id="editEmpAcc">
+                <label>Status</label>
+                <select id="editEmpStatus">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+                <button class="main-btn btn-green" onclick="updateEmployeeData()">Update Details</button>
+                <button class="main-btn btn-black" onclick="showView('update')">Cancel</button>
+            </div>
+
+            <!-- ADD EMPLOYEE PAGE -->
+            <div id="addPage" class="container hidden">
+                <h2>Add New Employee</h2>
+                <label>Employee ID</label>
+                <input type="text" id="newEmpId" placeholder="e.g. 101">
+                <label>Full Name</label>
+                <input type="text" id="newEmpName" placeholder="Full Name">
+                <label>Phone Number</label>
+                <input type="text" id="newEmpPhone" placeholder="Phone Number">
+                <label>Bank Name</label>
+                <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
+                <label>Account / IBAN</label>
+                <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN (Optional)">
+                <label>Status</label>
+                <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+                <button class="main-btn btn-green" onclick="saveNewEmployee()">Save Employee</button>
+                <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+            </div>
+
+            <!-- SALARY CALCULATOR PAGE -->
+            <div id="salaryPage" class="container hidden">
+                <h2>Salary Calculator</h2>
+                <label>Select Employee</label>
+                <select id="salEmpList"></select>
+                <div class="type-selector">
+                    <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
+                    <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
+                </div>
+                <label>From Date</label><input type="date" id="startDate" onchange="autoCalc()">
+                <label>To Date</label><input type="date" id="endDate" onchange="autoCalc()">
+                
+                <div class="calc-info">
+                    Days Worked: <span id="displayDays">0</span> 
+                    <small id="monthInfo" style="display:block; color:var(--primary); margin-top: 4px;"></small>
+                </div>
+                
+                <label>Base Amount (PKR)</label>
+                <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
+                
+                <div class="calc-info" style="background:#d1fae5; color:#065f46;">
+                    Total Payable: <span id="displayTotal">0</span> PKR
+                </div>
+                
+                <button class="main-btn btn-green" onclick="saveSalary()">Save To Cloud</button>
+                <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+            </div>
+
+            <!-- REPORT & SLIPS PAGE -->
+            <div id="reportPage" class="container hidden">
+                <div class="no-print">
+                    <h2>Reports & Slips</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label>Select Month</label>
+                            <input type="month" id="repMonth">
+                        </div>
+                        <div>
+                            <label>Select Staff</label>
+                            <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
+                        </div>
+                    </div>
+                    <button class="main-btn btn-green" onclick="generateReport()"><i class="fa-solid fa-gear"></i> Generate Report</button>
+                    <button class="main-btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Slips</button>
+                    <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                </div>
+                <div id="printArea"></div>
+            </div>
+
+            <!-- EMPLOYEE LIST PAGE -->
+            <div id="listPage" class="container hidden">
+                <h2 id="listTitle">Employee Records</h2>
+                <div class="table-responsive">
+                    <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
+                </div>
+                <br>
+                <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+            </div>
+
         </div>
-        <br>
-        <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
     </div>
 
     <!-- Firebase Compat Library -->
@@ -592,13 +782,15 @@
         }
 
         function loginOk() {
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("appLayout").classList.remove("hidden");
             document.getElementById("navName").innerText = currentUser.name;
             applyPermissions();
             navTo('dashboardPage');
         }
 
         function applyPermissions() {
-            const btns = document.querySelectorAll('.menu-btn');
+            const btns = document.querySelectorAll('[data-access]');
             btns.forEach(btn => {
                 const req = btn.getAttribute('data-access');
                 if (req && !currentUser.access.includes(req)) {
@@ -611,8 +803,10 @@
             // Admin only button visibility
             if (currentUser.role === 'admin') {
                 document.getElementById("adminOnlyBtn").classList.remove('hidden');
+                document.getElementById("adminSidebarBtn").classList.remove('hidden');
             } else {
                 document.getElementById("adminOnlyBtn").classList.add('hidden');
+                document.getElementById("adminSidebarBtn").classList.add('hidden');
             }
         }
 
@@ -622,12 +816,12 @@
             const d = doc.data();
 
             document.getElementById("editUserDocId").value = docId;
-            document.getElementById("newFullNm").value = d.fullName;
-            document.getElementById("newUserNm").value = d.username;
-            document.getElementById("newUserPs").value = d.password;
+            document.getElementById("newFullNmAdmin").value = d.fullName;
+            document.getElementById("newUserNmAdmin").value = d.username;
+            document.getElementById("newUserPsAdmin").value = d.password;
 
             const perms = d.permissions || [];
-            document.querySelectorAll('.acc-check').forEach(cb => {
+            document.querySelectorAll('#userAdminPage .acc-check').forEach(cb => {
                 cb.checked = perms.includes(cb.value);
             });
 
@@ -639,10 +833,10 @@
 
         async function saveOrUpdateUser() {
             const docId = document.getElementById("editUserDocId").value;
-            const fn = document.getElementById("newFullNm").value.trim();
-            const un = document.getElementById("newUserNm").value.trim();
-            const up = document.getElementById("newUserPs").value.trim();
-            const perms = Array.from(document.querySelectorAll('.acc-check:checked')).map(cb => cb.value);
+            const fn = document.getElementById("newFullNmAdmin").value.trim();
+            const un = document.getElementById("newUserNmAdmin").value.trim();
+            const up = document.getElementById("newUserPsAdmin").value.trim();
+            const perms = Array.from(document.querySelectorAll('#userAdminPage .acc-check:checked')).map(cb => cb.value);
 
             if(!fn || !un || !up) return alert("All fields are required!");
 
@@ -664,12 +858,13 @@
 
         function resetUserForm() {
             document.getElementById("editUserDocId").value = "";
-            document.getElementById("newFullNm").value = "";
-            document.getElementById("newUserNm").value = "";
-            document.getElementById("newUserPs").value = "";
+            document.getElementById("newFullNmAdmin").value = "";
+            document.getElementById("newUserNmAdmin").value = "";
+            document.getElementById("newUserPsAdmin").value = "";
             
-            document.querySelectorAll('.acc-check').forEach(cb => cb.checked = false);
-            document.querySelector('.acc-check[value="view"]').checked = true;
+            document.querySelectorAll('#userAdminPage .acc-check').forEach(cb => cb.checked = false);
+            const viewCb = document.querySelector('#userAdminPage .acc-check[value="view"]');
+            if(viewCb) viewCb.checked = true;
 
             document.getElementById("saveUserBtn").innerText = "CREATE USER";
             document.getElementById("cancelUserEditBtn").classList.add("hidden");
@@ -703,8 +898,20 @@
         }
 
         function navTo(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            // Hide menu dropdown if active
+            document.getElementById("profileMenu").classList.add("hidden");
+
+            // Hide all pages inside main wrapper
+            document.querySelectorAll('.main-wrapper .container').forEach(c => c.classList.add('hidden'));
+            
+            // Show requested page
             document.getElementById(id).classList.remove('hidden');
+
+            // Sidebar highlight update
+            document.querySelectorAll('.sidebar-menu-item').forEach(btn => btn.classList.remove('active'));
+            const activeSidebarBtn = document.querySelector(`.sidebar-menu-item[onclick*="${id}"]`);
+            if(activeSidebarBtn) activeSidebarBtn.classList.add('active');
+
             if(id === 'dashboardPage') updateCounts();
             if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
             if(id === 'userAdminPage') loadUsers();
