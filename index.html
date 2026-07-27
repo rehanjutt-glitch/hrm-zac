@@ -204,6 +204,31 @@
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         }
 
+        /* Search Box Specific Styling */
+        .search-box-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .search-box-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .search-input {
+            padding-left: 45px !important;
+            background-color: #ffffff !important;
+            border: 2px solid var(--border) !important;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary) !important;
+        }
+
         /* Buttons */
         .main-btn {
             width: 100%;
@@ -675,7 +700,7 @@
                     </select>
 
                     <label>Comments</label>
-                    <textarea id="editEmpComments" rows="3" placeholder=></textarea>
+                    <textarea id="editEmpComments" rows="3" placeholder=""></textarea>
                 </div>
 
                 <button class="main-btn btn-green" onclick="updateEmployeeData()">Update Details</button>
@@ -710,7 +735,7 @@
                     </select>
 
                     <label>Comments</label>
-                    <textarea id="newEmpComments" rows="3" placeholder=></textarea>
+                    <textarea id="newEmpComments" rows="3" placeholder=""></textarea>
                 </div>
 
                 <button class="main-btn btn-green" onclick="saveNewEmployee()">Save Employee</button>
@@ -720,8 +745,16 @@
             <!-- SALARY CALCULATOR PAGE -->
             <div id="salaryPage" class="container hidden">
                 <h2>Salary Calculator</h2>
+                
+                <label>Find / Filter Employee</label>
+                <div class="search-box-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="salEmpSearch" class="search-input" placeholder="Type Employee Name or ID to filter..." onkeyup="filterSalEmpDropdown()">
+                </div>
+
                 <label>Select Employee</label>
                 <select id="salEmpList"></select>
+
                 <div class="type-selector">
                     <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
                     <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
@@ -766,7 +799,12 @@
                             <input type="month" id="repMonth">
                         </div>
                         <div>
-                            <label>Select Staff</label>
+                            <label>Filter Staff</label>
+                            <div class="search-box-container" style="margin-bottom: 5px;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="repEmpSearch" class="search-input" placeholder="Filter Staff Name..." onkeyup="filterRepEmpDropdown()">
+                            </div>
+                            <label style="margin-top:0;">Select Staff</label>
                             <select id="repEmpList"><option value="all">-- Full Staff --</option></select>
                         </div>
                     </div>
@@ -780,6 +818,13 @@
             <!-- EMPLOYEE LIST PAGE -->
             <div id="listPage" class="container hidden">
                 <h2 id="listTitle">Employee Records</h2>
+
+                <!-- SEARCH BOX IN EMPLOYEE LIST -->
+                <div class="search-box-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="empSearchInput" class="search-input" placeholder="Search employee by Name or ID..." onkeyup="filterEmpTable()">
+                </div>
+
                 <div class="table-responsive">
                     <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
                 </div>
@@ -809,6 +854,7 @@
         let currentUser = null;
         let calcMode = 'monthly';
         let currentListMode = 'all';
+        let activeEmployeesList = []; // Array to hold loaded employee data for fast filtering
 
         // Toggle Reason Box depending on Active/Inactive status
         function toggleReasonField(prefix) {
@@ -1186,16 +1232,56 @@
             const repSel = document.getElementById("repEmpList");
             salSel.innerHTML = "";
             repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
+            activeEmployeesList = [];
+
             const snap = await db.collection("employees").where("status","==","Active").get();
             snap.forEach(doc => {
                 const data = doc.data();
-                salSel.innerHTML += `<option value="${doc.id}">${data.name} (${data.id})</option>`;
-                repSel.innerHTML += `<option value="${data.name}">${data.name}</option>`;
+                data.docId = doc.id;
+                activeEmployeesList.push(data);
             });
+
+            renderEmpDropdownOptions();
+        }
+
+        function renderEmpDropdownOptions() {
+            const salSel = document.getElementById("salEmpList");
+            const repSel = document.getElementById("repEmpList");
+            const salQuery = (document.getElementById("salEmpSearch")?.value || "").toLowerCase().trim();
+            const repQuery = (document.getElementById("repEmpSearch")?.value || "").toLowerCase().trim();
+
+            // Populate Salary Calculator Select
+            salSel.innerHTML = "";
+            activeEmployeesList.forEach(emp => {
+                const matches = (emp.name && emp.name.toLowerCase().includes(salQuery)) || 
+                                (emp.id && String(emp.id).toLowerCase().includes(salQuery));
+                if (matches) {
+                    salSel.innerHTML += `<option value="${emp.docId}">${emp.name} (${emp.id})</option>`;
+                }
+            });
+
+            // Populate Reports Select
+            repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
+            activeEmployeesList.forEach(emp => {
+                const matches = (emp.name && emp.name.toLowerCase().includes(repQuery)) || 
+                                (emp.id && String(emp.id).toLowerCase().includes(repQuery));
+                if (matches) {
+                    repSel.innerHTML += `<option value="${emp.name}">${emp.name} (${emp.id})</option>`;
+                }
+            });
+        }
+
+        function filterSalEmpDropdown() {
+            renderEmpDropdownOptions();
+        }
+
+        function filterRepEmpDropdown() {
+            renderEmpDropdownOptions();
         }
 
         async function saveSalary() {
             const empRefId = document.getElementById("salEmpList").value;
+            if(!empRefId) return alert("Please select an employee!");
             const empSnap = await db.collection("employees").doc(empRefId).get();
             const empData = empSnap.data();
             const t = document.getElementById("displayTotal").innerText;
@@ -1257,6 +1343,7 @@
         async function renderListView(mode) {
             showPageUI('listPage');
             const b = document.getElementById("empTableBody"); b.innerHTML = "";
+            document.getElementById("empSearchInput").value = ""; // Clear search on mode switch
             const isUpdate = mode === 'update';
             if(mode === 'Inactive') document.getElementById("listTitle").innerText = "Inactive Staff Records";
             else if(mode === 'Active') document.getElementById("listTitle").innerText = "Active Staff Records";
@@ -1278,7 +1365,24 @@
                             statusDetails += `<div style="font-size:11px; color:#64748b;"><em>"${e.comments}"</em></div>`;
                         }
                     }
-                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td>${statusDetails}</td>${actionBtn}</tr>`;
+                    b.innerHTML += `<tr class="emp-row" data-id="${e.id}" data-name="${e.name ? e.name.toLowerCase() : ''}"><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td>${statusDetails}</td>${actionBtn}</tr>`;
+                }
+            });
+        }
+
+        // Real-time Employee Table Search Filter Function
+        function filterEmpTable() {
+            const query = document.getElementById("empSearchInput").value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#empTableBody .emp-row");
+            
+            rows.forEach(row => {
+                const empId = row.getAttribute("data-id") ? row.getAttribute("data-id").toLowerCase() : "";
+                const empName = row.getAttribute("data-name") || "";
+                
+                if (empId.includes(query) || empName.includes(query)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
                 }
             });
         }
