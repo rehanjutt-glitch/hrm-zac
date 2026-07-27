@@ -685,8 +685,8 @@
                 <!-- SALARY & WAGE FIELDS -->
                 <label>Salary Type / تنخواہ کی قسم</label>
                 <select id="editEmpSalaryType" onchange="updateSalaryPlaceholder('edit')">
-                    <option value="monthly">Monthly Fix / ماہانہ</option>
-                    <option value="daily">Daily Wages / دیہاڑی</option>
+                    <option value="monthly">Monthly Fix</option>
+                    <option value="daily">Daily Wages</option>
                 </select>
                 <label id="editEmpSalaryLabel">Base Salary / Monthly Fix (PKR)</label>
                 <input type="number" id="editEmpBaseSalary" placeholder="Enter Amount">
@@ -730,8 +730,8 @@
                 <!-- SALARY & WAGE FIELDS -->
                 <label>Salary Type / تنخواہ کی قسم</label>
                 <select id="newEmpSalaryType" onchange="updateSalaryPlaceholder('add')">
-                    <option value="monthly">Monthly Fix / ماہانہ</option>
-                    <option value="daily">Daily Wages / دیہاڑی</option>
+                    <option value="monthly">Monthly Fix</option>
+                    <option value="daily">Daily Wages /</option>
                 </select>
                 <label id="newEmpSalaryLabel">Base Salary / Monthly Fix (PKR)</label>
                 <input type="number" id="newEmpBaseSalary" placeholder="Enter Amount">
@@ -881,7 +881,7 @@
             const type = document.getElementById(prefix === 'edit' ? 'editEmpSalaryType' : 'newEmpSalaryType').value;
             const label = document.getElementById(prefix === 'edit' ? 'editEmpSalaryLabel' : 'newEmpSalaryLabel');
             if (type === 'daily') {
-                label.innerText = 'Daily Rate / دیہاڑی (PKR)';
+                label.innerText = 'Daily Rate / (PKR)';
             } else {
                 label.innerText = 'Base Salary / Monthly Fix (PKR)';
             }
