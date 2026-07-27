@@ -699,6 +699,17 @@
                 <label>Base Amount (PKR)</label>
                 <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
                 
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="color: var(--danger);">Deduction / کٹوتھی (PKR)</label>
+                        <input type="number" id="deductAmount" placeholder="0" onkeyup="autoCalc()">
+                    </div>
+                    <div>
+                        <label style="color: var(--success);">Bonus / Extra (PKR)</label>
+                        <input type="number" id="bonusAmount" placeholder="0" onkeyup="autoCalc()">
+                    </div>
+                </div>
+
                 <div class="calc-info" style="background:#d1fae5; color:#065f46;">
                     Total Payable: <span id="displayTotal">0</span> PKR
                 </div>
@@ -996,19 +1007,28 @@
             const sVal = document.getElementById("startDate").value;
             const eVal = document.getElementById("endDate").value;
             const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
+            const deduction = parseFloat(document.getElementById("deductAmount").value) || 0;
+            const bonus = parseFloat(document.getElementById("bonusAmount").value) || 0;
+
             if (sVal && eVal) {
                 const s = new Date(sVal);
                 const e = new Date(eVal);
                 const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
                 document.getElementById("displayDays").innerText = days;
+
+                let calculatedBase = 0;
                 if (calcMode === 'monthly') {
                     const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
                     document.getElementById("monthInfo").innerText = `(Dividing by ${daysInMonth} days)`;
-                    document.getElementById("displayTotal").innerText = Math.round((amount / daysInMonth) * days);
+                    calculatedBase = Math.round((amount / daysInMonth) * days);
                 } else {
                     document.getElementById("monthInfo").innerText = "";
-                    document.getElementById("displayTotal").innerText = amount * days;
+                    calculatedBase = amount * days;
                 }
+
+                // Total Calculation with Deduction & Bonus
+                let netTotal = calculatedBase + bonus - deduction;
+                document.getElementById("displayTotal").innerText = Math.max(0, netTotal);
             }
         }
 
@@ -1043,13 +1063,16 @@
             const empSnap = await db.collection("employees").doc(empRefId).get();
             const empData = empSnap.data();
             const t = document.getElementById("displayTotal").innerText;
-            if(t == "0") return alert("Calculate first!");
+            if(t == "0" && document.getElementById("baseAmount").value == "") return alert("Calculate first!");
             await db.collection("salaries").add({
                 empName: empData.name,
                 empId: empData.id,
                 phone: empData.phone || 'N/A',
                 bank: empData.bank || '',
                 acc: empData.acc || '',
+                baseAmount: document.getElementById("baseAmount").value || '0',
+                deduction: document.getElementById("deductAmount").value || '0',
+                bonus: document.getElementById("bonusAmount").value || '0',
                 total: t,
                 days: document.getElementById("displayDays").innerText,
                 startDate: document.getElementById("startDate").value,
@@ -1070,19 +1093,21 @@
             area.innerHTML = snap.empty ? "<h3>No Records Found</h3>" : "";
             if (snap.empty) return;
             if (selectedEmp === "all") {
-                let tableHtml = `<div class="slip-card" style="width:100%; border:none; box-shadow:none;"><h2 style="text-align:center; border-bottom:2px solid var(--border); padding-bottom:10px;">MESKAY & FEMTEE - STAFF SALARY LIST (${m})</h2><table style="width:100%; margin-top:10px;"><thead><tr><th style="width:12%;">ID No</th><th>Employee Name</th><th>Days</th><th>Salary Amount</th><th>Receiving Sign</th></tr></thead><tbody>`;
+                let tableHtml = `<div class="slip-card" style="width:100%; border:none; box-shadow:none;"><h2 style="text-align:center; border-bottom:2px solid var(--border); padding-bottom:10px;">MESKAY & FEMTEE - STAFF SALARY LIST (${m})</h2><table style="width:100%; margin-top:10px;"><thead><tr><th style="width:10%;">ID No</th><th>Employee Name</th><th>Days</th><th>Deduction</th><th>Bonus</th><th>Net Total</th><th>Receiving Sign</th></tr></thead><tbody>`;
                 let grandTotal = 0;
                 snap.forEach(doc => {
                     const s = doc.data(); grandTotal += parseInt(s.total);
-                    tableHtml += `<tr><td style="font-weight:bold;">${s.empId || '-'}</td><td>${s.empName}</td><td>${s.days}</td><td style="font-weight:bold;">${s.total} PKR</td><td style="height:45px; border-bottom: 1px solid var(--border);"></td></tr>`;
+                    tableHtml += `<tr><td style="font-weight:bold;">${s.empId || '-'}</td><td>${s.empName}</td><td>${s.days}</td><td style="color:var(--danger);">${s.deduction || 0}</td><td style="color:var(--success);">${s.bonus || 0}</td><td style="font-weight:bold;">${s.total} PKR</td><td style="height:45px; border-bottom: 1px solid var(--border);"></td></tr>`;
                 });
-                tableHtml += `<tr style="font-weight:bold; background:#f8fafc;"><td colspan="3" style="text-align:right;">GRAND TOTAL:</td><td>${grandTotal} PKR</td><td></td></tr></tbody></table><div class="sig-container" style="margin-top:40px;"><div class="sig-box">Verified By (Admin)</div><div class="sig-box">Manager/Authorized Signature</div></div></div>`;
+                tableHtml += `<tr style="font-weight:bold; background:#f8fafc;"><td colspan="5" style="text-align:right;">GRAND TOTAL:</td><td>${grandTotal} PKR</td><td></td></tr></tbody></table><div class="sig-container" style="margin-top:40px;"><div class="sig-box">Verified By (Admin)</div><div class="sig-box">Manager/Authorized Signature</div></div></div>`;
                 area.innerHTML = tableHtml;
             } else {
                 snap.forEach(doc => {
                     const s = doc.data();
                     let bankInfo = (s.bank || s.acc) ? `<p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>` : '';
-                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:1px solid var(--border); margin-bottom:15px; padding-bottom:10px;"><h2 style="margin:5px; border:none;">MESKAY & FEMTEE</h2><p style="margin:0;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-weight:bold; background:#f1f5f9; padding:2px 8px; border-radius:4px;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p><div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:15px;"><h3 style="margin:0; text-align:center; color:var(--primary);">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By (Admin)</div><div class="sig-box">Employee Signature</div></div></div>`;
+                    let dedBonusInfo = `<p style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><strong>Deduction:</strong> <span style="color:var(--danger);">${s.deduction || 0} PKR</span></span><span><strong>Bonus/Extra:</strong> <span style="color:var(--success);">${s.bonus || 0} PKR</span></span></p>`;
+                    
+                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:1px solid var(--border); margin-bottom:15px; padding-bottom:10px;"><h2 style="margin:5px; border:none;">MESKAY & FEMTEE</h2><p style="margin:0;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-weight:bold; background:#f1f5f9; padding:2px 8px; border-radius:4px;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>${dedBonusInfo}<div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:15px;"><h3 style="margin:0; text-align:center; color:var(--primary);">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By (Admin)</div><div class="sig-box">Employee Signature</div></div></div>`;
                 });
             }
         }
