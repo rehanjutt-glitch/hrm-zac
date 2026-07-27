@@ -74,12 +74,13 @@
                 <span id="navName">Admin</span>
             </div>
             <div id="profileMenu" class="dropdown-menu hidden">
+                <button class="main-btn btn-black" id="acceditBtn" onclick="navTo('acceditPage')">EDIT</button>
                 <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')">ADMIN</button>
                 <button class="main-btn btn-red" onclick="location.reload()">Logout</button>
             </div>
         </div>
 
-        <div class="menu-grid" id="mainMenuGrid">
+        <div class="menu-list" id="mainMenuList">
             <button class="menu-btn" data-access="view" onclick="showView('all')">TOTAL STAFF <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" data-access="view" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
             <button class="menu-btn" data-access="view" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
