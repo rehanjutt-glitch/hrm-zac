@@ -681,6 +681,16 @@
                 <input type="text" id="editEmpName">
                 <label>Phone Number</label>
                 <input type="text" id="editEmpPhone">
+                
+                <!-- SALARY & WAGE FIELDS -->
+                <label>Salary Type / تنخواہ کی قسم</label>
+                <select id="editEmpSalaryType" onchange="updateSalaryPlaceholder('edit')">
+                    <option value="monthly">Monthly Fix / ماہانہ</option>
+                    <option value="daily">Daily Wages / دیہاڑی</option>
+                </select>
+                <label id="editEmpSalaryLabel">Base Salary / Monthly Fix (PKR)</label>
+                <input type="number" id="editEmpBaseSalary" placeholder="Enter Amount">
+
                 <label>Bank Name</label>
                 <input type="text" id="editEmpBank">
                 <label>Account / IBAN</label>
@@ -716,6 +726,16 @@
                 <input type="text" id="newEmpName" placeholder="Full Name">
                 <label>Phone Number</label>
                 <input type="text" id="newEmpPhone" placeholder="Phone Number">
+                
+                <!-- SALARY & WAGE FIELDS -->
+                <label>Salary Type / تنخواہ کی قسم</label>
+                <select id="newEmpSalaryType" onchange="updateSalaryPlaceholder('add')">
+                    <option value="monthly">Monthly Fix / ماہانہ</option>
+                    <option value="daily">Daily Wages / دیہاڑی</option>
+                </select>
+                <label id="newEmpSalaryLabel">Base Salary / Monthly Fix (PKR)</label>
+                <input type="number" id="newEmpBaseSalary" placeholder="Enter Amount">
+
                 <label>Bank Name</label>
                 <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
                 <label>Account / IBAN</label>
@@ -753,7 +773,7 @@
                 </div>
 
                 <label>Select Employee</label>
-                <select id="salEmpList"></select>
+                <select id="salEmpList" onchange="onSalEmpChange()"></select>
 
                 <div class="type-selector">
                     <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
@@ -855,6 +875,17 @@
         let calcMode = 'monthly';
         let currentListMode = 'all';
         let activeEmployeesList = []; // Array to hold loaded employee data for fast filtering
+
+        // Helper to update label and placeholder depending on Salary Type
+        function updateSalaryPlaceholder(prefix) {
+            const type = document.getElementById(prefix === 'edit' ? 'editEmpSalaryType' : 'newEmpSalaryType').value;
+            const label = document.getElementById(prefix === 'edit' ? 'editEmpSalaryLabel' : 'newEmpSalaryLabel');
+            if (type === 'daily') {
+                label.innerText = 'Daily Rate / دیہاڑی (PKR)';
+            } else {
+                label.innerText = 'Base Salary / Monthly Fix (PKR)';
+            }
+        }
 
         // Toggle Reason Box depending on Active/Inactive status
         function toggleReasonField(prefix) {
@@ -1242,6 +1273,7 @@
             });
 
             renderEmpDropdownOptions();
+            onSalEmpChange(); // Auto populate salary on dropdown load
         }
 
         function renderEmpDropdownOptions() {
@@ -1271,8 +1303,21 @@
             });
         }
 
+        // Auto Populate Salary & Wage Type on Employee Selection
+        function onSalEmpChange() {
+            const selectedDocId = document.getElementById("salEmpList").value;
+            if (!selectedDocId) return;
+            const emp = activeEmployeesList.find(e => e.docId === selectedDocId);
+            if (emp) {
+                setCalcMode(emp.salaryType || 'monthly');
+                document.getElementById("baseAmount").value = emp.baseSalary || '';
+                autoCalc();
+            }
+        }
+
         function filterSalEmpDropdown() {
             renderEmpDropdownOptions();
+            onSalEmpChange();
         }
 
         function filterRepEmpDropdown() {
@@ -1348,7 +1393,7 @@
             if(mode === 'Inactive') document.getElementById("listTitle").innerText = "Inactive Staff Records";
             else if(mode === 'Active') document.getElementById("listTitle").innerText = "Active Staff Records";
             else document.getElementById("listTitle").innerText = "Employee Records";
-            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Phone</th><th>Status</th>${isUpdate ? '<th>Actions</th>' : ''}</tr>`;
+            document.getElementById("tableHead").innerHTML = `<tr><th>ID</th><th>Name</th><th>Phone</th><th>Salary / Rate</th><th>Status</th>${isUpdate ? '<th>Actions</th>' : ''}</tr>`;
             const snap = await db.collection("employees").get();
             snap.forEach(doc => {
                 const e = doc.data(); const docId = doc.id;
@@ -1365,7 +1410,8 @@
                             statusDetails += `<div style="font-size:11px; color:#64748b;"><em>"${e.comments}"</em></div>`;
                         }
                     }
-                    b.innerHTML += `<tr class="emp-row" data-id="${e.id}" data-name="${e.name ? e.name.toLowerCase() : ''}"><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td>${statusDetails}</td>${actionBtn}</tr>`;
+                    let salDisplay = e.baseSalary ? `${e.baseSalary} PKR (${e.salaryType === 'daily' ? 'Daily' : 'Monthly'})` : '-';
+                    b.innerHTML += `<tr class="emp-row" data-id="${e.id}" data-name="${e.name ? e.name.toLowerCase() : ''}"><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td>${salDisplay}</td><td>${statusDetails}</td>${actionBtn}</tr>`;
                 }
             });
         }
@@ -1394,6 +1440,8 @@
             document.getElementById("editEmpId").value = data.id;
             document.getElementById("editEmpName").value = data.name;
             document.getElementById("editEmpPhone").value = data.phone || '';
+            document.getElementById("editEmpSalaryType").value = data.salaryType || 'monthly';
+            document.getElementById("editEmpBaseSalary").value = data.baseSalary || '';
             document.getElementById("editEmpBank").value = data.bank || '';
             document.getElementById("editEmpAcc").value = data.acc || '';
             document.getElementById("editEmpStatus").value = data.status || 'Active';
@@ -1401,6 +1449,7 @@
             document.getElementById("editEmpReason").value = data.reason || 'Resigned';
             document.getElementById("editEmpComments").value = data.comments || '';
             
+            updateSalaryPlaceholder('edit');
             toggleReasonField('edit');
             navTo('editPage');
         }
@@ -1412,6 +1461,8 @@
                 id: document.getElementById("editEmpId").value,
                 name: document.getElementById("editEmpName").value,
                 phone: document.getElementById("editEmpPhone").value,
+                salaryType: document.getElementById("editEmpSalaryType").value,
+                baseSalary: document.getElementById("editEmpBaseSalary").value,
                 bank: document.getElementById("editEmpBank").value,
                 acc: document.getElementById("editEmpAcc").value,
                 status: status,
@@ -1429,6 +1480,8 @@
             const id = document.getElementById("newEmpId").value;
             const name = document.getElementById("newEmpName").value;
             const phone = document.getElementById("newEmpPhone").value;
+            const salaryType = document.getElementById("newEmpSalaryType").value;
+            const baseSalary = document.getElementById("newEmpBaseSalary").value;
             const bank = document.getElementById("newEmpBank").value;
             const acc = document.getElementById("newEmpAcc").value;
             const status = document.getElementById("newEmpStatus").value;
@@ -1436,7 +1489,7 @@
             const comments = status === 'Inactive' ? document.getElementById("newEmpComments").value : '';
 
             if(!id || !name) return alert("ID and Name are required!");
-            await db.collection("employees").add({ id, name, phone, bank, acc, status, reason, comments });
+            await db.collection("employees").add({ id, name, phone, salaryType, baseSalary, bank, acc, status, reason, comments });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
     </script>
