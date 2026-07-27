@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <div class="menu-list" id="mainMenuList">
+        <div class="menu-grid" id="mainMenuGrid">
             <button class="menu-btn" data-access="view" onclick="showView('all')">TOTAL STAFF <span class="badge" id="cntAll">0</span></button>
             <button class="menu-btn" data-access="view" onclick="showView('Active')">ACTIVE STAFF <span class="badge" id="cntActive">0</span></button>
             <button class="menu-btn" data-access="view" onclick="showView('Inactive')">INACTIVE STAFF <span class="badge" id="cntInactive">0</span></button>
@@ -90,6 +90,27 @@
             <button class="menu-btn" data-access="edit" onclick="showView('update')">MANAGE STAFF</button>
         </div>
     </div>
+     <div id="acceditPage" class="container hidden">
+        <h2>Update Profile</h2>
+        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px;">
+            <h3>Change Your Name/h3>
+            <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
+            <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+            <input type="password" id="newUserPs" placeholder="Password">
+            
+            <div class="access-box">
+                <strong>Edit Account Details:</strong>
+                <label><input type="checkbox" class="acc-check" value="view" checked> Change Your Name</label>
+                <label><input type="checkbox" class="acc-check" value="add"> Chang Your Password</label>
+               </div>
+            
+            <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Update</button>
+<button class="main-btn btn-red hidden" id="cancelaccEditBtn" onclick="resetUserForm()">cancel</button>
+            <input type="hidden" id="editaccDocId">
+        </div>
+        <button class="main-btn" onclick="navTo('dashboardPage')">BACK</button>
+    </div>
+
 
     <div id="userAdminPage" class="container hidden">
         <h2>Admin Panel: Manage Users</h2>
