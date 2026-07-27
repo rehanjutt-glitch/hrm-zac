@@ -513,7 +513,7 @@
                     </button>
                 </li>
                 <li>
-                    <button class="sidebar-menu-item" onclick="location.reload()">
+                    <button class="sidebar-menu-item" onclick="handleLogout()">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Logout</span>
                     </button>
@@ -538,7 +538,7 @@
                     <div id="profileMenu" class="dropdown-menu hidden">
                         <button class="main-btn btn-black" id="acceditBtn" onclick="navTo('acceditPage')"><i class="fa-solid fa-user-pen"></i> Edit Profile</button>
                         <button class="main-btn btn-black" id="adminOnlyBtn" onclick="navTo('userAdminPage')"><i class="fa-solid fa-user-gear"></i> Admin Panel</button>
-                        <button class="main-btn btn-red" onclick="location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+                        <button class="main-btn btn-red" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
                     </div>
                 </div>
             </div>
@@ -759,18 +759,72 @@
 
         let currentUser = null;
         let calcMode = 'monthly';
+        let currentListMode = 'all';
+
+        // Initialize Router and Session on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSession = sessionStorage.getItem("hrm_current_user");
+            if (savedSession) {
+                currentUser = JSON.parse(savedSession);
+                document.getElementById("loginPage").classList.add("hidden");
+                document.getElementById("appLayout").classList.remove("hidden");
+                document.getElementById("navName").innerText = currentUser.name;
+                applyPermissions();
+                
+                // Route to Hash or default to dashboard
+                handleHashRouting();
+            } else {
+                showLoginPage();
+            }
+        });
+
+        // Listen for URL Hash Changes (Browser Back/Forward)
+        window.addEventListener('hashchange', () => {
+            if (currentUser) {
+                handleHashRouting();
+            } else {
+                showLoginPage();
+            }
+        });
+
+        function handleHashRouting() {
+            let hash = window.location.hash.replace('#', '');
+            if (!hash || hash === 'loginPage') {
+                hash = 'dashboardPage';
+            }
+
+            // Handle list page modes (all, Active, Inactive, update)
+            if (hash.startsWith('listPage')) {
+                const parts = hash.split('?mode=');
+                const mode = parts[1] || 'all';
+                renderListView(mode);
+                return;
+            }
+
+            // Direct page display
+            const target = document.getElementById(hash);
+            if (target) {
+                showPageUI(hash);
+            } else {
+                showPageUI('dashboardPage');
+            }
+        }
+
+        function showLoginPage() {
+            document.getElementById("appLayout").classList.add("hidden");
+            document.getElementById("loginPage").classList.remove("hidden");
+            window.location.hash = 'loginPage';
+        }
 
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
 
-            // Master Admin Check
             if (u === "Meskay" && p === "Pakistan786") {
                 currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
                 return loginOk();
             }
 
-            // Check Users from DB
             const userSnap = await db.collection("users").where("username", "==", u).where("password", "==", p).get();
             if (!userSnap.empty) {
                 const userData = userSnap.docs[0].data();
@@ -782,11 +836,38 @@
         }
 
         function loginOk() {
+            sessionStorage.setItem("hrm_current_user", JSON.stringify(currentUser));
             document.getElementById("loginPage").classList.add("hidden");
             document.getElementById("appLayout").classList.remove("hidden");
             document.getElementById("navName").innerText = currentUser.name;
             applyPermissions();
             navTo('dashboardPage');
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem("hrm_current_user");
+            currentUser = null;
+            showLoginPage();
+        }
+
+        function navTo(id) {
+            window.location.hash = id;
+        }
+
+        function showPageUI(id) {
+            document.getElementById("profileMenu").classList.add("hidden");
+            document.querySelectorAll('.main-wrapper .container').forEach(c => c.classList.add('hidden'));
+            
+            const page = document.getElementById(id);
+            if(page) page.classList.remove('hidden');
+
+            document.querySelectorAll('.sidebar-menu-item').forEach(btn => btn.classList.remove('active'));
+            const activeSidebarBtn = document.querySelector(`.sidebar-menu-item[onclick*="${id}"]`);
+            if(activeSidebarBtn) activeSidebarBtn.classList.add('active');
+
+            if(id === 'dashboardPage') updateCounts();
+            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
+            if(id === 'userAdminPage') loadUsers();
         }
 
         function applyPermissions() {
@@ -800,7 +881,6 @@
                 }
             });
 
-            // Admin only button visibility
             if (currentUser.role === 'admin') {
                 document.getElementById("adminOnlyBtn").classList.remove('hidden');
                 document.getElementById("adminSidebarBtn").classList.remove('hidden');
@@ -895,26 +975,6 @@
                 await db.collection("users").doc(id).delete();
                 loadUsers();
             }
-        }
-
-        function navTo(id) {
-            // Hide menu dropdown if active
-            document.getElementById("profileMenu").classList.add("hidden");
-
-            // Hide all pages inside main wrapper
-            document.querySelectorAll('.main-wrapper .container').forEach(c => c.classList.add('hidden'));
-            
-            // Show requested page
-            document.getElementById(id).classList.remove('hidden');
-
-            // Sidebar highlight update
-            document.querySelectorAll('.sidebar-menu-item').forEach(btn => btn.classList.remove('active'));
-            const activeSidebarBtn = document.querySelector(`.sidebar-menu-item[onclick*="${id}"]`);
-            if(activeSidebarBtn) activeSidebarBtn.classList.add('active');
-
-            if(id === 'dashboardPage') updateCounts();
-            if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
-            if(id === 'userAdminPage') loadUsers();
         }
 
         function togglePass() {
@@ -1027,8 +1087,12 @@
             }
         }
 
-        async function showView(mode) {
-            navTo('listPage');
+        function showView(mode) {
+            window.location.hash = `listPage?mode=${mode}`;
+        }
+
+        async function renderListView(mode) {
+            showPageUI('listPage');
             const b = document.getElementById("empTableBody"); b.innerHTML = "";
             const isUpdate = mode === 'update';
             if(mode === 'Inactive') document.getElementById("listTitle").innerText = "Inactive Staff Records";
