@@ -411,6 +411,21 @@
 
         .access-box input[type="checkbox"] { width: auto; margin: 0; }
 
+        /* Preview Profile Image */
+        .profile-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .profile-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
         /* Mobile Responsive Sidebar */
         @media (max-width: 768px) {
             .sidebar {
@@ -582,22 +597,30 @@
             <div id="acceditPage" class="container hidden">
                 <h2>Update Profile</h2>
                 <div style="margin-bottom: 20px;">
+                    <div class="profile-preview-container">
+                        <img id="editProfilePicPreview" src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff" class="profile-preview" alt="Profile Preview">
+                        <div>
+                            <strong>Profile Picture</strong>
+                            <p style="margin: 5px 0 0 0; font-size:12px;">Upload a picture or provide an image URL</p>
+                        </div>
+                    </div>
+
+                    <label>Upload Picture File</label>
+                    <input type="file" id="newPicFile" accept="image/*" onchange="previewUploadedImage(event)">
+
+                    <label>Or Picture Image URL</label>
+                    <input type="text" id="newPicUrl" placeholder="https://example.com/photo.jpg" oninput="previewUrlImage()">
+
                     <label>Full Name</label>
                     <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
+                    
                     <label>Username</label>
                     <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+                    
                     <label>Password</label>
                     <input type="password" id="newUserPs" placeholder="Password">
                     
-                    <div class="access-box">
-                        <strong>Account Options:</strong>
-                        <label><input type="checkbox" class="acc-check" value="view" checked> Change Your Name</label>
-                        <label><input type="checkbox" class="acc-check" value="add"> Change Your Password</label>
-                    </div>
-                    
-                    <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Update Profile</button>
-                    <button class="main-btn btn-red hidden" id="cancelaccEditBtn" onclick="resetUserForm()">Cancel</button>
-                    <input type="hidden" id="editaccDocId">
+                    <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Save Profile Changes</button>
                 </div>
                 <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
             </div>
@@ -701,7 +724,7 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
-                        <label style="color: var(--danger);">Deduction (PKR)</label>
+                        <label style="color: var(--danger);">Deduction / کٹوتھی (PKR)</label>
                         <input type="number" id="deductAmount" placeholder="0" onkeyup="autoCalc()">
                     </div>
                     <div>
@@ -779,7 +802,7 @@
                 currentUser = JSON.parse(savedSession);
                 document.getElementById("loginPage").classList.add("hidden");
                 document.getElementById("appLayout").classList.remove("hidden");
-                document.getElementById("navName").innerText = currentUser.name;
+                updateHeaderProfileUI();
                 applyPermissions();
                 
                 // Route to Hash or default to dashboard
@@ -832,14 +855,29 @@
             const p = document.getElementById("password").value.trim();
 
             if (u === "Meskay" && p === "Pakistan786") {
-                currentUser = { name: "Admin", role: "admin", access: ['view', 'add', 'edit', 'salary', 'reports'] };
+                currentUser = { 
+                    id: "admin_default",
+                    username: "Meskay",
+                    name: "Admin", 
+                    role: "admin", 
+                    access: ['view', 'add', 'edit', 'salary', 'reports'],
+                    profilePic: ""
+                };
                 return loginOk();
             }
 
             const userSnap = await db.collection("users").where("username", "==", u).where("password", "==", p).get();
             if (!userSnap.empty) {
-                const userData = userSnap.docs[0].data();
-                currentUser = { name: userData.fullName, role: "user", access: userData.permissions };
+                const userDoc = userSnap.docs[0];
+                const userData = userDoc.data();
+                currentUser = { 
+                    id: userDoc.id,
+                    username: userData.username,
+                    name: userData.fullName, 
+                    role: "user", 
+                    access: userData.permissions,
+                    profilePic: userData.profilePic || ""
+                };
                 return loginOk();
             }
 
@@ -850,9 +888,15 @@
             sessionStorage.setItem("hrm_current_user", JSON.stringify(currentUser));
             document.getElementById("loginPage").classList.add("hidden");
             document.getElementById("appLayout").classList.remove("hidden");
-            document.getElementById("navName").innerText = currentUser.name;
+            updateHeaderProfileUI();
             applyPermissions();
             navTo('dashboardPage');
+        }
+
+        function updateHeaderProfileUI() {
+            document.getElementById("navName").innerText = currentUser.name;
+            const pic = currentUser.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=4f46e5&color=fff`;
+            document.getElementById("navPic").src = pic;
         }
 
         function handleLogout() {
@@ -879,6 +923,77 @@
             if(id === 'dashboardPage') updateCounts();
             if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
             if(id === 'userAdminPage') loadUsers();
+            if(id === 'acceditPage') loadProfileForm();
+        }
+
+        // PROFILE EDIT FUNCTIONS
+        function loadProfileForm() {
+            document.getElementById("newFullNm").value = currentUser.name || "";
+            document.getElementById("newUserNm").value = currentUser.username || "";
+            document.getElementById("newUserPs").value = "";
+            document.getElementById("newPicUrl").value = currentUser.profilePic || "";
+            document.getElementById("newPicFile").value = "";
+            
+            const pic = currentUser.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'Admin')}&background=4f46e5&color=fff`;
+            document.getElementById("editProfilePicPreview").src = pic;
+        }
+
+        function previewUploadedImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Img = e.target.result;
+                    document.getElementById("editProfilePicPreview").src = base64Img;
+                    document.getElementById("newPicUrl").value = ""; // reset URL field if file uploaded
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewUrlImage() {
+            const url = document.getElementById("newPicUrl").value.trim();
+            if (url) {
+                document.getElementById("editProfilePicPreview").src = url;
+            }
+        }
+
+        async function saveOrUpdateacc() {
+            const fn = document.getElementById("newFullNm").value.trim();
+            const un = document.getElementById("newUserNm").value.trim();
+            const up = document.getElementById("newUserPs").value.trim();
+            const imgPreviewSrc = document.getElementById("editProfilePicPreview").src;
+
+            if(!fn || !un) return alert("Full Name and Username are required!");
+
+            // Determine profile picture source
+            let profilePic = imgPreviewSrc;
+            if (profilePic.includes('ui-avatars.com')) {
+                profilePic = ""; // If default avatar, keep empty string
+            }
+
+            // Update current local state
+            currentUser.name = fn;
+            currentUser.username = un;
+            currentUser.profilePic = profilePic;
+
+            // Save to Firestore if it's a registered user account
+            if (currentUser.id && currentUser.id !== "admin_default") {
+                const updateData = {
+                    fullName: fn,
+                    username: un,
+                    profilePic: profilePic
+                };
+                if (up) updateData.password = up;
+
+                await db.collection("users").doc(currentUser.id).update(updateData);
+            }
+
+            // Save session & update UI
+            sessionStorage.setItem("hrm_current_user", JSON.stringify(currentUser));
+            updateHeaderProfileUI();
+            alert("Profile Updated Successfully!");
+            navTo('dashboardPage');
         }
 
         function applyPermissions() {
@@ -938,7 +1053,7 @@
                 alert("User Updated Successfully!");
             } else {
                 await db.collection("users").add({
-                    fullName: fn, username: un, password: up, permissions: perms
+                    fullName: fn, username: un, password: up, permissions: perms, profilePic: ""
                 });
                 alert("User Created Successfully!");
             }
