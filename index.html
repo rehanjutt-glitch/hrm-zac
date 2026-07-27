@@ -185,7 +185,7 @@
             letter-spacing: 0.5px;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px 16px;
             margin-bottom: 10px;
@@ -198,7 +198,7 @@
             outline: none;
         }
 
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             background: #fff;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
@@ -661,10 +661,23 @@
                 <label>Account / IBAN</label>
                 <input type="text" id="editEmpAcc">
                 <label>Status</label>
-                <select id="editEmpStatus">
+                <select id="editEmpStatus" onchange="toggleReasonField('edit')">
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                 </select>
+
+                <!-- INACTIVE REASON FIELDS -->
+                <div id="editReasonBox" class="hidden">
+                    <label>Status Reason / سبب</label>
+                    <select id="editEmpReason">
+                        <option value="Resigned">Resigned (استعفیٰ)</option>
+                        <option value="Terminated">Terminated (برطرفی)</option>
+                    </select>
+
+                    <label>Comments / تفصیلات</label>
+                    <textarea id="editEmpComments" rows="3" placeholder="بیان کریں کہ برطرف یا استعفیٰ کیوں دیا گیا..."></textarea>
+                </div>
+
                 <button class="main-btn btn-green" onclick="updateEmployeeData()">Update Details</button>
                 <button class="main-btn btn-black" onclick="showView('update')">Cancel</button>
             </div>
@@ -683,7 +696,23 @@
                 <label>Account / IBAN</label>
                 <input type="text" id="newEmpAcc" placeholder="Account Number / IBAN (Optional)">
                 <label>Status</label>
-                <select id="newEmpStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+                <select id="newEmpStatus" onchange="toggleReasonField('add')">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+
+                <!-- INACTIVE REASON FIELDS -->
+                <div id="addReasonBox" class="hidden">
+                    <label>Status Reason / سبب</label>
+                    <select id="newEmpReason">
+                        <option value="Resigned">Resigned (استعفیٰ)</option>
+                        <option value="Terminated">Terminated (برطرفی)</option>
+                    </select>
+
+                    <label>Comments / تفصیلات</label>
+                    <textarea id="newEmpComments" rows="3" placeholder="بیان کریں کہ برطرف یا استعفیٰ کیوں دیا گیا..."></textarea>
+                </div>
+
                 <button class="main-btn btn-green" onclick="saveNewEmployee()">Save Employee</button>
                 <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
             </div>
@@ -780,6 +809,17 @@
         let currentUser = null;
         let calcMode = 'monthly';
         let currentListMode = 'all';
+
+        // Toggle Reason Box depending on Active/Inactive status
+        function toggleReasonField(prefix) {
+            const status = document.getElementById(prefix === 'edit' ? 'editEmpStatus' : 'newEmpStatus').value;
+            const box = document.getElementById(prefix === 'edit' ? 'editReasonBox' : 'addReasonBox');
+            if (status === 'Inactive') {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
 
         // Initialize Router and Session on Page Load
         window.addEventListener('DOMContentLoaded', () => {
@@ -931,7 +971,7 @@
                 reader.onload = function(e) {
                     const base64Img = e.target.result;
                     document.getElementById("editProfilePicPreview").src = base64Img;
-                    document.getElementById("newPicUrl").value = ""; // reset URL field if file uploaded
+                    document.getElementById("newPicUrl").value = ""; 
                 };
                 reader.readAsDataURL(file);
             }
@@ -952,18 +992,15 @@
 
             if(!fn || !un) return alert("Full Name and Username are required!");
 
-            // Determine profile picture source
             let profilePic = imgPreviewSrc;
             if (profilePic.includes('ui-avatars.com')) {
-                profilePic = ""; // If default avatar, keep empty string
+                profilePic = ""; 
             }
 
-            // Update current local state
             currentUser.name = fn;
             currentUser.username = un;
             currentUser.profilePic = profilePic;
 
-            // Save to Firestore if it's a registered user account
             if (currentUser.id && currentUser.id !== "admin_default") {
                 const updateData = {
                     fullName: fn,
@@ -975,7 +1012,6 @@
                 await db.collection("users").doc(currentUser.id).update(updateData);
             }
 
-            // Save session & update UI
             sessionStorage.setItem("hrm_current_user", JSON.stringify(currentUser));
             updateHeaderProfileUI();
             alert("Profile Updated Successfully!");
@@ -995,10 +1031,10 @@
 
             if (currentUser.role === 'admin') {
                 document.getElementById("adminOnlyBtn").classList.remove('hidden');
-                document.getElementById("adminSidebarBtn").classList.remove('hidden');
+                document.getElementById("adminSidebarBtn")?.classList.remove('hidden');
             } else {
                 document.getElementById("adminOnlyBtn").classList.add('hidden');
-                document.getElementById("adminSidebarBtn").classList.add('hidden');
+                document.getElementById("adminSidebarBtn")?.classList.add('hidden');
             }
         }
 
@@ -1127,7 +1163,6 @@
                     calculatedBase = amount * days;
                 }
 
-                // Total Calculation with Deduction & Bonus
                 let netTotal = calculatedBase + bonus - deduction;
                 document.getElementById("displayTotal").innerText = Math.max(0, netTotal);
             }
@@ -1236,7 +1271,14 @@
                         actionBtn = `<td><button onclick="editEmp('${docId}')" style="background:#4f46e5; color:white; border:none; padding:5px 10px; cursor:pointer; margin-right:5px; border-radius:3px; font-weight:bold;">Edit</button><button onclick="delEmp('${docId}')" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; font-weight:bold;">Delete</button></td>`;
                     }
                     const statusColor = e.status === 'Active' ? 'var(--success)' : 'var(--danger)';
-                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td style="color:${statusColor}; font-weight:bold;">${e.status}</td>${actionBtn}</tr>`;
+                    let statusDetails = `<div><strong style="color:${statusColor};">${e.status}</strong></div>`;
+                    if (e.status === 'Inactive' && e.reason) {
+                        statusDetails += `<div style="font-size:11px; color:#ef4444; margin-top:2px;"><strong>Reason:</strong> ${e.reason}</div>`;
+                        if (e.comments) {
+                            statusDetails += `<div style="font-size:11px; color:#64748b;"><em>"${e.comments}"</em></div>`;
+                        }
+                    }
+                    b.innerHTML += `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td>${statusDetails}</td>${actionBtn}</tr>`;
                 }
             });
         }
@@ -1250,19 +1292,27 @@
             document.getElementById("editEmpPhone").value = data.phone || '';
             document.getElementById("editEmpBank").value = data.bank || '';
             document.getElementById("editEmpAcc").value = data.acc || '';
-            document.getElementById("editEmpStatus").value = data.status;
+            document.getElementById("editEmpStatus").value = data.status || 'Active';
+            
+            document.getElementById("editEmpReason").value = data.reason || 'Resigned';
+            document.getElementById("editEmpComments").value = data.comments || '';
+            
+            toggleReasonField('edit');
             navTo('editPage');
         }
 
         async function updateEmployeeData() {
             const docId = document.getElementById("editDocId").value;
+            const status = document.getElementById("editEmpStatus").value;
             const updatedData = {
                 id: document.getElementById("editEmpId").value,
                 name: document.getElementById("editEmpName").value,
                 phone: document.getElementById("editEmpPhone").value,
                 bank: document.getElementById("editEmpBank").value,
                 acc: document.getElementById("editEmpAcc").value,
-                status: document.getElementById("editEmpStatus").value
+                status: status,
+                reason: status === 'Inactive' ? document.getElementById("editEmpReason").value : '',
+                comments: status === 'Inactive' ? document.getElementById("editEmpComments").value : ''
             };
             if(!updatedData.id || !updatedData.name) return alert("ID and Name are required!");
             await db.collection("employees").doc(docId).update(updatedData);
@@ -1278,8 +1328,11 @@
             const bank = document.getElementById("newEmpBank").value;
             const acc = document.getElementById("newEmpAcc").value;
             const status = document.getElementById("newEmpStatus").value;
+            const reason = status === 'Inactive' ? document.getElementById("newEmpReason").value : '';
+            const comments = status === 'Inactive' ? document.getElementById("newEmpComments").value : '';
+
             if(!id || !name) return alert("ID and Name are required!");
-            await db.collection("employees").add({ id, name, phone, bank, acc, status });
+            await db.collection("employees").add({ id, name, phone, bank, acc, status, reason, comments });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
         }
     </script>
