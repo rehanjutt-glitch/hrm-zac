@@ -1178,7 +1178,8 @@
                 days: document.getElementById("displayDays").innerText,
                 startDate: document.getElementById("startDate").value,
                 endDate: document.getElementById("endDate").value,
-                dateKey: document.getElementById("endDate").value.substring(0,7)
+                dateKey: document.getElementById("endDate").value.substring(0,7),
+                createdBy: currentUser ? currentUser.name : 'Admin'
             });
             alert("Salary Saved!"); navTo('dashboardPage');
         }
@@ -1207,8 +1208,9 @@
                     const s = doc.data();
                     let bankInfo = (s.bank || s.acc) ? `<p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>` : '';
                     let dedBonusInfo = `<p style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><strong>Deduction:</strong> <span style="color:var(--danger);">${s.deduction || 0} PKR</span></span><span><strong>Bonus/Extra:</strong> <span style="color:var(--success);">${s.bonus || 0} PKR</span></span></p>`;
+                    let creatorName = s.createdBy || 'Admin';
                     
-                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:1px solid var(--border); margin-bottom:15px; padding-bottom:10px;"><h2 style="margin:5px; border:none;">MESKAY & FEMTEE</h2><p style="margin:0;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-weight:bold; background:#f1f5f9; padding:2px 8px; border-radius:4px;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>${dedBonusInfo}<div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:15px;"><h3 style="margin:0; text-align:center; color:var(--primary);">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By (Admin)</div><div class="sig-box">Employee Signature</div></div></div>`;
+                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:1px solid var(--border); margin-bottom:15px; padding-bottom:10px;"><h2 style="margin:5px; border:none;">MESKAY & FEMTEE</h2><p style="margin:0;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-weight:bold; background:#f1f5f9; padding:2px 8px; border-radius:4px;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>${dedBonusInfo}<div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:15px;"><h3 style="margin:0; text-align:center; color:var(--primary);">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By: ${creatorName}</div><div class="sig-box">Employee Signature</div></div></div>`;
                 });
             }
         }
