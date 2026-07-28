@@ -7,7 +7,6 @@
     <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
             --primary: #4f46e5;
@@ -26,31 +25,25 @@
             --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
             --sidebar-width: 260px;
         }
-
-        * {
+    * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
         }
-
         body {
             background-color: var(--bg-body);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
         }
-
         .hidden { display: none !important; }
-
         /* App Layout */
         .app-layout {
             display: flex;
             width: 100%;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Styling */
+            min-height: 100vh;        }
+/* Sidebar Styling */
         .sidebar {
             width: var(--sidebar-width);
             background: #1e293b;
@@ -75,12 +68,10 @@
             color: #fff;
             border-bottom: 1px solid #334155;
         }
-
         .sidebar-brand i {
             color: var(--primary);
             font-size: 24px;
         }
-
         .sidebar-menu {
             list-style: none;
             padding: 20px 10px;
@@ -90,7 +81,6 @@
             overflow-y: auto;
             flex: 1;
         }
-
         .sidebar-menu-category {
             font-size: 11px;
             text-transform: uppercase;
@@ -99,7 +89,6 @@
             padding: 10px 12px 5px 12px;
             font-weight: 600;
         }
-
         .sidebar-menu-item {
             display: flex;
             align-items: center;
@@ -117,18 +106,15 @@
             width: 100%;
             text-align: left;
         }
-
         .sidebar-menu-item:hover, .sidebar-menu-item.active {
             background: var(--primary);
             color: #ffffff;
         }
-
         .sidebar-menu-item i {
             font-size: 16px;
             width: 20px;
             text-align: center;
         }
-
         /* Main Content Wrapper */
         .main-wrapper {
             margin-left: var(--sidebar-width);
@@ -138,8 +124,7 @@
             min-width: 0;
             transition: all 0.3s ease;
         }
-
-        /* Container Inside Main Layout */
+ /* Container Inside Main Layout */
         .container {
             width: 100%;
             max-width: 1100px;
@@ -151,8 +136,7 @@
             margin: 20px auto;
             animation: fadeIn 0.3s ease-in-out;
         }
-
-        @keyframes fadeIn {
+  @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
@@ -163,16 +147,13 @@
             color: var(--text-main);
             margin-bottom: 12px;
         }
-        
-        h2 {
+          h2 {
             font-size: 1.5rem;
             border-bottom: 2px solid var(--border);
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
-
         p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
-
         /* Form Controls */
         label {
             display: block;
@@ -184,8 +165,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        input, select, textarea {
+input, select, textarea {
             width: 100%;
             padding: 12px 16px;
             margin-bottom: 10px;
@@ -197,20 +177,17 @@
             transition: all 0.2s;
             outline: none;
         }
-
-        input:focus, select:focus, textarea:focus {
+   input:focus, select:focus, textarea:focus {
             background: #fff;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         }
-
-        /* Search Box Specific Styling */
+  /* Search Box Specific Styling */
         .search-box-container {
             position: relative;
             margin-bottom: 15px;
         }
-
-        .search-box-container i {
+.search-box-container i {
             position: absolute;
             left: 15px;
             top: 50%;
@@ -218,17 +195,14 @@
             color: var(--text-muted);
             font-size: 16px;
         }
-
         .search-input {
             padding-left: 45px !important;
             background-color: #ffffff !important;
             border: 2px solid var(--border) !important;
         }
-
         .search-input:focus {
             border-color: var(--primary) !important;
         }
-
         /* Buttons */
         .main-btn {
             width: 100%;
@@ -247,7 +221,6 @@
             align-items: center;
             gap: 8px;
         }
-
         .main-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
         .main-btn:active { transform: translateY(0); }
         .btn-red { background: var(--danger); }
@@ -256,7 +229,6 @@
         .btn-green:hover { background: var(--success-hover); }
         .btn-black { background: #1e293b; }
         .btn-black:hover { background: #0f172a; }
-
         /* Login Screen */
         #loginPage {
             max-width: 420px;
@@ -264,7 +236,6 @@
             text-align: center;
             width: 100%;
         }
-
         .pass-box { position: relative; }
         .eye-icon {
             position: absolute;
@@ -273,7 +244,6 @@
             cursor: pointer;
             color: var(--text-muted);
         }
-
         /* Top Bar & Profile Dropdown */
         .top-bar {
             display: flex;
@@ -283,7 +253,6 @@
             background: var(--surface);
             border-bottom: 1px solid var(--border);
         }
-
         .profile-trigger {
             display: flex;
             align-items: center;
@@ -295,9 +264,7 @@
             transition: 0.2s;
             position: relative;
         }
-
         .profile-trigger:hover { background: #e2e8f0; }
-
         .nav-img {
             width: 32px;
             height: 32px;
@@ -305,9 +272,7 @@
             margin-right: 10px;
             object-fit: cover;
         }
-
         #navName { font-weight: 600; font-size: 14px; color: var(--text-main); }
-
         .dropdown-menu {
             position: absolute;
             top: 65px;
@@ -321,13 +286,11 @@
             box-shadow: var(--shadow-lg);
             text-align: center;
         }
-
         .dropdown-menu .main-btn {
             padding: 8px;
             font-size: 13px;
             margin-top: 5px;
         }
-
         /* Grid & Metrics */
         .menu-grid {
             display: grid;
@@ -335,7 +298,6 @@
             gap: 15px;
             margin-top: 15px;
         }
-
         .menu-btn {
             padding: 20px 15px;
             background: #fff;
@@ -353,13 +315,11 @@
             font-size: 13px;
             letter-spacing: 0.5px;
         }
-
         .menu-btn:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-
         .badge {
             display: block;
             font-size: 28px;
@@ -367,14 +327,12 @@
             color: var(--primary);
             margin-top: 8px;
         }
-
         /* Tables */
         .table-responsive { overflow-x: auto; margin-top: 15px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
         th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
         th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
         tr:hover { background: #f1f5f9; }
-
         /* Miscellaneous Components */
         .calc-info {
             background: #e0e7ff;
@@ -385,7 +343,6 @@
             font-weight: 600;
             text-align: center;
         }
-
         .type-selector { display: flex; gap: 10px; margin: 15px 0; }
         .type-selector button {
             flex: 1;
@@ -397,9 +354,7 @@
             border-radius: 6px;
             transition: 0.2s;
         }
-
         .active-type { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
-
         .slip-card {
             border: 1px solid var(--border);
             padding: 30px;
@@ -410,10 +365,8 @@
             border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
-
         .sig-container { display: flex; justify-content: space-between; margin-top: 50px; }
         .sig-box { border-top: 2px solid var(--text-main); width: 40%; text-align: center; padding-top: 5px; font-weight: 600; font-size: 13px; }
-
         .access-box {
             text-align: left;
             background: #f8fafc;
@@ -422,7 +375,6 @@
             border: 1px solid var(--border);
             margin-bottom: 15px;
         }
-
         .access-box label {
             display: flex;
             align-items: center;
@@ -433,9 +385,7 @@
             color: var(--text-main);
             font-weight: 400;
         }
-
         .access-box input[type="checkbox"] { width: auto; margin: 0; }
-
         /* Preview Profile Image */
         .profile-preview-container {
             display: flex;
@@ -450,7 +400,6 @@
             object-fit: cover;
             border: 2px solid var(--primary);
         }
-
         /* Mobile Responsive Sidebar */
         @media (max-width: 768px) {
             .sidebar {
@@ -467,7 +416,6 @@
                 padding: 15px;
             }
         }
-
         @media print {
             .no-print, .sidebar, .top-bar { display: none !important; }
             body { background: white; padding: 0; }
@@ -478,14 +426,12 @@
     </style>
 </head>
 <body>
-
     <!-- LOGIN PAGE (DISPLAYED OUTSIDE MAIN LAYOUT) -->
     <div id="loginPage" class="container">
         <div style="font-size: 40px; color: var(--primary); margin-bottom: 10px;"><i class="fa-solid fa-square-poll-vertical"></i></div>
         <h1>HRM CLOUD</h1>
         <p>Please enter your credentials to access dashboard</p>
-        
-        <input type="text" id="username" placeholder="Username / Login ID">
+                <input type="text" id="username" placeholder="Username / Login ID">
         <div class="pass-box">
             <input type="password" id="password" placeholder="Password">
             <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
@@ -495,7 +441,6 @@
 
     <!-- MAIN APP WRAPPER (HIDDEN UNTIL LOGIN) -->
     <div id="appLayout" class="app-layout hidden">
-        
         <!-- SIDEBAR NAVIGATION -->
         <aside class="sidebar">
             <div class="sidebar-brand">
@@ -510,8 +455,7 @@
                         <span>Dashboard</span>
                     </button>
                 </li>
-                
-                <li class="sidebar-menu-category">Staff Management</li>
+             <li class="sidebar-menu-category">Staff Management</li>
                 <li>
                     <button class="sidebar-menu-item" onclick="showView('all')" data-access="view">
                         <i class="fa-solid fa-users"></i>
@@ -530,8 +474,7 @@
                         <span>Manage Staff</span>
                     </button>
                 </li>
-
-                <li class="sidebar-menu-category">Payroll & Finance</li>
+  <li class="sidebar-menu-category">Payroll & Finance</li>
                 <li>
                     <button class="sidebar-menu-item" onclick="navTo('salaryPage')" data-access="salary">
                         <i class="fa-solid fa-calculator"></i>
@@ -542,11 +485,10 @@
                     <button class="sidebar-menu-item" onclick="navTo('reportPage')" data-access="reports">
                         <i class="fa-solid fa-file-invoice-dollar"></i>
                         <span>Reports & Slips</span>
-                    </button>
+                   </button>
                 </li>
             </ul>
         </aside>
-
         <!-- MAIN CONTENT CONTAINER -->
         <div class="main-wrapper">
             <!-- TOP BAR -->
@@ -568,7 +510,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- DASHBOARD PAGE -->
             <div id="dashboardPage" class="container">
                 <h2>Overview Dashboard</h2>
@@ -603,7 +544,6 @@
                     </button>
                 </div>
             </div>
-
             <!-- UPDATE PROFILE PAGE -->
             <div id="acceditPage" class="container hidden">
                 <h2>Update Profile</h2>
@@ -615,28 +555,20 @@
                             <p style="margin: 5px 0 0 0; font-size:12px;">Upload a picture or provide an image URL</p>
                         </div>
                     </div>
-
                     <label>Upload Picture File</label>
                     <input type="file" id="newPicFile" accept="image/*" onchange="previewUploadedImage(event)">
-
                     <label>Or Picture Image URL</label>
                     <input type="text" id="newPicUrl" placeholder="https://example.com/photo.jpg" oninput="previewUrlImage()">
-
                     <label>Full Name</label>
                     <input type="text" id="newFullNm" placeholder="Full Name (e.g. Zulfiqar Ali)">
-                    
-                    <label>Username</label>
-                    <input type="text" id="newUserNm" placeholder="Username (Login ID)">
-                    
-                    <label>Password</label>
+                            <label>Username</label>  <input type="text" id="newUserNm" placeholder="Username (Login ID)">
+                 <label>Password</label>
                     <input type="password" id="newUserPs" placeholder="Password">
-                    
-                    <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Save Profile Changes</button>
+              <button class="main-btn btn-green" id="acceditbtn" onclick="saveOrUpdateacc()">Save Profile Changes</button>
                 </div>
                 <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
             </div>
-
-            <!-- ADMIN PANEL PAGE -->
+         <!-- ADMIN PANEL PAGE -->
             <div id="userAdminPage" class="container hidden">
                 <h2>Admin Panel: Manage Users</h2>
                 <div style="margin-bottom: 20px;">
@@ -647,8 +579,7 @@
                     <input type="text" id="newUserNmAdmin" placeholder="Username (Login ID)">
                     <label>Password</label>
                     <input type="password" id="newUserPsAdmin" placeholder="Password">
-                    
-                    <div class="access-box">
+                   <div class="access-box">
                         <strong>Set Access Permissions:</strong>
                         <label><input type="checkbox" class="acc-check" value="view" checked> View Dashboard/Stats</label>
                         <label><input type="checkbox" class="acc-check" value="add"> Add New Employees</label>
@@ -656,7 +587,6 @@
                         <label><input type="checkbox" class="acc-check" value="salary"> Salary Calculator</label>
                         <label><input type="checkbox" class="acc-check" value="reports"> Reports & Slips</label>
                     </div>
-                    
                     <button class="main-btn btn-green" id="saveUserBtn" onclick="saveOrUpdateUser()">Create User</button>
                     <button class="main-btn btn-red hidden" id="cancelUserEditBtn" onclick="resetUserForm()">Cancel Edit</button>
                     <input type="hidden" id="editUserDocId">
@@ -670,7 +600,6 @@
                 <br>
                 <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
             </div>
-
             <!-- EDIT EMPLOYEE PAGE -->
             <div id="editPage" class="container hidden">
                 <h2>Edit Employee Details</h2>
@@ -681,7 +610,6 @@
                 <input type="text" id="editEmpName">
                 <label>Phone Number</label>
                 <input type="text" id="editEmpPhone">
-                
                 <!-- SALARY & WAGE FIELDS -->
                 <label>Salary Type</label>
                 <select id="editEmpSalaryType" onchange="updateSalaryPlaceholder('edit')">
@@ -690,8 +618,7 @@
                 </select>
                 <label id="editEmpSalaryLabel">Base Salary / Monthly Fix (PKR)</label>
                 <input type="number" id="editEmpBaseSalary" placeholder="Enter Amount">
-
-                <label>Bank Name</label>
+              <label>Bank Name</label>
                 <input type="text" id="editEmpBank">
                 <label>Account / IBAN</label>
                 <input type="text" id="editEmpAcc">
@@ -700,7 +627,6 @@
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                 </select>
-
                 <!-- INACTIVE REASON FIELDS -->
                 <div id="editReasonBox" class="hidden">
                     <label>Status Reason</label>
@@ -708,15 +634,12 @@
                         <option value="Resigned">Resignedٰ</option>
                         <option value="Terminated">Terminated</option>
                     </select>
-
-                    <label>Comments</label>
+                   <label>Comments</label>
                     <textarea id="editEmpComments" rows="3" placeholder=""></textarea>
                 </div>
-
                 <button class="main-btn btn-green" onclick="updateEmployeeData()">Update Details</button>
                 <button class="main-btn btn-black" onclick="showView('update')">Cancel</button>
             </div>
-
             <!-- ADD EMPLOYEE PAGE -->
             <div id="addPage" class="container hidden">
                 <h2>Add New Employee</h2>
@@ -726,7 +649,6 @@
                 <input type="text" id="newEmpName" placeholder="Full Name">
                 <label>Phone Number</label>
                 <input type="text" id="newEmpPhone" placeholder="Phone Number">
-                
                 <!-- SALARY & WAGE FIELDS -->
                 <label>Salary Type</label>
                 <select id="newEmpSalaryType" onchange="updateSalaryPlaceholder('add')">
@@ -735,7 +657,6 @@
                 </select>
                 <label id="newEmpSalaryLabel">Base Salary / Monthly Fix (PKR)</label>
                 <input type="number" id="newEmpBaseSalary" placeholder="Enter Amount">
-
                 <label>Bank Name</label>
                 <input type="text" id="newEmpBank" placeholder="Bank Name (Optional)">
                 <label>Account / IBAN</label>
@@ -745,7 +666,6 @@
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                 </select>
-
                 <!-- INACTIVE REASON FIELDS -->
                 <div id="addReasonBox" class="hidden">
                     <label>Status Reason</label>
@@ -753,44 +673,35 @@
                         <option value="Resigned">Resignedٰ</option>
                         <option value="Terminated">Terminated</option>
                     </select>
-
                     <label>Comments</label>
                     <textarea id="newEmpComments" rows="3" placeholder=""></textarea>
                 </div>
-
                 <button class="main-btn btn-green" onclick="saveNewEmployee()">Save Employee</button>
                 <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
             </div>
-
             <!-- SALARY CALCULATOR PAGE -->
             <div id="salaryPage" class="container hidden">
                 <h2>Salary Calculator</h2>
-                
-                <label>Find / Filter Employee</label>
+                                <label>Find / Filter Employee</label>
                 <div class="search-box-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="salEmpSearch" class="search-input" placeholder="Type Employee Name or ID to filter..." onkeyup="filterSalEmpDropdown()">
                 </div>
-
-                <label>Select Employee</label>
+<label>Select Employee</label>
                 <select id="salEmpList" onchange="onSalEmpChange()"></select>
-
-                <div class="type-selector">
+ <div class="type-selector">
                     <button id="btnMonthly" class="active-type" onclick="setCalcMode('monthly')">Monthly Fix</button>
                     <button id="btnDaily" onclick="setCalcMode('daily')">Daily Wages</button>
                 </div>
                 <label>From Date</label><input type="date" id="startDate" onchange="autoCalc()">
                 <label>To Date</label><input type="date" id="endDate" onchange="autoCalc()">
-                
-                <div class="calc-info">
+                                <div class="calc-info">
                     Days Worked: <span id="displayDays">0</span> 
                     <small id="monthInfo" style="display:block; color:var(--primary); margin-top: 4px;"></small>
                 </div>
-                
-                <label>Base Amount (PKR)</label>
+                  <label>Base Amount (PKR)</label>
                 <input type="number" id="baseAmount" placeholder="Enter Amount" onkeyup="autoCalc()">
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
                         <label style="color: var(--danger);">Deduction (PKR)</label>
                         <input type="number" id="deductAmount" placeholder="0" onkeyup="autoCalc()">
@@ -800,16 +711,13 @@
                         <input type="number" id="bonusAmount" placeholder="0" onkeyup="autoCalc()">
                     </div>
                 </div>
-
-                <div class="calc-info" style="background:#d1fae5; color:#065f46;">
+ <div class="calc-info" style="background:#d1fae5; color:#065f46;">
                     Total Payable: <span id="displayTotal">0</span> PKR
                 </div>
-                
                 <button class="main-btn btn-green" onclick="saveSalary()">Save To Cloud</button>
                 <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
             </div>
-
-            <!-- REPORT & SLIPS PAGE -->
+     <!-- REPORT & SLIPS PAGE -->
             <div id="reportPage" class="container hidden">
                 <div class="no-print">
                     <h2>Reports & Slips</h2>
@@ -834,32 +742,27 @@
                 </div>
                 <div id="printArea"></div>
             </div>
-
             <!-- EMPLOYEE LIST PAGE -->
             <div id="listPage" class="container hidden">
                 <h2 id="listTitle">Employee Records</h2>
-
                 <!-- SEARCH BOX IN EMPLOYEE LIST -->
                 <div class="search-box-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="empSearchInput" class="search-input" placeholder="Search employee by Name or ID..." onkeyup="filterEmpTable()">
                 </div>
-
-                <div class="table-responsive">
+ <div class="table-responsive">
                     <table><thead id="tableHead"></thead><tbody id="empTableBody"></tbody></table>
                 </div>
                 <br>
                 <button class="main-btn btn-black" onclick="navTo('dashboardPage')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
             </div>
-
         </div>
     </div>
 
     <!-- Firebase Compat Library -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
-    <script>
+ <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDrzmh9TbcyuLAG6LkoKERcBuHvQ-sf0oU",
             authDomain: "my-hrm-project-d1aef.firebaseapp.com",
@@ -870,12 +773,10 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-
         let currentUser = null;
         let calcMode = 'monthly';
         let currentListMode = 'all';
         let activeEmployeesList = []; // Array to hold loaded employee data for fast filtering
-
         // Helper to update label and placeholder depending on Salary Type
         function updateSalaryPlaceholder(prefix) {
             const type = document.getElementById(prefix === 'edit' ? 'editEmpSalaryType' : 'newEmpSalaryType').value;
@@ -886,7 +787,6 @@
                 label.innerText = 'Base Salary / Monthly Fix (PKR)';
             }
         }
-
         // Toggle Reason Box depending on Active/Inactive status
         function toggleReasonField(prefix) {
             const status = document.getElementById(prefix === 'edit' ? 'editEmpStatus' : 'newEmpStatus').value;
@@ -897,7 +797,6 @@
                 box.classList.add('hidden');
             }
         }
-
         // Initialize Router and Session on Page Load
         window.addEventListener('DOMContentLoaded', () => {
             const savedSession = sessionStorage.getItem("hrm_current_user");
@@ -907,14 +806,12 @@
                 document.getElementById("appLayout").classList.remove("hidden");
                 updateHeaderProfileUI();
                 applyPermissions();
-                
                 // Route to Hash or default to dashboard
                 handleHashRouting();
             } else {
                 showLoginPage();
             }
         });
-
         // Listen for URL Hash Changes (Browser Back/Forward)
         window.addEventListener('hashchange', () => {
             if (currentUser) {
@@ -929,7 +826,6 @@
             if (!hash || hash === 'loginPage') {
                 hash = 'dashboardPage';
             }
-
             // Handle list page modes (all, Active, Inactive, update)
             if (hash.startsWith('listPage')) {
                 const parts = hash.split('?mode=');
@@ -937,7 +833,6 @@
                 renderListView(mode);
                 return;
             }
-
             // Direct page display
             const target = document.getElementById(hash);
             if (target) {
@@ -946,17 +841,14 @@
                 showPageUI('dashboardPage');
             }
         }
-
         function showLoginPage() {
             document.getElementById("appLayout").classList.add("hidden");
             document.getElementById("loginPage").classList.remove("hidden");
             window.location.hash = 'loginPage';
         }
-
         async function handleLogin() {
             const u = document.getElementById("username").value.trim();
             const p = document.getElementById("password").value.trim();
-
             if (u === "Meskay" && p === "Pakistan786") {
                 currentUser = { 
                     id: "admin_default",
@@ -968,7 +860,6 @@
                 };
                 return loginOk();
             }
-
             const userSnap = await db.collection("users").where("username", "==", u).where("password", "==", p).get();
             if (!userSnap.empty) {
                 const userDoc = userSnap.docs[0];
@@ -983,10 +874,8 @@
                 };
                 return loginOk();
             }
-
             alert("Invalid Credentials!");
         }
-
         function loginOk() {
             sessionStorage.setItem("hrm_current_user", JSON.stringify(currentUser));
             document.getElementById("loginPage").classList.add("hidden");
@@ -995,40 +884,32 @@
             applyPermissions();
             navTo('dashboardPage');
         }
-
         function updateHeaderProfileUI() {
             document.getElementById("navName").innerText = currentUser.name;
             const pic = currentUser.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=4f46e5&color=fff`;
             document.getElementById("navPic").src = pic;
         }
-
-        function handleLogout() {
+  function handleLogout() {
             sessionStorage.removeItem("hrm_current_user");
             currentUser = null;
             showLoginPage();
         }
-
         function navTo(id) {
             window.location.hash = id;
         }
-
         function showPageUI(id) {
             document.getElementById("profileMenu").classList.add("hidden");
             document.querySelectorAll('.main-wrapper .container').forEach(c => c.classList.add('hidden'));
-            
             const page = document.getElementById(id);
             if(page) page.classList.remove('hidden');
-
             document.querySelectorAll('.sidebar-menu-item').forEach(btn => btn.classList.remove('active'));
             const activeSidebarBtn = document.querySelector(`.sidebar-menu-item[onclick*="${id}"]`);
             if(activeSidebarBtn) activeSidebarBtn.classList.add('active');
-
             if(id === 'dashboardPage') updateCounts();
             if(id === 'salaryPage' || id === 'reportPage') loadEmpDropdowns();
             if(id === 'userAdminPage') loadUsers();
             if(id === 'acceditPage') loadProfileForm();
         }
-
         // PROFILE EDIT FUNCTIONS
         function loadProfileForm() {
             document.getElementById("newFullNm").value = currentUser.name || "";
@@ -1036,11 +917,9 @@
             document.getElementById("newUserPs").value = "";
             document.getElementById("newPicUrl").value = currentUser.profilePic || "";
             document.getElementById("newPicFile").value = "";
-            
             const pic = currentUser.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'Admin')}&background=4f46e5&color=fff`;
             document.getElementById("editProfilePicPreview").src = pic;
         }
-
         function previewUploadedImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -1053,31 +932,25 @@
                 reader.readAsDataURL(file);
             }
         }
-
         function previewUrlImage() {
             const url = document.getElementById("newPicUrl").value.trim();
             if (url) {
                 document.getElementById("editProfilePicPreview").src = url;
             }
         }
-
         async function saveOrUpdateacc() {
             const fn = document.getElementById("newFullNm").value.trim();
             const un = document.getElementById("newUserNm").value.trim();
             const up = document.getElementById("newUserPs").value.trim();
             const imgPreviewSrc = document.getElementById("editProfilePicPreview").src;
-
             if(!fn || !un) return alert("Full Name and Username are required!");
-
             let profilePic = imgPreviewSrc;
             if (profilePic.includes('ui-avatars.com')) {
                 profilePic = ""; 
             }
-
             currentUser.name = fn;
             currentUser.username = un;
             currentUser.profilePic = profilePic;
-
             if (currentUser.id && currentUser.id !== "admin_default") {
                 const updateData = {
                     fullName: fn,
@@ -1085,16 +958,13 @@
                     profilePic: profilePic
                 };
                 if (up) updateData.password = up;
-
                 await db.collection("users").doc(currentUser.id).update(updateData);
             }
-
             sessionStorage.setItem("hrm_current_user", JSON.stringify(currentUser));
             updateHeaderProfileUI();
             alert("Profile Updated Successfully!");
             navTo('dashboardPage');
         }
-
         function applyPermissions() {
             const btns = document.querySelectorAll('[data-access]');
             btns.forEach(btn => {
@@ -1105,7 +975,6 @@
                     btn.classList.remove('hidden');
                 }
             });
-
             if (currentUser.role === 'admin') {
                 document.getElementById("adminOnlyBtn").classList.remove('hidden');
                 document.getElementById("adminSidebarBtn")?.classList.remove('hidden');
@@ -1114,26 +983,21 @@
                 document.getElementById("adminSidebarBtn")?.classList.add('hidden');
             }
         }
-
         async function editUser(docId) {
             const doc = await db.collection("users").doc(docId).get();
             if(!doc.exists) return;
             const d = doc.data();
-
             document.getElementById("editUserDocId").value = docId;
             document.getElementById("newFullNmAdmin").value = d.fullName;
             document.getElementById("newUserNmAdmin").value = d.username;
             document.getElementById("newUserPsAdmin").value = d.password;
-
             const perms = d.permissions || [];
             document.querySelectorAll('#userAdminPage .acc-check').forEach(cb => {
                 cb.checked = perms.includes(cb.value);
             });
-
             document.getElementById("saveUserBtn").innerText = "UPDATE USER";
             document.getElementById("cancelUserEditBtn").classList.remove("hidden");
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function saveOrUpdateUser() {
@@ -1142,9 +1006,7 @@
             const un = document.getElementById("newUserNmAdmin").value.trim();
             const up = document.getElementById("newUserPsAdmin").value.trim();
             const perms = Array.from(document.querySelectorAll('#userAdminPage .acc-check:checked')).map(cb => cb.value);
-
-            if(!fn || !un || !up) return alert("All fields are required!");
-
+if(!fn || !un || !up) return alert("All fields are required!");
             if(docId) {
                 await db.collection("users").doc(docId).update({
                     fullName: fn, username: un, password: up, permissions: perms
@@ -1156,17 +1018,14 @@
                 });
                 alert("User Created Successfully!");
             }
-
             resetUserForm();
             loadUsers();
         }
-
         function resetUserForm() {
             document.getElementById("editUserDocId").value = "";
             document.getElementById("newFullNmAdmin").value = "";
             document.getElementById("newUserNmAdmin").value = "";
             document.getElementById("newUserPsAdmin").value = "";
-            
             document.querySelectorAll('#userAdminPage .acc-check').forEach(cb => cb.checked = false);
             const viewCb = document.querySelector('#userAdminPage .acc-check[value="view"]');
             if(viewCb) viewCb.checked = true;
@@ -1174,7 +1033,6 @@
             document.getElementById("saveUserBtn").innerText = "CREATE USER";
             document.getElementById("cancelUserEditBtn").classList.add("hidden");
         }
-
         async function loadUsers() {
             const body = document.getElementById("userListBody");
             body.innerHTML = "Loading...";
@@ -1194,21 +1052,18 @@
                 </tr>`;
             });
         }
-
         async function deleteUser(id) {
             if(confirm("Delete this user?")) {
                 await db.collection("users").doc(id).delete();
                 loadUsers();
             }
         }
-
         function togglePass() {
             const p = document.getElementById("password");
             p.type = p.type === "password" ? "text" : "password";
         }
 
         function toggleMenu() { document.getElementById("profileMenu").classList.toggle("hidden"); }
-
         function setCalcMode(mode) {
             calcMode = mode;
             document.getElementById("btnMonthly").classList.toggle("active-type", mode === 'monthly');
@@ -1216,20 +1071,17 @@
             document.getElementById("baseAmount").placeholder = mode === 'monthly' ? "Monthly Fix Salary" : "Daily Wage Rate";
             autoCalc();
         }
-
         function autoCalc() {
             const sVal = document.getElementById("startDate").value;
             const eVal = document.getElementById("endDate").value;
             const amount = parseFloat(document.getElementById("baseAmount").value) || 0;
             const deduction = parseFloat(document.getElementById("deductAmount").value) || 0;
             const bonus = parseFloat(document.getElementById("bonusAmount").value) || 0;
-
             if (sVal && eVal) {
                 const s = new Date(sVal);
                 const e = new Date(eVal);
                 const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
                 document.getElementById("displayDays").innerText = days;
-
                 let calculatedBase = 0;
                 if (calcMode === 'monthly') {
                     const daysInMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate();
@@ -1239,12 +1091,10 @@
                     document.getElementById("monthInfo").innerText = "";
                     calculatedBase = amount * days;
                 }
-
                 let netTotal = calculatedBase + bonus - deduction;
                 document.getElementById("displayTotal").innerText = Math.max(0, netTotal);
             }
         }
-
         async function updateCounts() {
             const snap = await db.collection("employees").get();
             let all = 0, act = 0, inact = 0;
@@ -1257,31 +1107,26 @@
             document.getElementById("cntActive").innerText = act;
             document.getElementById("cntInactive").innerText = inact;
         }
-
         async function loadEmpDropdowns() {
             const salSel = document.getElementById("salEmpList");
             const repSel = document.getElementById("repEmpList");
             salSel.innerHTML = "";
             repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
             activeEmployeesList = [];
-
             const snap = await db.collection("employees").where("status","==","Active").get();
             snap.forEach(doc => {
                 const data = doc.data();
                 data.docId = doc.id;
                 activeEmployeesList.push(data);
             });
-
             renderEmpDropdownOptions();
             onSalEmpChange(); // Auto populate salary on dropdown load
         }
-
         function renderEmpDropdownOptions() {
             const salSel = document.getElementById("salEmpList");
             const repSel = document.getElementById("repEmpList");
             const salQuery = (document.getElementById("salEmpSearch")?.value || "").toLowerCase().trim();
             const repQuery = (document.getElementById("repEmpSearch")?.value || "").toLowerCase().trim();
-
             // Populate Salary Calculator Select
             salSel.innerHTML = "";
             activeEmployeesList.forEach(emp => {
@@ -1291,7 +1136,6 @@
                     salSel.innerHTML += `<option value="${emp.docId}">${emp.name} (${emp.id})</option>`;
                 }
             });
-
             // Populate Reports Select
             repSel.innerHTML = '<option value="all">-- Full Staff --</option>';
             activeEmployeesList.forEach(emp => {
@@ -1302,7 +1146,6 @@
                 }
             });
         }
-
         // Auto Populate Salary & Wage Type on Employee Selection
         function onSalEmpChange() {
             const selectedDocId = document.getElementById("salEmpList").value;
@@ -1314,16 +1157,13 @@
                 autoCalc();
             }
         }
-
         function filterSalEmpDropdown() {
             renderEmpDropdownOptions();
             onSalEmpChange();
         }
-
         function filterRepEmpDropdown() {
             renderEmpDropdownOptions();
         }
-
         async function saveSalary() {
             const empRefId = document.getElementById("salEmpList").value;
             if(!empRefId) return alert("Please select an employee!");
@@ -1349,8 +1189,7 @@
             });
             alert("Salary Saved!"); navTo('dashboardPage');
         }
-
-        async function generateReport() {
+  async function generateReport() {
             const m = document.getElementById("repMonth").value;
             const selectedEmp = document.getElementById("repEmpList").value;
             const area = document.getElementById("printArea");
@@ -1375,17 +1214,14 @@
                     let bankInfo = (s.bank || s.acc) ? `<p><strong>Bank:</strong> ${s.bank} | <strong>A/C:</strong> ${s.acc}</p>` : '';
                     let dedBonusInfo = `<p style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><strong>Deduction:</strong> <span style="color:var(--danger);">${s.deduction || 0} PKR</span></span><span><strong>Bonus/Extra:</strong> <span style="color:var(--success);">${s.bonus || 0} PKR</span></span></p>`;
                     let creatorName = s.createdBy || 'Admin';
-                    
-                    area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:1px solid var(--border); margin-bottom:15px; padding-bottom:10px;"><h2 style="margin:5px; border:none;">MESKAY & FEMTEE</h2><p style="margin:0;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-weight:bold; background:#f1f5f9; padding:2px 8px; border-radius:4px;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>${dedBonusInfo}<div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:15px;"><h3 style="margin:0; text-align:center; color:var(--primary);">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By: ${creatorName}</div><div class="sig-box">Employee Signature</div></div></div>`;
+                  area.innerHTML += `<div class="slip-card"><div style="text-align:center; border-bottom:1px solid var(--border); margin-bottom:15px; padding-bottom:10px;"><h2 style="margin:5px; border:none;">MESKAY & FEMTEE</h2><p style="margin:0;">Monthly Salary Slip</p></div><p><strong>Employee ID:</strong> <span style="font-weight:bold; background:#f1f5f9; padding:2px 8px; border-radius:4px;">${s.empId || '-'}</span></p><p><strong>Full Name:</strong> ${s.empName}</p><p><strong>Phone:</strong> ${s.phone}</p>${bankInfo}<p><strong>Period:</strong> ${s.startDate} to ${s.endDate} (${s.days} Days)</p>${dedBonusInfo}<div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:15px;"><h3 style="margin:0; text-align:center; color:var(--primary);">NET PAYABLE: ${s.total} PKR</h3></div><div class="sig-container"><div class="sig-box">Prepared By: ${creatorName}</div><div class="sig-box">Employee Signature</div></div></div>`;
                 });
             }
         }
-
         function showView(mode) {
             window.location.hash = `listPage?mode=${mode}`;
         }
-
-        async function renderListView(mode) {
+async function renderListView(mode) {
             showPageUI('listPage');
             const b = document.getElementById("empTableBody"); b.innerHTML = "";
             document.getElementById("empSearchInput").value = ""; // Clear search on mode switch
@@ -1408,23 +1244,20 @@
                         statusDetails += `<div style="font-size:11px; color:#ef4444; margin-top:2px;"><strong>Reason:</strong> ${e.reason}</div>`;
                         if (e.comments) {
                             statusDetails += `<div style="font-size:11px; color:#64748b;"><em>"${e.comments}"</em></div>`;
-                        }
+                      }
                     }
                     let salDisplay = e.baseSalary ? `${e.baseSalary} PKR (${e.salaryType === 'daily' ? 'Daily' : 'Monthly'})` : '-';
                     b.innerHTML += `<tr class="emp-row" data-id="${e.id}" data-name="${e.name ? e.name.toLowerCase() : ''}"><td>${e.id}</td><td>${e.name}</td><td>${e.phone || '-'}</td><td>${salDisplay}</td><td>${statusDetails}</td>${actionBtn}</tr>`;
                 }
             });
         }
-
-        // Real-time Employee Table Search Filter Function
+  // Real-time Employee Table Search Filter Function
         function filterEmpTable() {
             const query = document.getElementById("empSearchInput").value.toLowerCase().trim();
             const rows = document.querySelectorAll("#empTableBody .emp-row");
-            
             rows.forEach(row => {
                 const empId = row.getAttribute("data-id") ? row.getAttribute("data-id").toLowerCase() : "";
                 const empName = row.getAttribute("data-name") || "";
-                
                 if (empId.includes(query) || empName.includes(query)) {
                     row.style.display = "";
                 } else {
@@ -1432,8 +1265,7 @@
                 }
             });
         }
-
-        async function editEmp(docId) {
+  async function editEmp(docId) {
             const doc = await db.collection("employees").doc(docId).get();
             const data = doc.data();
             document.getElementById("editDocId").value = docId;
@@ -1445,15 +1277,12 @@
             document.getElementById("editEmpBank").value = data.bank || '';
             document.getElementById("editEmpAcc").value = data.acc || '';
             document.getElementById("editEmpStatus").value = data.status || 'Active';
-            
             document.getElementById("editEmpReason").value = data.reason || 'Resigned';
             document.getElementById("editEmpComments").value = data.comments || '';
-            
             updateSalaryPlaceholder('edit');
             toggleReasonField('edit');
             navTo('editPage');
         }
-
         async function updateEmployeeData() {
             const docId = document.getElementById("editDocId").value;
             const status = document.getElementById("editEmpStatus").value;
@@ -1473,9 +1302,7 @@
             await db.collection("employees").doc(docId).update(updatedData);
             alert("Employee Details Updated!"); showView('update');
         }
-
         async function delEmp(id) { if(confirm("Are you sure?")) { await db.collection("employees").doc(id).delete(); showView('update'); } }
-
         async function saveNewEmployee() {
             const id = document.getElementById("newEmpId").value;
             const name = document.getElementById("newEmpName").value;
@@ -1487,7 +1314,6 @@
             const status = document.getElementById("newEmpStatus").value;
             const reason = status === 'Inactive' ? document.getElementById("newEmpReason").value : '';
             const comments = status === 'Inactive' ? document.getElementById("newEmpComments").value : '';
-
             if(!id || !name) return alert("ID and Name are required!");
             await db.collection("employees").add({ id, name, phone, salaryType, baseSalary, bank, acc, status, reason, comments });
             alert("Employee Added Successfully!"); navTo('dashboardPage');
